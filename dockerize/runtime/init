@@ -1,0 +1,97 @@
+#!/usr/bin/env sh
+
+set -e
+
+safe_mv() {
+	local src=$1
+	local dst=$2
+	local tmp=$dst~
+
+	mv $src $tmp
+	mv $tmp $dst
+}
+
+binary=simd
+log=$binary.log
+
+cd $SIMD_WORKDIR
+if [ ! -f initialized ]
+then
+	coins="100000000000stake,100000000000ukrw"
+	delegate="10000000000stake"
+
+	unique_name=$(hostname)
+
+	moniker=$unique_name
+	$binary --home . init $(hostname) | tee $log
+
+	keyname=$unique_name
+	if [ -n "$SIMD_KEY_MNEMONIC" ]
+	then # use deterministic keys
+		acc=$(hostname | cut -d - -f 1)
+		echo "$SIMD_KEY_MNEMONIC" | $binary --home . keys add $keyname --recover --account $acc --output json >${unique_name}_seed.json
+	else # or not
+		$binary --home . keys add $keyname --output json >${unique_name}_seed.json
+	fi
+
+	sync_dir=$SIMD_SYNCDIR
+	key=$($binary --home . keys show $keyname -a)
+	key_dir=$sync_dir/key
+	mkdir -p $key_dir
+	touch $key_dir/$key
+
+	num_nodes=$SIMD_NUM_INSTANCES
+	while [ $(ls -1 $key_dir 2>/dev/null | wc -l) -ne $num_nodes ]
+	do
+		sleep 1
+	done
+
+	for key in $(ls -1 $key_dir)
+	do
+		$binary --home . add-genesis-account $key $coins
+	done
+
+	$binary --home . gentx $keyname $delegate
+	gentx_dir=$sync_dir/gentx
+	mkdir -p $gentx_dir
+	safe_mv config/gentx/gentx-*.json $gentx_dir/${unique_name}.json
+
+	# gather the genesis files
+	while [ $(ls -1 $gentx_dir 2>/dev/null | wc -l) -ne $num_nodes ]
+	do
+		sleep 1
+	done
+
+	super_genesis=$sync_dir/genesis.json
+	if [ -n "$IS_GATHERER" ]
+	then
+		$binary --home . collect-gentxs --gentx-dir $gentx_dir
+		sed -Ei config/genesis.json \
+			-e 's/"enabled": false/"enabled": '$SIMD_ENABLE_FOUNDATION'/' \
+			-e 's/"voting_period": ".*"/"voting_period": "'$SIMD_VOTING_PERIOD'"/' \
+			-e 's/"unbonding_time": ".*"/"unbonding_time": "'$SIMD_UNBONDING_TIME'"/' \
+			-e 's?"foundation": null?"foundation": {"version": "1", "decision_policy": {"@type": "/lbm.foundation.v1.ThresholdDecisionPolicy", "windows": {"voting_period": "24h"}, "threshold": "'$SIMD_POLICY_THRESHOLD'"}}?'
+		cat config/genesis.json 1>&2
+		safe_mv config/genesis.json $super_genesis
+	fi
+
+	# copy the super genesis file
+	while [ ! -f $super_genesis ]
+	do
+		sleep 1
+	done
+	cp $super_genesis config/genesis.json
+
+	sed -Ei config/config.toml \
+		-e 's#(127\.0\.0\.1|localhost)#0.0.0.0#' \
+		-e 's/^timeout_commit[[:blank:]]*=.*$/timeout_commit = "'$SIMD_TIMEOUT_COMMIT'"/' \
+		-e 's/^timeout_precommit[[:blank:]]*=.*$/timeout_precommit = "'$SIMD_TIMEOUT_PRECOMMIT'"/' \
+		-e 's/^timeout_prevote[[:blank:]]*=.*$/timeout_prevote = "'$SIMD_TIMEOUT_PREVOTE'"/' \
+		-e 's/^timeout_propose[[:blank:]]*=.*$/timeout_propose = "'$SIMD_TIMEOUT_PROPOSE'"/' \
+		-e 's/^index_all_keys[[:blank:]]*=.*$/index_all_keys = true/' \
+		-e 's/^pruning[[:blank:]]*=.*$/pruning = "nothing"/'
+
+	touch initialized
+fi
+
+$binary --home . --trace "$@" | tee -a $log

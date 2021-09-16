@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+
+import argparse
+import subprocess
+import yaml
+import sys
+
+# global constants from CMake
+_compose_project = 'simd' # TODO
+_compose_file = _compose_project + '.yml'
+
+_compose_cmd_common = [
+    'docker-compose',
+    '-f', _compose_file,
+    '-p', _compose_project
+    ]
+
+def is_debug():
+    return '@CMAKE_BUILD_TYPE@'.lower() == 'debug'
+
+def iterable_from_delimiter_separated(string, type, delimiter):
+    return map(type, string.split(delimiter))
+
+def iterable_to_delimiter_separated(iterable, delimiter):
+    return delimiter.join(map(str, iterable))
+
+def iterable_from_comma_separated(string, type):
+    return iterable_from_delimiter_separated(string, type, ',')
+
+def iterable_to_comma_separated(iterable):
+    return iterable_to_delimiter_separated(iterable, ',')
+
+def subprocess_run(args, verbose=None):
+    dest = None if verbose else subprocess.DEVNULL
+    options = {'stdout': dest, 'stderr': dest}
+    return subprocess.run(args, **options).returncode
+
+def do_up(args):
+    flag = ['--no-start'] if not args.start else ['--detach']
+    return subprocess_run(_compose_cmd_common + ['up'] + flag,
+                          args.verbose)
+
+def do_down(args):
+    return subprocess_run(_compose_cmd_common +
+                          ['down', '--volumes', '--timeout', '0'],
+                          args.verbose)
+
+def get_services():
+    with open(_compose_file, 'r') as f:
+        services = yaml.load(f, Loader=yaml.FullLoader)['services'].keys()
+        return sorted(services, key=lambda s: int(s.split('-')[0]))
+
+def do_start(args):
+    return do_start_or_stop(args, True)
+
+def do_stop(args):
+    return do_start_or_stop(args, False)
+
+def do_start_or_stop(args, start=True):
+    command = 'start' if start else 'kill'
+    all_services = get_services()
+    for service in (all_services[id]
+                    for id in iterable_from_comma_separated(args.instances, int)):
+        retcode = subprocess_run(_compose_cmd_common + [command, service],
+                                 args.verbose)
+        if retcode != 0:
+            return retcode
+    else:
+        return 0
+
+def do_exec(args):
+    all_services = get_services()
+    for service in (all_services[id]
+                    for id in iterable_from_comma_separated(args.instances, int)):
+        retcode = subprocess_run(_compose_cmd_common
+                                 + ['exec', '--', service,
+                                    'simd', '--home', '.']
+                                 + args.arguments,
+                                 verbose=True)
+        if retcode != 0:
+            return retcode
+    else:
+        return 0
+
+def do_ps(args):
+    all_services = get_services()
+    services = list(all_services[id]
+                    for id in iterable_from_comma_separated(args.instances, int))
+    return subprocess_run(_compose_cmd_common + ['ps'] + services, verbose=True)
+
+def _main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--verbose', '-v',
+                        action='store_true', default=is_debug(),
+                        help="use verbose output")
+
+    instance_help_tmpl = "comma-separated instance ids (default: {})."
+    subparsers = parser.add_subparsers(dest='command', metavar='SUBCOMMAND')
+    up_parser = subparsers.add_parser('up',
+                                      help="up simd cluster")
+    up_start_group = up_parser.add_mutually_exclusive_group()
+    up_start_group.add_argument('--start', dest='start',
+                                action='store_true', default=True,
+                                help="also start the instances (default)")
+    up_start_group.add_argument('--no-start', dest='start', action='store_false',
+                                help="do not start the instances")
+
+    down_parser = subparsers.add_parser('down',
+                                        help="down simd cluster")
+
+    all_instances = iterable_to_comma_separated(range(len(get_services())))
+    start_parser = subparsers.add_parser('start',
+                                         help="start simd instances")
+    start_parser.add_argument('--instances', '-i',
+                              type=str, default=all_instances,
+                              help=instance_help_tmpl.format(all_instances))
+
+    stop_parser = subparsers.add_parser('stop',
+                                        help="stop simd instances")
+    stop_parser.add_argument('--instances', '-i',
+                             type=str, default=all_instances,
+                             help=instance_help_tmpl.format(all_instances))
+
+    exec_parser = subparsers.add_parser('exec',
+                                        help="execute a simd command")
+    exec_parser.add_argument('--instances', '-i',
+                             type=str, default='0',
+                             help=instance_help_tmpl.format(0))
+    exec_parser.add_argument('arguments', metavar='ARGUMENTS',
+                             nargs='*',
+                             help="command line arguments of simd")
+
+    ps_parser = subparsers.add_parser('ps',
+                                      help="list simd instances")
+    ps_parser.add_argument('--instances', '-i',
+                             type=str, default=all_instances,
+                             help=instance_help_tmpl.format(all_instances))
+
+    args = parser.parse_args()
+    if args.command is None:
+        parser.print_help()
+        return 0
+    else:
+        handlers = {
+            up_parser.prog: do_up,
+            down_parser.prog: do_down,
+            start_parser.prog: do_start,
+            stop_parser.prog: do_stop,
+            exec_parser.prog: do_exec,
+            ps_parser.prog: do_ps,
+            }
+        prog = '{} {}'.format(parser.prog, args.command)
+        return handlers[prog](args)
+
+if __name__ == '__main__':
+    sys.exit(_main())
