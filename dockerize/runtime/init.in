@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+binary=@BINARY@
+log=/var/log/@BINARY@.log
+
+"$binary" --home "$(realpath .)" "$@" | tee $log

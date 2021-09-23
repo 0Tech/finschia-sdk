@@ -7,3 +7,5 @@ add_custom_target(build_simd ALL
   DEPENDS build-simd.sh
   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/build-simd.sh ${CMAKE_CURRENT_SOURCE_DIR}/.. simd ${BUILDER_NAME}
   )
+
+add_subdirectory(runtime)
