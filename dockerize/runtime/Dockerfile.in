@@ -1,14 +1,17 @@
 FROM debian:stable
 
-RUN apt-get update && \
-  apt-get -y upgrade && \
-  apt-get -y install curl jq
+RUN apt-get update && apt-get -y upgrade
 
-USER @UID@:@GID@
-EXPOSE 26656 26657
+RUN addgroup --gid @SIMD_GID@ simd
+RUN adduser --home @SIMD_WORKDIR@ --uid @SIMD_UID@ --gid @SIMD_GID@ --gecos "" --disabled-password simd
 ENTRYPOINT ["/etc/init"]
 CMD ["start", "--log_format", "plain"]
 STOPSIGNAL SIGTERM
 
 COPY init /etc/init
 COPY simd /usr/bin/simd
+
+RUN mkdir @SIMD_SYNCDIR@ && chown simd @SIMD_SYNCDIR@
+
+USER simd
+WORKDIR @SIMD_WORKDIR@

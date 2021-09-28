@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+
+import argparse
+import ipaddress
+import re
+import yaml
+
+class PortRange:
+    def __init__(self, begin, end=None):
+        if end is None:
+            end = begin + 1
+        self._begin = begin
+        self._end = end
+
+    @classmethod
+    def fromString(cls, string):
+        m = re.match(r'([0-9]+)-([0-9]+)', string)
+        if m:
+            begin = int(m.group(1))
+            end = int(m.group(2)) + 1
+        else:
+            begin = int(string)
+            end = None
+        return cls(begin, end)
+
+    @property
+    def begin(self):
+        return self._begin
+
+    @property
+    def end(self):
+        return self._end
+
+    def __len__(self):
+        return self.end - self.begin
+
+    def __repr__(self):
+        return "{}-{}".format(self.begin, self.end - 1)
+
+    def __str__(self):
+        if len(self) == 1:
+            return str(self.begin)
+        else:
+            return repr(self)
+
+    def __add__(self, other):
+        offset = len(self) * other
+        return PortRange(self.begin + offset, self.end + offset)
+
+def read_file(file_name):
+    with open(file_name, 'r') as f:
+        return f.read()
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output', '-o', type=str,
+                        help="output file path (default: stdout)")
+    parser.add_argument('--network', type=str, required=True,
+                        help="the first ip address of the cluster in CIDR")
+    parser.add_argument('name', type=str,
+                        help="the name of the cluster")
+    parser.add_argument('num_instances', type=int,
+                        help="the number of services in the cluster")
+
+    args = parser.parse_args()
+    net_begin = ipaddress.ip_interface(args.network)
+
+    service_ports = [
+        '26656-26657',
+        '1317',
+        '9090',
+    ]
+
+    document = {}
+    services = {}
+    volumes = {}
+    shared_volume_map = {
+        'sync': '@SIMD_SYNCDIR@',
+    }
+    for kind, target in shared_volume_map.items():
+        volume_name = '{}-{}'.format(args.name, kind)
+        volumes[volume_name] = {'external': False}
+
+    image = 'simd'
+    for si in range(args.num_instances): # service index
+        service = {
+            'image': image,
+        }
+        if si == 0:
+            service['environment'] = ['IS_GATHERER=yes',]
+
+        volume_map = {
+            'work': '@SIMD_WORKDIR@',
+        }
+        service_volumes = []
+        for kind, target in volume_map.items():
+            volume_name = '{}-{}-{}'.format(args.name, si, kind)
+            service_volumes.append('{}:{}'.format(volume_name, target))
+            volumes[volume_name] = {'external': False}
+        for kind, target in shared_volume_map.items():
+            volume_name = '{}-{}'.format(args.name, kind)
+            service_volumes.append('{}:{}'.format(volume_name, target))
+        service['volumes'] = service_volumes
+
+        host_ports = [PortRange.fromString(port) + si
+                      for port in service_ports]
+        service['ports'] = ['{}:{}'.format(hp, sp)
+                            for hp, sp in zip(host_ports, service_ports)]
+
+        networks = {args.name: {'ipv4_address': str((net_begin + si).ip)}}
+        service['networks'] = networks
+
+        service['env_file'] = "./simd.env"
+
+        service_name = '{}-{}-{}'.format(args.name, si, image)
+        service['container_name'] = service_name
+        service['hostname'] = service_name
+        services[service_name] = service
+    document['services'] = services
+
+    document['volumes'] = volumes
+
+    networks = {}
+    for network_name in [args.name]:
+        network = {
+            'driver': 'bridge',
+            'ipam': {
+                'driver': 'default',
+                'config': [
+                    {'subnet': str(net_begin.network)}
+                ],
+            },
+        }
+        networks[network_name] = network
+    document['networks'] = networks
+
+    if args.output is not None:
+        with open(args.output, 'w') as f:
+            yaml.dump(document, f)
+    else:
+        print(yaml.dump(document, default_flow_style=False))
+
+if __name__ == '__main__':
+    main()

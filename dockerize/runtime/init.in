@@ -1,6 +1,96 @@
 #!/usr/bin/env sh
 
-binary=@BINARY@
-log=/var/log/@BINARY@.log
+set -e
 
-"$binary" --home "$(realpath .)" "$@" | tee $log
+safe_mv() {
+	local src=$1
+	local dst=$2
+	local tmp=$dst~
+
+	mv $src $tmp
+	mv $tmp $dst
+}
+
+binary=@SIMD_BINARY@
+log=$binary.log
+
+mode=$SIMD_MODE
+case $mode in
+	test)
+		chainid=test
+		keyring=test
+		;;
+	*)
+		exit 1
+		;;
+esac
+
+cd $SIMD_WORKDIR
+if [ ! -f initialized ]
+then
+	coins="100000000000stake,100000000000ukrw"
+	delegate="100000000000stake"
+
+	unique_name=$(hostname)
+
+	moniker=$unique_name
+	$binary --home . --chain-id $chainid init $(hostname) | tee $log
+
+	keyname=$unique_name
+	$binary --home . keys add $keyname --keyring-backend $keyring --output json >${unique_name}_seed.json
+
+	sync_dir=$SIMD_SYNCDIR
+	key=$($binary --home . keys show --keyring-backend $keyring $keyname -a)
+	key_dir=$sync_dir/key
+	mkdir -p $key_dir
+	touch $key_dir/$key
+
+	num_nodes=$SIMD_NUM_INSTANCES
+	while [ $(ls -1 $key_dir 2>/dev/null | wc -l) -ne $num_nodes ]
+	do
+		sleep 1
+	done
+
+	for key in $(ls -1 $key_dir)
+	do
+		$binary --home . add-genesis-account $key $coins
+	done
+
+	$binary --home . gentx $keyname $delegate --keyring-backend $keyring --chain-id $chainid
+	gentx_dir=$sync_dir/gentx
+	mkdir -p $gentx_dir
+	safe_mv config/gentx/gentx-*.json $gentx_dir/${unique_name}.json
+
+	# gather the genesis files
+	while [ $(ls -1 $gentx_dir 2>/dev/null | wc -l) -ne $num_nodes ]
+	do
+		sleep 1
+	done
+
+	super_genesis=$sync_dir/genesis.json
+	if [ -n "$IS_GATHERER" ]
+	then
+		$binary --home . collect-gentxs --gentx-dir $gentx_dir
+		safe_mv config/genesis.json $super_genesis
+	fi
+
+	# copy the super genesis file
+	while [ ! -f $super_genesis ]
+	do
+		sleep 1
+	done
+	cp $super_genesis config/genesis.json
+
+	sed -Ei config/config.toml \
+		-e 's#(127\.0\.0\.1|localhost)#0.0.0.0#' \
+		-e 's/^timeout_commit[[:blank:]]*=.*$/timeout_commit = "'$SIMD_TIMEOUT_COMMIT'"/' \
+		-e 's/^timeout_precommit[[:blank:]]*=.*$/timeout_precommit = "'$SIMD_TIMEOUT_PRECOMMIT'"/' \
+		-e 's/^timeout_prevote[[:blank:]]*=.*$/timeout_prevote = "'$SIMD_TIMEOUT_PREVOTE'"/' \
+		-e 's/^timeout_propose[[:blank:]]*=.*$/timeout_propose = "'$SIMD_TIMEOUT_PROPOSE'"/' \
+		-e 's/^index_all_keys[[:blank:]]*=.*$/index_all_keys = true/' \
+		-e 's/^pruning[[:blank:]]*=.*$/pruning = "nothing"/'
+
+	touch initialized
+fi
+
+$binary --home . "$@" | tee -a $log
