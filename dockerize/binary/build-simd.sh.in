@@ -1,0 +1,48 @@
+#!/bin/sh
+
+set -e
+
+cleanup() {
+	rm -rf "$target"
+}
+trap cleanup EXIT TERM INT HUP
+
+rel_source="$1"
+builder=$2
+
+[ -n "$rel_source" -a -n "$builder" ]
+
+rel_target=$(mktemp -d -p .)
+source=$(realpath "$rel_source")
+target=$(realpath "$rel_target")
+
+[ -e "$source" ]
+
+if [ "$(echo @CMAKE_BUILD_TYPE@ | awk '{print tolower($0)}')" = debug ]
+then
+	DEBUG=true
+else
+	DEBUG=false
+fi
+
+if [ $DEBUG = false ]
+then
+	exec 1>/dev/null 2>&1
+fi
+
+docker run --rm -t \
+	   --env APP=simd \
+	   --env VERSION=$(git describe --always | sed 's/^v//') \
+	   --env COMMIT=$(git log -1 --format='%H') \
+	   --env TARGET_OS=linux/amd64 \
+	   --env LEDGER_ENABLED=false \
+	   --env DEBUG=$DEBUG \
+	   --mount type=bind,source="$source",target=/sources,readonly=true \
+	   --mount type=bind,source="$target",target=/target \
+	   --entrypoint=/sources/@BUILD_SCRIPT_RELPATH@ \
+	   $builder
+
+binary=simd
+cp "$target/$binary"-* $binary
+cp "$target"/artifacts/* artifact.tar.gz
+cp "$target"/build_report .

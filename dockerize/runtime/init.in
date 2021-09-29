@@ -11,7 +11,7 @@ safe_mv() {
 	mv $tmp $dst
 }
 
-binary=@SIMD_BINARY@
+binary=simd
 log=$binary.log
 
 mode=$SIMD_MODE

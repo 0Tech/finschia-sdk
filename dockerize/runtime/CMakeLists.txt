@@ -9,10 +9,15 @@ configure_file(Dockerfile.in Dockerfile
 unset(SIMD_GID)
 unset(SIMD_UID)
 
-set(SIMD_BINARY simd)
 configure_file(init.in init
   @ONLY)
 
+get_target_property(BUILD_SIMD_DIR build_simd BINARY_DIR)
+add_custom_command(
+  DEPENDS install-simd.sh Dockerfile init build_simd ${BUILD_SIMD_DIR}/simd
+  OUTPUT install-simd.touch
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install-simd.sh ${BUILD_SIMD_DIR}/simd install-simd.touch
+  COMMENT "Installing a Docker image of simd"
+  VERBATIM)
 add_custom_target(install_simd
-  DEPENDS install-simd.sh Dockerfile init
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install-simd.sh ${CMAKE_BINARY_DIR}/${SIMD_BINARY}/${SIMD_BINARY})
+  DEPENDS install-simd.touch)
