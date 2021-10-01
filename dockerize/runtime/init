@@ -14,17 +14,6 @@ safe_mv() {
 binary=simd
 log=$binary.log
 
-mode=$SIMD_MODE
-case $mode in
-	test)
-		chainid=test
-		keyring=test
-		;;
-	*)
-		exit 1
-		;;
-esac
-
 cd $SIMD_WORKDIR
 if [ ! -f initialized ]
 then
@@ -34,13 +23,13 @@ then
 	unique_name=$(hostname)
 
 	moniker=$unique_name
-	$binary --home . --chain-id $chainid init $(hostname) | tee $log
+	$binary --home . init $(hostname) | tee $log
 
 	keyname=$unique_name
-	$binary --home . keys add $keyname --keyring-backend $keyring --output json >${unique_name}_seed.json
+	$binary --home . keys add $keyname --output json >${unique_name}_seed.json
 
 	sync_dir=$SIMD_SYNCDIR
-	key=$($binary --home . keys show --keyring-backend $keyring $keyname -a)
+	key=$($binary --home . keys show $keyname -a)
 	key_dir=$sync_dir/key
 	mkdir -p $key_dir
 	touch $key_dir/$key
@@ -56,7 +45,7 @@ then
 		$binary --home . add-genesis-account $key $coins
 	done
 
-	$binary --home . gentx $keyname $delegate --keyring-backend $keyring --chain-id $chainid
+	$binary --home . gentx $keyname $delegate
 	gentx_dir=$sync_dir/gentx
 	mkdir -p $gentx_dir
 	safe_mv config/gentx/gentx-*.json $gentx_dir/${unique_name}.json

@@ -9,8 +9,8 @@ configure_file(Dockerfile.in Dockerfile
 unset(SIMD_GID)
 unset(SIMD_UID)
 
-configure_file(init.in init
-  @ONLY)
+configure_file(init init
+  COPYONLY)
 
 get_target_property(BUILD_SIMD_DIR build_simd BINARY_DIR)
 add_custom_command(

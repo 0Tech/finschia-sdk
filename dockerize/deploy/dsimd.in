@@ -3,7 +3,12 @@
 set -e
 
 instance=$1
-[ "$instance" -ge 0 -a "$instance" -lt @SIMD_NUM_INSTANCES@ ]
+if [ -z "$instance" ]
+then
+	echo "missing instance number" >&2 && false
+fi
+
+[ $instance -ge 0 -a $instance -lt @SIMD_NUM_INSTANCES@ ]
 shift
 
-docker exec -it simd-@SIMD_MODE@-$instance-simd simd $@
+docker exec -it simd-$instance-simd simd --home . $@
