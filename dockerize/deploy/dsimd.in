@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+instance=$1
+[ "$instance" -ge 0 -a "$instance" -lt @SIMD_NUM_INSTANCES@ ]
+shift
+
+docker exec -it simd-@SIMD_MODE@-$instance-simd simd $@

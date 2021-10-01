@@ -11,6 +11,8 @@ configure_file(generate-simd.py.in generate-simd.py
   @ONLY)
 configure_file(simd.env.in simd.env
   @ONLY)
+configure_file(dsimd.in dsimd
+  @ONLY)
 
 add_custom_command(
   OUTPUT simd.yml
