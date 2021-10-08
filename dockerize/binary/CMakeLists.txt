@@ -13,7 +13,7 @@ add_custom_command(
   DEPENDS up-to-date.sh generate_source_fingerprint source.sum
   OUTPUT source.touch
   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/up-to-date.sh source.sum source.touch
-  COMMENT "Checking source updated"
+  COMMENT "Checking source update"
   VERBATIM)
 add_custom_command(
   OUTPUT simd build_report artifact.tar.gz

@@ -19,17 +19,9 @@ configure_file(dsimd.in dsimd
 add_custom_command(
   OUTPUT simd.yml
   DEPENDS generate-simd.py
-  COMMAND ./generate-simd.py simd ${SIMD_NUM_INSTANCES} --network ${SIMD_NET_BEGIN} -o simd.yml
+  COMMAND sh -c "[ -f simd.yml ] && ./dsimd down || true; ./generate-simd.py ${SIMD_NUM_INSTANCES} --network ${SIMD_NET_BEGIN} -o simd.yml"
+  COMMENT "Generating Docker compose file for simd"
   VERBATIM)
 get_target_property(INSTALL_SIMD_DIR install_simd BINARY_DIR)
-add_custom_command(
-  DEPENDS simd.yml install_simd ${INSTALL_SIMD_DIR}/install-simd.touch
-  OUTPUT deploy-simd.touch
-  COMMAND sh -c "COMPOSE_PARALLEL_LIMIT=${SIMD_NUM_INSTANCES} docker-compose -f simd.yml -p simd up -d --remove-orphans; touch deploy-simd.touch"
-  COMMENT "Launching Docker instances for simd"
-  VERBATIM)
 add_custom_target(deploy_simd
-  DEPENDS deploy-simd.touch)
-add_custom_target(undeploy_simd
-  COMMAND sh -c "[ -f deploy-simd.touch ] && docker-compose -f simd.yml -p simd down -v; rm -f deploy-simd.touch"
-  VERBATIM)
+  DEPENDS simd.yml install_simd ${INSTALL_SIMD_DIR}/install-simd.touch)

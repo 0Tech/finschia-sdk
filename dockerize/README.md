@@ -42,7 +42,6 @@ Now you can trigger some target. The targets which you may want to look at are:
 * `build_simd`: build the project and make the binary
 * `install_simd`: build a Docker image using the built binary
 * `deploy_simd`: deploy a cluster using the Docker image
-* `undeploy_simd`: undeploy the cluster, removing also the volumes
 
 You can trigger a target by:
 
@@ -51,15 +50,4 @@ target_name=deploy_simd
 cmake --build $build_dir --target $target_name
 ```
 
-After you launched the cluster (by `deploy_simd` target), you can execute the simd binary inside a container:
-
-``` shell
-container_id=0                               # the id of container [0, SIMD_NUM_INSTANCES)
-$build_dir/deploy/dsimd $container_id ...    # you can provide the parameters in ...
-```
-
-You can shutdown the cluster by triggering `undeploy_simd`:
-
-``` shell
-cmake --build $build_dir --target undeploy_simd
-```
+You can launch the cluster after you have triggered `deploy_simd` target. You can learn the details at [here](deploy/README.md).
