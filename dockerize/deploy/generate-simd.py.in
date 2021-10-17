@@ -5,6 +5,9 @@ import ipaddress
 import re
 import yaml
 
+def is_debug():
+    return "@CMAKE_BUILD_TYPE@".lower() == 'debug'
+
 class PortRange:
     def __init__(self, begin, end=None):
         if end is None:
@@ -100,10 +103,11 @@ def main():
             service_volumes.append('{}:{}'.format(volume_name, target))
         service['volumes'] = service_volumes
 
-        host_ports = [PortRange.fromString(port) + si
-                      for port in service_ports]
-        service['ports'] = ['{}:{}'.format(hp, sp)
-                            for hp, sp in zip(host_ports, service_ports)]
+        if is_debug() or si == 0:
+            host_ports = [PortRange.fromString(port) + si
+                          for port in service_ports]
+            service['ports'] = ['{}:{}'.format(hp, sp)
+                                for hp, sp in zip(host_ports, service_ports)]
 
         networks = {'validator': {'ipv4_address': str((net_begin + si).ip)}}
         service['networks'] = networks
