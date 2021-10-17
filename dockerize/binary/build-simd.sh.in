@@ -25,6 +25,12 @@ else
 	DEBUG=false
 fi
 
+if ! docker info >/dev/null 2>&1
+then
+	cmake -E echo "Error: You must have access to docker: add your uid to docker group"
+	false
+fi
+
 if [ $DEBUG = false ]
 then
 	exec 1>/dev/null 2>&1
