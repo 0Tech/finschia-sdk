@@ -82,7 +82,7 @@ def main():
         volume_name = kind
         volumes[volume_name] = {'external': False}
 
-    image = 'simd'
+    image = '@PROJECT_NAME@-simd'
     for si in range(args.num_instances): # service index
         service = {
             'image': image,

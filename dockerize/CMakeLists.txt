@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(dockerize)
+project(lbm-sdk)
 
 set(GO_SOURCE_DIR ${CMAKE_SOURCE_DIR}/..)
 file(RELATIVE_PATH PROJECT_DIR_NAME ${GO_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
