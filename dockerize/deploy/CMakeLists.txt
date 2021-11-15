@@ -1,4 +1,5 @@
 set(SIMD_NUM_INSTANCES 7 CACHE STRING "The number of simd instances")
+set(SIMD_KEY_MNEMONIC "mind flame tobacco sense move hammer drift crime ring globe art gaze cinnamon helmet cruise special produce notable negative wait path scrap recall have" CACHE STRING "mnemonic for keys")
 set(SIMD_NET_BEGIN 192.168.0.2/16 CACHE STRING "the start address of simd network")
 
 set(SIMD_CHAIN_ID test CACHE STRING "simd chain id")

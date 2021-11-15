@@ -26,7 +26,13 @@ then
 	$binary --home . init $(hostname) | tee $log
 
 	keyname=$unique_name
-	$binary --home . keys add $keyname --output json >${unique_name}_seed.json
+	if [ -n "$SIMD_KEY_MNEMONIC" ]
+	then # use deterministic keys
+		acc=$(hostname | cut -d - -f 1)
+		echo "$SIMD_KEY_MNEMONIC" | $binary --home . keys add $keyname --recover --account $acc --output json >${unique_name}_seed.json
+	else # or not
+		$binary --home . keys add $keyname --output json >${unique_name}_seed.json
+	fi
 
 	sync_dir=$SIMD_SYNCDIR
 	key=$($binary --home . keys show $keyname -a)
