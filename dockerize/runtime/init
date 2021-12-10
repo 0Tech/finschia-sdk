@@ -18,7 +18,7 @@ cd $SIMD_WORKDIR
 if [ ! -f initialized ]
 then
 	coins="100000000000stake,100000000000ukrw"
-	delegate="100000000000stake"
+	delegate="10000000000stake"
 
 	unique_name=$(hostname)
 
