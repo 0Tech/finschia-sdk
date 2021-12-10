@@ -10,6 +10,8 @@ set(SIMD_TIMEOUT_PRECOMMIT 1s CACHE STRING "timeout_precommit of simd")
 set(SIMD_TIMEOUT_PREVOTE 1s CACHE STRING "timeout_prevote of simd")
 set(SIMD_TIMEOUT_PROPOSE 1s CACHE STRING "timeout_propose of simd")
 
+set(SIMD_ENABLE_CONSORTIUM false CACHE STRING "enable consortium")
+
 configure_file(generate-simd.py.in generate-simd.py
   @ONLY)
 configure_file(simd.env.in simd.env

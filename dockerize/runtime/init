@@ -66,6 +66,8 @@ then
 	if [ -n "$IS_GATHERER" ]
 	then
 		$binary --home . collect-gentxs --gentx-dir $gentx_dir
+		sed -Ei config/genesis.json \
+			-e 's/"enabled": false,/"enabled": '$SIMD_ENABLE_CONSORTIUM',/'
 		safe_mv config/genesis.json $super_genesis
 	fi
 
