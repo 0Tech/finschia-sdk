@@ -68,7 +68,8 @@ then
 		$binary --home . collect-gentxs --gentx-dir $gentx_dir
 		sed -Ei config/genesis.json \
 			-e 's/"enabled": false/"enabled": '$SIMD_ENABLE_CONSORTIUM'/' \
-			-e 's/"voting_period": ".*"/"voting_period": "'$SIMD_VOTING_PERIOD'"/'
+			-e 's/"voting_period": ".*"/"voting_period": "'$SIMD_VOTING_PERIOD'"/' \
+			-e 's/"unbonding_time": ".*"/"unbonding_time": "'$SIMD_UNBONDING_TIME'"/'
 		safe_mv config/genesis.json $super_genesis
 	fi
 

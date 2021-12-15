@@ -12,6 +12,7 @@ set(SIMD_TIMEOUT_PROPOSE 1s CACHE STRING "timeout_propose of simd")
 
 set(SIMD_ENABLE_CONSORTIUM false CACHE STRING "enable consortium")
 set(SIMD_VOTING_PERIOD 172800s CACHE STRING "voting period of simd")
+set(SIMD_UNBONDING_TIME 1814400s CACHE STRING "unbonding time of simd")
 
 configure_file(generate-simd.py.in generate-simd.py
   @ONLY)
