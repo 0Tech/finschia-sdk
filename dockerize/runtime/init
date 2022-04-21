@@ -92,4 +92,4 @@ then
 	touch initialized
 fi
 
-$binary --home . "$@" | tee -a $log
+$binary --home . --trace "$@" | tee -a $log
