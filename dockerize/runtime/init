@@ -69,7 +69,9 @@ then
 		sed -Ei config/genesis.json \
 			-e 's/"enabled": false/"enabled": '$SIMD_ENABLE_FOUNDATION'/' \
 			-e 's/"voting_period": ".*"/"voting_period": "'$SIMD_VOTING_PERIOD'"/' \
-			-e 's/"unbonding_time": ".*"/"unbonding_time": "'$SIMD_UNBONDING_TIME'"/'
+			-e 's/"unbonding_time": ".*"/"unbonding_time": "'$SIMD_UNBONDING_TIME'"/' \
+			-e 's?"foundation": null?"foundation": {"version": "1", "decision_policy": {"@type": "/lbm.foundation.v1.ThresholdDecisionPolicy", "windows": {"voting_period": "24h"}, "threshold": "'$SIMD_POLICY_THRESHOLD'"}}?'
+		cat config/genesis.json 1>&2
 		safe_mv config/genesis.json $super_genesis
 	fi
 
