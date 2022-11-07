@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "I'm a new binary!"
+echo "Chain continues..."
