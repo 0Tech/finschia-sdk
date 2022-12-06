@@ -74,10 +74,10 @@ enum AttributeKey {
   ATTRIBUTE_KEY_NEW_ROOT_TOKEN_ID = 19 [(gogoproto.enumvalue_customname) = "AttributeKeyNewRoot"];
 }
 
-// EventSent is emitted when tokens are transferred.
+// EventSend is emitted when tokens are transferred.
 //
 // Since: 0.46.0 (finschia)
-message EventSent {
+message EventSend {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the send.
@@ -90,10 +90,10 @@ message EventSent {
   repeated Coin amount = 5 [(gogoproto.nullable) = false];
 }
 
-// EventAuthorizedOperator is emitted when a holder authorizes an operator to manipulate its tokens.
+// EventAuthorizeOperator is emitted when a holder authorizes an operator to manipulate its tokens.
 //
 // Since: 0.46.0 (finschia)
-message EventAuthorizedOperator {
+message EventAuthorizeOperator {
   // contract id associated with the contract.
   string contract_id = 1;
   // address of a holder which authorized the `operator` address as an operator.
@@ -102,10 +102,10 @@ message EventAuthorizedOperator {
   string operator = 3;
 }
 
-// EventRevokedOperator is emitted when an authorization is revoked.
+// EventRevokeOperator is emitted when an authorization is revoked.
 //
 // Since: 0.46.0 (finschia)
-message EventRevokedOperator {
+message EventRevokeOperator {
   // contract id associated with the contract.
   string contract_id = 1;
   // address of a holder which revoked the `operator` address as an operator.
@@ -114,10 +114,10 @@ message EventRevokedOperator {
   string operator = 3;
 }
 
-// EventCreatedContract is emitted when a new contract is created.
+// EventCreateContract is emitted when a new contract is created.
 //
 // Since: 0.46.0 (finschia)
-message EventCreatedContract {
+message EventCreateContract {
   // address which created the contract.
   string creator = 1;
   // contract id associated with the contract.
@@ -127,13 +127,13 @@ message EventCreatedContract {
   // metadata of the contract.
   string meta = 4;
   // uri for the contract image stored off chain.
-  string base_img_uri = 5;
+  string uri = 5;
 }
 
-// EventCreatedFTClass is emitted when a new fungible token class is created.
+// EventCreateFTClass is emitted when a new fungible token class is created.
 //
 // Since: 0.46.0 (finschia)
-message EventCreatedFTClass {
+message EventCreateFTClass {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the create.
@@ -150,10 +150,10 @@ message EventCreatedFTClass {
   bool mintable = 7;
 }
 
-// EventCreatedNFTClass is emitted when a new non-fungible token class is created.
+// EventCreateNFTClass is emitted when a new non-fungible token class is created.
 //
 // Since: 0.46.0 (finschia)
-message EventCreatedNFTClass {
+message EventCreateNFTClass {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the create.
@@ -166,12 +166,12 @@ message EventCreatedNFTClass {
   string meta = 5;
 }
 
-// EventGranted is emitted when a granter grants its permission to a grantee.
+// EventGrant is emitted when a granter grants its permission to a grantee.
 //
 // Info: `granter` would be empty if the permission is granted by an issuance.
 //
 // Since: 0.46.0 (finschia)
-message EventGranted {
+message EventGrant {
   // contract id associated with the contract.
   string contract_id = 1;
   // address of the granter which grants the permission.
@@ -182,10 +182,10 @@ message EventGranted {
   Permission permission = 4;
 }
 
-// EventRenounced is emitted when a grantee renounced its permission.
+// EventRenounce is emitted when a grantee renounced its permission.
 //
 // Since: 0.46.0 (finschia)
-message EventRenounced {
+message EventRenounce {
   // contract id associated with the contract.
   string contract_id = 1;
   // address of the grantee which abandons its grant.
@@ -194,10 +194,10 @@ message EventRenounced {
   Permission permission = 3;
 }
 
-// EventMintedFT is emitted when fungible tokens are minted.
+// EventMintFT is emitted when fungible tokens are minted.
 //
 // Since: 0.46.0 (finschia)
-message EventMintedFT {
+message EventMintFT {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the mint.
@@ -208,10 +208,10 @@ message EventMintedFT {
   repeated Coin amount = 4 [(gogoproto.nullable) = false];
 }
 
-// EventMintedNFT is emitted when non-fungible tokens are minted.
+// EventMintNFT is emitted when non-fungible tokens are minted.
 //
 // Since: 0.46.0 (finschia)
-message EventMintedNFT {
+message EventMintNFT {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the mint.
@@ -222,10 +222,10 @@ message EventMintedNFT {
   repeated NFT tokens = 4 [(gogoproto.nullable) = false];
 }
 
-// EventBurned is emitted when tokens are burnt.
+// EventBurn is emitted when tokens are burnt.
 //
 // Since: 0.46.0 (finschia)
-message EventBurned {
+message EventBurn {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the burn.
@@ -236,10 +236,10 @@ message EventBurned {
   repeated Coin amount = 4 [(gogoproto.nullable) = false];
 }
 
-// EventModifiedContract is emitted when the information of a contract is modified.
+// EventModifyContract is emitted when the information of a contract is modified.
 //
 // Since: 0.46.0 (finschia)
-message EventModifiedContract {
+message EventModifyContract {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the modify.
@@ -248,10 +248,10 @@ message EventModifiedContract {
   repeated Attribute changes = 3 [(gogoproto.nullable) = false];
 }
 
-// EventModifiedTokenClass is emitted when the information of a token class is modified.
+// EventModifyTokenClass is emitted when the information of a token class is modified.
 //
 // Since: 0.46.0 (finschia)
-message EventModifiedTokenClass {
+message EventModifyTokenClass {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the modify.
@@ -264,10 +264,10 @@ message EventModifiedTokenClass {
   string type_name = 5;
 }
 
-// EventModifiedNFT is emitted when the information of a non-fungible token is modified.
+// EventModifyNFT is emitted when the information of a non-fungible token is modified.
 //
 // Since: 0.46.0 (finschia)
-message EventModifiedNFT {
+message EventModifyNFT {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the modify.
@@ -278,10 +278,10 @@ message EventModifiedNFT {
   repeated Attribute changes = 4 [(gogoproto.nullable) = false];
 }
 
-// EventAttached is emitted when a token is attached to another.
+// EventAttach is emitted when a token is attached to another.
 //
 // Since: 0.46.0 (finschia)
-message EventAttached {
+message EventAttach {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the attach.
@@ -294,10 +294,10 @@ message EventAttached {
   string target = 5;
 }
 
-// EventDetached is emitted when a token is detached from its parent.
+// EventDetach is emitted when a token is detached from its parent.
 //
 // Since: 0.46.0 (finschia)
-message EventDetached {
+message EventDetach {
   // contract id associated with the contract.
   string contract_id = 1;
   // address which triggered the detach.
