@@ -10,16 +10,16 @@ import "gogoproto/gogo.proto";
 // Params defines the parameters for the token module.
 message Params {}
 
-// TokenClass defines token information.
-message TokenClass {
-  // contract_id defines the unique identifier of the token class.
-  string contract_id = 1;
+// Contract defines token information.
+message Contract {
+  // id defines the unique identifier of the token class.
+  string id = 1;
   // name defines the human-readable name of the token class. mandatory (not ERC20 compliant).
   string name = 2;
   // symbol is an abbreviated name for token class. mandatory (not ERC20 compliant).
   string symbol = 3;
-  // image_uri is an uri for the image of the token class stored off chain.
-  string image_uri = 4;
+  // uri for the resource of the token class stored off chain.
+  string uri = 4;
   // meta is a brief description of token class.
   string meta = 5;
   // decimals is the number of decimals which one must divide the amount by to get its user representation.
@@ -28,9 +28,9 @@ message TokenClass {
   bool mintable = 7;
 }
 
-// Pair defines a key-value pair.
-message Pair {
-  string field = 1;
+// Attribute defines a key-value pair.
+message Attribute {
+  string key   = 1;
   string value = 2;
 }
 

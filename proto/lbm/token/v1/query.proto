@@ -18,7 +18,7 @@ service Query {
   // - ErrInvalidAddress
   //   - `address` is of invalid format.
   rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes/{contract_id}/balances/{address}";
+    option (google.api.http).get = "/lbm/token/v1/contracts/{contract_id}/balances/{address}";
   }
 
   // Supply queries the number of tokens from the given contract id.
@@ -28,7 +28,7 @@ service Query {
   // - ErrNotFound
   //   - there is no token class of `contract_id`.
   rpc Supply(QuerySupplyRequest) returns (QuerySupplyResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes/{contract_id}/supply";
+    option (google.api.http).get = "/lbm/token/v1/contracts/{contract_id}/supply";
   }
 
   // Minted queries the number of minted tokens from the given contract id.
@@ -38,7 +38,7 @@ service Query {
   // - ErrNotFound
   //   - there is no token class of `contract_id`.
   rpc Minted(QueryMintedRequest) returns (QueryMintedResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes/{contract_id}/minted";
+    option (google.api.http).get = "/lbm/token/v1/contracts/{contract_id}/minted";
   }
 
   // Burnt queries the number of burnt tokens from the given contract id.
@@ -48,32 +48,32 @@ service Query {
   // - ErrNotFound
   //   - there is no token class of `contract_id`.
   rpc Burnt(QueryBurntRequest) returns (QueryBurntResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes/{contract_id}/burnt";
+    option (google.api.http).get = "/lbm/token/v1/contracts/{contract_id}/burnt";
   }
 
-  // TokenClass queries an token metadata based on its contract id.
+  // Contract queries an token metadata based on its contract id.
   // Throws:
   // - ErrInvalidRequest
   //   - `contract_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token class of `contract_id`.
-  rpc TokenClass(QueryTokenClassRequest) returns (QueryTokenClassResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes/{contract_id}";
+  rpc Contract(QueryContractRequest) returns (QueryContractResponse) {
+    option (google.api.http).get = "/lbm/token/v1/contracts/{contract_id}";
   }
 
-  // TokenClasses queries all token metadata.
-  rpc TokenClasses(QueryTokenClassesRequest) returns (QueryTokenClassesResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes";
+  // Contracts queries all token metadata.
+  rpc Contracts(QueryContractsRequest) returns (QueryContractsResponse) {
+    option (google.api.http).get = "/lbm/token/v1/contracts";
   }
 
-  // GranteeGrants queries permissions on a given grantee.
+  // GrantsByGrantee queries permissions on a given grantee.
   // Throws:
   // - ErrInvalidRequest
   //   - `contract_id` is of invalid format.
   // - ErrInvalidAddress
   //   - `grantee` is of invalid format.
-  rpc GranteeGrants(QueryGranteeGrantsRequest) returns (QueryGranteeGrantsResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes/{contract_id}/grants/{grantee}";
+  rpc GrantsByGrantee(QueryGrantsByGranteeRequest) returns (QueryGrantsByGranteeResponse) {
+    option (google.api.http).get = "/lbm/token/v1/contracts/{contract_id}/grants_by_grantee/{grantee}";
   }
 
   // Approved queries authorization on a given proxy approver pair.
@@ -84,7 +84,7 @@ service Query {
   //   - `proxy` is of invalid format.
   //   - `approver` is of invalid format.
   rpc Approved(QueryApprovedRequest) returns (QueryApprovedResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes/{contract_id}/accounts/{approver}/proxies/{proxy}";
+    option (google.api.http).get = "/lbm/token/v1/contracts/{contract_id}/accounts/{approver}/proxies/{proxy}";
   }
 
   // Approvers queries approvers on a given proxy.
@@ -94,7 +94,7 @@ service Query {
   // - ErrInvalidAddress
   //   - `proxy` is of invalid format.
   rpc Approvers(QueryApproversRequest) returns (QueryApproversResponse) {
-    option (google.api.http).get = "/lbm/token/v1/token_classes/{contract_id}/accounts/{address}/approvers";
+    option (google.api.http).get = "/lbm/token/v1/contracts/{contract_id}/accounts/{address}/approvers";
   }
 }
 
@@ -148,33 +148,33 @@ message QueryBurntResponse {
   string amount = 1 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Int", (gogoproto.nullable) = false];
 }
 
-// QueryTokenClassRequest is the request type for the Query/TokenClass RPC method
-message QueryTokenClassRequest {
+// QueryContractRequest is the request type for the Query/Contract RPC method
+message QueryContractRequest {
   // contract id associated with the token class.
   string contract_id = 1;
 }
 
-// QueryTokenClassResponse is the response type for the Query/TokenClass RPC method
-message QueryTokenClassResponse {
-  TokenClass class = 1 [(gogoproto.nullable) = false];
+// QueryContractResponse is the response type for the Query/Contract RPC method
+message QueryContractResponse {
+  Contract contract = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryTokenClassesRequest is the request type for the Query/TokenClasses RPC method
-message QueryTokenClassesRequest {
+// QueryContractsRequest is the request type for the Query/Contracts RPC method
+message QueryContractsRequest {
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryTokenClassesResponse is the response type for the Query/TokenClasses RPC method
-message QueryTokenClassesResponse {
+// QueryContractsResponse is the response type for the Query/Contracts RPC method
+message QueryContractsResponse {
   // information of the token classes.
-  repeated TokenClass classes = 1 [(gogoproto.nullable) = false];
+  repeated Contract contracts = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryGranteeGrantsRequest is the request type for the Query/GranteeGrants RPC method
-message QueryGranteeGrantsRequest {
+// QueryGrantsByGranteeRequest is the request type for the Query/GrantsByGrantee RPC method
+message QueryGrantsByGranteeRequest {
   // contract id associated with the token class.
   string contract_id = 1;
   // grantee which has permissions on the token class.
@@ -184,8 +184,8 @@ message QueryGranteeGrantsRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 3;
 }
 
-// QueryGranteeGrantsResponse is the response type for the Query/GranteeGrants RPC method
-message QueryGranteeGrantsResponse {
+// QueryGrantsByGranteeResponse is the response type for the Query/GrantsByGrantee RPC method
+message QueryGrantsByGranteeResponse {
   // all the grants on the grantee.
   repeated Grant grants = 1 [(gogoproto.nullable) = false];
   // pagination defines the pagination in the response.
