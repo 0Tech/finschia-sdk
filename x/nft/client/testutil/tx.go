@@ -15,16 +15,16 @@ import (
 
 const (
 	OwnerName  = "owner"
-	Owner      = "cosmos1kznrznww4pd6gx0zwrpthjk68fdmqypjpkj5hp"
-	OwnerArmor = `-----BEGIN TENDERMINT PRIVATE KEY-----
-salt: C3586B75587D2824187D2CDA22B6AFB6
-type: secp256k1
+	Owner      = "link1vndh9gnvdldhh2akkda8far8l9q2jsj082j4rf"
+	OwnerArmor = `-----BEGIN OSTRACON PRIVATE KEY-----
 kdf: bcrypt
+salt: 1593D5E2EEE8F50472B28F8D9F655B90
+type: secp256k1
 
-1+15OrCKgjnwym1zO3cjo/SGe3PPqAYChQ5wMHjdUbTZM7mWsH3/ueL6swgjzI3b
-DDzEQAPXBQflzNW6wbne9IfT651zCSm+j1MWaGk=
-=wEHs
------END TENDERMINT PRIVATE KEY-----`
+FsOw4Je8n1BRJvCcdBLIBXYuPkVYJfhR9s3MiPkcmN9j4N7TUvph1Dwe8xT/ijZf
+ue29NvP47yKY0BJWWcgGbPBjhiQcrT92rmL8Vhs=
+=ALND
+-----END OSTRACON PRIVATE KEY-----`
 
 	testClassID          = "kitty"
 	testClassName        = "Crypto Kitty"
@@ -79,8 +79,8 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.Require().NoError(err)
 	genesisState[nft.ModuleName] = nftDataBz
 	s.cfg.GenesisState = genesisState
-	s.network, err = network.New(s.T(), s.T().TempDir(), s.cfg)
-	s.Require().NoError(err)
+	s.network = network.New(s.T(), s.cfg)
+	s.Require().NotNil(s.network)
 
 	_, err = s.network.WaitForHeight(1)
 	s.Require().NoError(err)
@@ -157,8 +157,8 @@ func (s *IntegrationTestSuite) initAccount() {
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 	}
 
-	s.owner, err = keyinfo.GetAddress()
-	s.Require().NoError(err)
+	s.owner = keyinfo.GetAddress()
+	s.Require().NotEmpty(s.owner)
 
 	amount := sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(200)))
 	_, err = banktestutil.MsgSendExec(ctx, val.Address, s.owner, amount, args...)

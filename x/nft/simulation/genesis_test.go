@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/line/lbm-sdk/simapp"
 	"github.com/line/lbm-sdk/types/module"
 	simtypes "github.com/line/lbm-sdk/types/simulation"
@@ -16,7 +15,7 @@ import (
 )
 
 func TestRandomizedGenState(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(false)
 
 	s := rand.NewSource(1)
 	r := rand.New(s)
@@ -27,7 +26,7 @@ func TestRandomizedGenState(t *testing.T) {
 		Rand:         r,
 		NumBonded:    3,
 		Accounts:     simtypes.RandomAccounts(r, 3),
-		InitialStake: sdkmath.NewInt(1000),
+		InitialStake: 1000,
 		GenState:     make(map[string]json.RawMessage),
 	}
 

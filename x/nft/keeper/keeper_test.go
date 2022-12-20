@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	ocproto "github.com/line/ostracon/proto/ostracon/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
 
 	"github.com/line/lbm-sdk/baseapp"
@@ -35,9 +35,9 @@ type TestSuite struct {
 }
 
 func (s *TestSuite) SetupTest() {
-	app := simapp.Setup(s.T(), false)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
-	ctx = ctx.WithBlockHeader(tmproto.Header{Time: tmtime.Now()})
+	app := simapp.Setup(false)
+	ctx := app.BaseApp.NewContext(false, ocproto.Header{})
+	ctx = ctx.WithBlockHeader(ocproto.Header{Time: tmtime.Now()})
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
 	nft.RegisterQueryServer(queryHelper, app.NFTKeeper)
 	queryClient := nft.NewQueryClient(queryHelper)
