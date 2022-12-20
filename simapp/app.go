@@ -98,6 +98,9 @@ import (
 	"github.com/line/lbm-sdk/x/mint"
 	mintkeeper "github.com/line/lbm-sdk/x/mint/keeper"
 	minttypes "github.com/line/lbm-sdk/x/mint/types"
+	"github.com/line/lbm-sdk/x/nft"
+	nftkeeper "github.com/line/lbm-sdk/x/nft/keeper"
+	nftmodule "github.com/line/lbm-sdk/x/nft/module"
 	"github.com/line/lbm-sdk/x/params"
 	paramsclient "github.com/line/lbm-sdk/x/params/client"
 	paramskeeper "github.com/line/lbm-sdk/x/params/keeper"
@@ -171,6 +174,7 @@ var (
 		vesting.AppModuleBasic{},
 		tokenmodule.AppModuleBasic{},
 		collectionmodule.AppModuleBasic{},
+		nftmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
 
@@ -185,6 +189,7 @@ var (
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
+		nft.ModuleName:                 nil,
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		icatypes.ModuleName:            nil,
 	}
@@ -235,6 +240,7 @@ type SimApp struct {
 	EvidenceKeeper      evidencekeeper.Keeper
 	TransferKeeper      ibctransferkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
+	NFTKeeper           nftkeeper.Keeper
 	TokenKeeper         tokenkeeper.Keeper
 	CollectionKeeper    collectionkeeper.Keeper
 	WasmKeeper          wasm.Keeper
@@ -308,6 +314,7 @@ func NewSimApp(
 		token.StoreKey,
 		collection.StoreKey,
 		authzkeeper.StoreKey,
+		nftkeeper.StoreKey,
 		wasm.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -487,6 +494,8 @@ func NewSimApp(
 		),
 	)
 
+	app.NFTKeeper = nftkeeper.NewKeeper(keys[nftkeeper.StoreKey], appCodec, app.AccountKeeper, app.BankKeeper)
+
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule)
@@ -537,6 +546,7 @@ func NewSimApp(
 		tokenmodule.NewAppModule(appCodec, app.TokenKeeper),
 		collectionmodule.NewAppModule(appCodec, app.CollectionKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
+		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		transferModule,
 		icaModule,
 		mockModule,
@@ -565,6 +575,7 @@ func NewSimApp(
 		genutiltypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
+		nft.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		icatypes.ModuleName,
@@ -589,6 +600,7 @@ func NewSimApp(
 		evidencetypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
+		nft.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
@@ -624,6 +636,7 @@ func NewSimApp(
 		icatypes.ModuleName,
 		ibcmock.ModuleName,
 		feegrant.ModuleName,
+		nft.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,

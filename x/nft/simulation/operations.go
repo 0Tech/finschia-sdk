@@ -78,7 +78,7 @@ func SimulateMsgSend(
 			return simtypes.NoOpMsg(nft.ModuleName, TypeMsgSend, err.Error()), nil, err
 		}
 
-		spendLimit := spendableCoins.Sub(fees...)
+		spendLimit := spendableCoins.Sub(fees)
 		if spendLimit == nil {
 			return simtypes.NoOpMsg(nft.ModuleName, TypeMsgSend, "spend limit is nil"), nil, nil
 		}
@@ -111,7 +111,7 @@ func SimulateMsgSend(
 			return simtypes.NoOpMsg(nft.ModuleName, TypeMsgSend, "unable to generate mock tx"), nil, err
 		}
 
-		_, _, err = app.SimDeliver(txCfg.TxEncoder(), tx)
+		_, _, err = app.Deliver(txCfg.TxEncoder(), tx)
 		if err != nil {
 			return simtypes.NoOpMsg(nft.ModuleName, sdk.MsgTypeURL(msg), "unable to deliver tx"), nil, err
 		}
