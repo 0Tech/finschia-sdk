@@ -6,13 +6,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/kv"
-	"github.com/cosmos/cosmos-sdk/x/nft"
-	"github.com/cosmos/cosmos-sdk/x/nft/keeper"
-	"github.com/cosmos/cosmos-sdk/x/nft/simulation"
+	"github.com/line/lbm-sdk/crypto/keys/ed25519"
+	"github.com/line/lbm-sdk/simapp"
+	sdk "github.com/line/lbm-sdk/types"
+	"github.com/line/lbm-sdk/types/kv"
+	"github.com/line/lbm-sdk/x/nft"
+	"github.com/line/lbm-sdk/x/nft/keeper"
+	"github.com/line/lbm-sdk/x/nft/simulation"
 )
 
 var (

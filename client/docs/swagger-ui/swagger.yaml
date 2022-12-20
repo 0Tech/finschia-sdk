@@ -45080,9 +45080,6 @@ paths:
                       format: byte
       tags:
         - Service
-securityDefinitions:
-  kms:
-    type: basic
 definitions:
   cosmos.auth.v1beta1.Params:
     type: object

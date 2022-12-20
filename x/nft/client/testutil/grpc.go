@@ -3,8 +3,8 @@ package testutil
 import (
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/testutil/rest"
-	"github.com/cosmos/cosmos-sdk/x/nft"
+	"github.com/line/lbm-sdk/testutil/rest"
+	"github.com/line/lbm-sdk/x/nft"
 )
 
 func (s *IntegrationTestSuite) TestQueryBalanceGRPC() {

@@ -6,12 +6,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/nft"
+	"github.com/line/lbm-sdk/client"
+	"github.com/line/lbm-sdk/client/flags"
+	sdk "github.com/line/lbm-sdk/types"
+	"github.com/line/lbm-sdk/types/errors"
+	"github.com/line/lbm-sdk/version"
+	"github.com/line/lbm-sdk/x/nft"
 )
 
 // Flag names and values

@@ -7,20 +7,20 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/line/ostracon/abci/types"
 
-	sdkclient "github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	sdkclient "github.com/line/lbm-sdk/client"
+	"github.com/line/lbm-sdk/codec"
+	cdctypes "github.com/line/lbm-sdk/codec/types"
+	sdk "github.com/line/lbm-sdk/types"
+	sdkerrors "github.com/line/lbm-sdk/types/errors"
+	"github.com/line/lbm-sdk/types/module"
+	simtypes "github.com/line/lbm-sdk/types/simulation"
 
-	"github.com/cosmos/cosmos-sdk/x/nft"
-	"github.com/cosmos/cosmos-sdk/x/nft/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/nft/keeper"
-	"github.com/cosmos/cosmos-sdk/x/nft/simulation"
+	"github.com/line/lbm-sdk/x/nft"
+	"github.com/line/lbm-sdk/x/nft/client/cli"
+	"github.com/line/lbm-sdk/x/nft/keeper"
+	"github.com/line/lbm-sdk/x/nft/simulation"
 )
 
 var (

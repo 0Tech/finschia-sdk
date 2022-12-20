@@ -3,10 +3,10 @@ package keeper
 import (
 	"bytes"
 
-	"github.com/cosmos/cosmos-sdk/internal/conv"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
-	"github.com/cosmos/cosmos-sdk/x/nft"
+	"github.com/line/lbm-sdk/internal/conv"
+	sdk "github.com/line/lbm-sdk/types"
+	"github.com/line/lbm-sdk/types/address"
+	"github.com/line/lbm-sdk/x/nft"
 )
 
 var (

@@ -10,13 +10,13 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
-	"github.com/cosmos/cosmos-sdk/x/nft"
-	"github.com/cosmos/cosmos-sdk/x/nft/simulation"
+	"github.com/line/lbm-sdk/codec"
+	"github.com/line/lbm-sdk/simapp"
+	sdk "github.com/line/lbm-sdk/types"
+	simtypes "github.com/line/lbm-sdk/types/simulation"
+	"github.com/line/lbm-sdk/x/bank/testutil"
+	"github.com/line/lbm-sdk/x/nft"
+	"github.com/line/lbm-sdk/x/nft/simulation"
 )
 
 type SimTestSuite struct {
