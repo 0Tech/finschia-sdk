@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
 	ocproto "github.com/line/ostracon/proto/ostracon/types"
+	"github.com/stretchr/testify/suite"
 	tmtime "github.com/tendermint/tendermint/types/time"
 
 	"github.com/line/lbm-sdk/baseapp"
