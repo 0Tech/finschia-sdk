@@ -89,7 +89,7 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 	blockTime := time.Now().UTC()
 	ctx := suite.ctx.WithBlockTime(blockTime)
 
-	// begin a new block
+	// begin new block
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: ocproto.Header{
 			Height:  suite.app.LastBlockHeight() + 1,

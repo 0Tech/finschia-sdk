@@ -6,11 +6,10 @@ import (
 
 // x/nft module sentinel errors
 var (
-	ErrInvalidNFT     = sdkerrors.Register(ModuleName, 2, "invalid nft")
-	ErrClassExists    = sdkerrors.Register(ModuleName, 3, "nft class already exist")
+	ErrClassExists    = sdkerrors.Register(ModuleName, 3, "nft class already exists")
 	ErrClassNotExists = sdkerrors.Register(ModuleName, 4, "nft class does not exist")
-	ErrNFTExists      = sdkerrors.Register(ModuleName, 5, "nft already exist")
+	ErrNFTExists      = sdkerrors.Register(ModuleName, 5, "nft already exists")
 	ErrNFTNotExists   = sdkerrors.Register(ModuleName, 6, "nft does not exist")
-	ErrInvalidID      = sdkerrors.Register(ModuleName, 7, "invalid id")
-	ErrInvalidClassID = sdkerrors.Register(ModuleName, 8, "invalid class id")
+	ErrEmptyClassID   = sdkerrors.Register(ModuleName, 7, "empty class id")
+	ErrEmptyNFTID     = sdkerrors.Register(ModuleName, 8, "empty nft id")
 )

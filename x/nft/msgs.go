@@ -14,12 +14,12 @@ var _ sdk.Msg = &MsgSend{}
 
 // ValidateBasic implements the Msg.ValidateBasic method.
 func (m MsgSend) ValidateBasic() error {
-	if err := ValidateClassID(m.ClassId); err != nil {
-		return sdkerrors.Wrapf(ErrInvalidID, "Invalid class id (%s)", m.ClassId)
+	if len(m.ClassId) == 0 {
+		return ErrEmptyClassID
 	}
 
-	if err := ValidateNFTID(m.Id); err != nil {
-		return sdkerrors.Wrapf(ErrInvalidID, "Invalid nft id (%s)", m.Id)
+	if len(m.Id) == 0 {
+		return ErrEmptyNFTID
 	}
 
 	_, err := sdk.AccAddressFromBech32(m.Sender)
@@ -34,7 +34,7 @@ func (m MsgSend) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners implements Msg
+// GetSigners returns the expected signers for MsgSend.
 func (m MsgSend) GetSigners() []sdk.AccAddress {
 	signer, _ := sdk.AccAddressFromBech32(m.Sender)
 	return []sdk.AccAddress{signer}

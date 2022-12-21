@@ -20,16 +20,16 @@ func (s *IntegrationTestSuite) TestQueryBalanceGRPC() {
 		expectValue uint64
 	}{
 		{
-			name: "fail not exist class id",
+			name: "empty class id",
 			args: struct {
 				ClassID string
 				Owner   string
 			}{
-				ClassID: "invalid_class_id",
+				ClassID: "",
 				Owner:   s.owner.String(),
 			},
 			expectErr:   true,
-			errMsg:      "invalid class id",
+			errMsg:      "empty class id",
 			expectValue: 0,
 		},
 		{
@@ -88,16 +88,16 @@ func (s *IntegrationTestSuite) TestQueryOwnerGRPC() {
 		expectResult string
 	}{
 		{
-			name: "class id is invalid",
+			name: "class id is empty",
 			args: struct {
 				ClassID string
 				ID      string
 			}{
-				ClassID: "invalid_class_id",
+				ClassID: "",
 				ID:      ExpNFT.Id,
 			},
 			expectErr:    true,
-			errMsg:       "invalid class id",
+			errMsg:       "Not Implemented",
 			expectResult: "",
 		},
 		{
@@ -113,13 +113,13 @@ func (s *IntegrationTestSuite) TestQueryOwnerGRPC() {
 			expectResult: "",
 		},
 		{
-			name: "nft id is invalid",
+			name: "nft id is empty",
 			args: struct {
 				ClassID string
 				ID      string
 			}{
 				ClassID: ExpNFT.ClassId,
-				ID:      "invalid_nft_id",
+				ID:      "",
 			},
 			expectErr:    true,
 			expectResult: "",
@@ -180,14 +180,14 @@ func (s *IntegrationTestSuite) TestQuerySupplyGRPC() {
 		expectResult uint64
 	}{
 		{
-			name: "class id is invalid",
+			name: "class id is empty",
 			args: struct {
 				ClassID string
 			}{
-				ClassID: "invalid_class_id",
+				ClassID: "",
 			},
 			expectErr:    true,
-			errMsg:       "invalid class id",
+			errMsg:       "empty class id",
 			expectResult: 0,
 		},
 		{
@@ -252,12 +252,12 @@ func (s *IntegrationTestSuite) TestQueryNFTsGRPC() {
 			expectResult: []*nft.NFT{},
 		},
 		{
-			name: "classID is invalid",
+			name: "classID is empty",
 			args: struct {
 				ClassID string
 				Owner   string
 			}{
-				ClassID: "invalid_class_id",
+				ClassID: "",
 			},
 			expectErr:    true,
 			expectResult: []*nft.NFT{},
@@ -338,16 +338,16 @@ func (s *IntegrationTestSuite) TestQueryNFTGRPC() {
 		errorMsg  string
 	}{
 		{
-			name: "class id is invalid",
+			name: "class id is empty",
 			args: struct {
 				ClassID string
 				ID      string
 			}{
-				ClassID: "invalid_class_id",
+				ClassID: "",
 				ID:      ExpNFT.Id,
 			},
 			expectErr: true,
-			errorMsg:  "invalid class id",
+			errorMsg:  "Not Implemented",
 		},
 		{
 			name: "class id does not exist",
@@ -362,16 +362,16 @@ func (s *IntegrationTestSuite) TestQueryNFTGRPC() {
 			errorMsg:  "not found nft",
 		},
 		{
-			name: "nft id is invalid",
+			name: "nft id is empty",
 			args: struct {
 				ClassID string
 				ID      string
 			}{
 				ClassID: ExpNFT.ClassId,
-				ID:      "invalid_nft_id",
+				ID:      "",
 			},
 			expectErr: true,
-			errorMsg:  "invalid nft id",
+			errorMsg:  "empty nft id",
 		},
 		{
 			name: "nft id does not exist",
