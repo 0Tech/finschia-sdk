@@ -1,0 +1,69 @@
+syntax = "proto3";
+package lbm.composable.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+import "lbm/composable/v1beta1/types.proto";
+
+option go_package = "github.com/line/lbm-sdk/x/composable";
+
+// GenesisState defines the nft module's genesis state.
+message GenesisState {
+  // params defines all the paramaters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+
+  // nfts defines all nfts
+  repeated ClassNFTs nfts = 2 [(gogoproto.nullable) = false];
+
+  // balances is an array containing the balances of all the accounts
+  repeated Balance balances = 3 [(gogoproto.nullable) = false];
+
+  // children is an array containing the children of all nfts
+  repeated Children children = 4 [(gogoproto.nullable) = false];
+}
+
+// ClassNFTs defines all nft of a class.
+message ClassNFTs {
+  // class of the following nfts
+  Class class = 1 [(gogoproto.nullable) = false];
+
+  // previous nft id of the class
+  string previous_id = 2 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+
+  // nfts is a group of nfts of the same class
+  repeated NFT nfts = 3 [(gogoproto.nullable) = false];
+}
+
+// Balance defines an owner address and balance pair.
+message Balance {
+  // owner is the address of the balance holder
+  string owner = 1;
+
+  // balance defines nft ids in classes
+  repeated ClassBalance balance = 2 [(gogoproto.nullable) = false];
+}
+
+// ClassBalance defines nft ids in a class
+message ClassBalance {
+  // class id of the following nft ids
+  string class_id = 1;
+
+  // ids is a group of nft ids of the same class
+  repeated string ids = 2 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// Children defines children of an nft.
+message Children {
+  // full id of an nft
+  FullID          subject  = 1 [(gogoproto.nullable) = false];
+  repeated FullID children = 2 [(gogoproto.nullable) = false];
+}
+
+// FullID defines a class id and id pair of an nft.
+message FullID {
+  // class id of the nft
+  string class_id = 1;
+
+  // id of the nft
+  string id = 2 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}

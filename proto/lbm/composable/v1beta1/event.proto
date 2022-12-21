@@ -1,0 +1,73 @@
+syntax = "proto3";
+package lbm.composable.v1beta1;
+
+import "google/protobuf/any.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/line/lbm-sdk/x/composable";
+
+// EventSend is emitted on Msg/Send
+message EventSend {
+  string sender   = 1;
+  string receiver = 2;
+  string class_id = 3;
+  string id       = 4 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// EventAttach is emitted on Msg/Attach
+message EventAttach {
+  string owner            = 1;
+  string subject_class_id = 2;
+  string subject_id = 3 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+  string target_class_id = 4;
+  string target_id = 5 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// EventDetach is emitted on Msg/Detach
+message EventDetach {
+  string owner    = 1;
+  string class_id = 2;
+  string id       = 3 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// EventNewClass is emitted on Msg/NewClass
+message EventNewClass {
+  string              id       = 1;
+  string              uri      = 2;
+  string              uri_hash = 3;
+  google.protobuf.Any data     = 4;
+}
+
+// EventUpdateClass is emitted on Msg/UpdateClass
+message EventUpdateClass {
+  string              id       = 1;
+  string              uri      = 2;
+  string              uri_hash = 3;
+  google.protobuf.Any data     = 4;
+}
+
+// EventMintNFT is emitted on Msg/MintNFT
+message EventMintNFT {
+  string class_id = 1;
+  string id       = 2 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+  string uri      = 3;
+  string uri_hash = 4;
+  google.protobuf.Any data      = 5;
+  string              recipient = 6;
+}
+
+// EventBurnNFT is emitted on Msg/BurnNFT
+message EventBurnNFT {
+  string owner    = 1;
+  string class_id = 2;
+  string id       = 3 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// EventUpdateNFT is emitted on Msg/UpdateNFT
+message EventUpdateNFT {
+  string class_id = 1;
+  string id       = 2 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+  string uri      = 3;
+  string uri_hash = 4;
+  google.protobuf.Any data = 5;
+}

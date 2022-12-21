@@ -1,0 +1,42 @@
+syntax = "proto3";
+package lbm.composable.v1beta1;
+
+import "google/protobuf/any.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/line/lbm-sdk/x/composable";
+
+// Params defines the parameters for the module.
+message Params {
+  uint32 max_descendants = 1;
+}
+
+// Class defines the class of the nft type.
+message Class {
+  // id defines the unique identifier of the NFT classification, similar to the contract address of ERC721
+  string id = 1;
+
+  // uri for the class metadata stored off chain. It can define schema for Class and NFT `Data` attributes. Optional
+  string uri = 2;
+
+  // uri_hash is a hash of the document pointed by uri. Optional
+  string uri_hash = 3;
+
+  // data is the app specific metadata of the NFT class. Optional
+  google.protobuf.Any data = 4;
+}
+
+// NFT defines the NFT.
+message NFT {
+  // id is a unique identifier of the NFT
+  string id = 1 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+
+  // uri for the NFT metadata stored off chain
+  string uri = 2;
+
+  // uri_hash is a hash of the document pointed by uri
+  string uri_hash = 3;
+
+  // data is an app specific data of the NFT. Optional
+  google.protobuf.Any data = 4;
+}

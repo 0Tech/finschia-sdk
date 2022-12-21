@@ -1,0 +1,187 @@
+syntax = "proto3";
+package lbm.composable.v1beta1;
+
+import "google/protobuf/any.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/line/lbm-sdk/x/composable";
+
+// Msg defines the nft Msg service.
+service Msg {
+  // Send defines a method to send an nft from one account to another account.
+  rpc Send(MsgSend) returns (MsgSendResponse);
+
+  // Attach defines a method to attach a root nft to another nft.
+  rpc Attach(MsgAttach) returns (MsgAttachResponse);
+
+  // Detach defines a method to detach an nft from another nft.
+  rpc Detach(MsgDetach) returns (MsgDetachResponse);
+
+  // NewClass defines a method to create a class.
+  rpc NewClass(MsgNewClass) returns (MsgNewClassResponse);
+
+  // UpdateClass defines a method to update a class.
+  rpc UpdateClass(MsgUpdateClass) returns (MsgUpdateClassResponse);
+
+  // MintNFT defines a method to mint an nft.
+  rpc MintNFT(MsgMintNFT) returns (MsgMintNFTResponse);
+
+  // BurnNFT defines a method to burn an nft.
+  rpc BurnNFT(MsgBurnNFT) returns (MsgBurnNFTResponse);
+
+  // UpdateNFT defines a method to update an nft.
+  rpc UpdateNFT(MsgUpdateNFT) returns (MsgUpdateNFTResponse);
+}
+
+// MsgSend is the Msg/Send request type.
+message MsgSend {
+  // sender of the nft
+  string sender = 1;
+
+  // recipient of the nft
+  string recipient = 2;
+
+  // class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721
+  string class_id = 3;
+
+  // id defines the unique identification of nft
+  string id = 4 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// MsgSendResponse is the Msg/Send response type.
+message MsgSendResponse {}
+
+// MsgAttach is the Msg/Attach request type.
+message MsgAttach {
+  // owner of the nfts
+  string owner = 1;
+
+  // class id of the subject nft
+  string subject_class_id = 2;
+
+  // id of the subject nft
+  string subject_id = 3 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+
+  // class id of the target nft
+  string target_class_id = 4;
+
+  // id of the target nft
+  string target_id = 5 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// MsgAttachResponse is the Msg/Attach response type.
+message MsgAttachResponse {}
+
+// MsgDetach is the Msg/Detach request type.
+message MsgDetach {
+  // owner of the nfts
+  string owner = 1;
+
+  // class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721
+  string class_id = 2;
+
+  // id defines the unique identification of nft
+  string id = 3 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// MsgDetachResponse is the Msg/Detach response type.
+message MsgDetachResponse {}
+
+// MsgNewClass is the Msg/NewClass request type.
+message MsgNewClass {
+  // owner of the new class
+  string owner = 1;
+
+  // uri for the class metadata stored off chain. It can define schema for Class and NFT `Data` attributes. Optional
+  string uri = 2;
+
+  // uri_hash is a hash of the document pointed by uri. Optional
+  string uri_hash = 3;
+
+  // data is the app specific metadata of the class. Optional
+  google.protobuf.Any data = 4;
+}
+
+// MsgNewClassResponse is the Msg/NewClass response type.
+message MsgNewClassResponse {
+  // id of the new class
+  string id = 1;
+}
+
+// MsgUpdateClass is the Msg/UpdateClass request type.
+message MsgUpdateClass {
+  // class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721
+  string class_id = 1;
+
+  // uri for the class metadata stored off chain. It can define schema for Class and NFT `Data` attributes. Optional
+  string uri = 2;
+
+  // uri_hash is a hash of the document pointed by uri. Optional
+  string uri_hash = 3;
+
+  // data is the app specific metadata of the class. Optional
+  google.protobuf.Any data = 4;
+}
+
+// MsgUpdateClassResponse is the Msg/UpdateClass response type.
+message MsgUpdateClassResponse {}
+
+// MsgMintNFT is the Msg/MintNFT request type.
+message MsgMintNFT {
+  // class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721
+  string class_id = 1;
+
+  // uri for the NFT metadata stored off chain
+  string uri = 2;
+
+  // uri_hash is a hash of the document pointed by uri
+  string uri_hash = 3;
+
+  // data is an app specific data of the NFT. Optional
+  google.protobuf.Any data = 4;
+
+  // recipient of the nft
+  string recipient = 5;
+}
+
+// MsgMintNFTResponse is the Msg/MintNFT response type.
+message MsgMintNFTResponse {
+  // id of minted nft
+  string id = 1 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// MsgBurnNFT is the Msg/BurnNFT request type.
+message MsgBurnNFT {
+  // owner of the nft
+  string owner = 1;
+
+  // class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721
+  string class_id = 2;
+
+  // id defines the unique identification of nft
+  string id = 3 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+}
+
+// MsgBurnNFTResponse is the Msg/BurnNFT response type.
+message MsgBurnNFTResponse {}
+
+// MsgUpdateNFT is the Msg/UpdateNFT request type.
+message MsgUpdateNFT {
+  // class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721
+  string class_id = 1;
+
+  // id defines the unique identification of nft
+  string id = 2 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+
+  // uri for the NFT metadata stored off chain
+  string uri = 3;
+
+  // uri_hash is a hash of the document pointed by uri
+  string uri_hash = 4;
+
+  // data is an app specific data of the NFT. Optional
+  google.protobuf.Any data = 5;
+}
+
+// MsgUpdateNFTResponse is the Msg/UpdateNFT response type.
+message MsgUpdateNFTResponse {}
