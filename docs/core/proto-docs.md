@@ -6507,9 +6507,9 @@ EventBurn is emitted on Burn
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
-| `owner` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
+| `id` | [string](#string) |  | id is a unique identifier of the nft |
+| `owner` | [string](#string) |  | owner is the owner address of the nft |
 
 
 
@@ -6524,9 +6524,9 @@ EventMint is emitted on Mint
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
-| `owner` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
+| `id` | [string](#string) |  | id is a unique identifier of the nft |
+| `owner` | [string](#string) |  | owner is the owner address of the nft |
 
 
 
@@ -6541,10 +6541,10 @@ EventSend is emitted on Msg/Send
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
-| `sender` | [string](#string) |  |  |
-| `receiver` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
+| `id` | [string](#string) |  | id is a unique identifier of the nft |
+| `sender` | [string](#string) |  | sender is the address of the owner of nft |
+| `receiver` | [string](#string) |  | receiver is the receiver address of nft |
 
 
 
@@ -6648,7 +6648,7 @@ GenesisState defines the nft module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `classes` | [Class](#cosmos.nft.v1beta1.Class) | repeated | class defines the class of the nft type. |
-| `entries` | [Entry](#cosmos.nft.v1beta1.Entry) | repeated |  |
+| `entries` | [Entry](#cosmos.nft.v1beta1.Entry) | repeated | entry defines all nft owned by a person. |
 
 
 
@@ -6679,8 +6679,8 @@ QueryBalanceRequest is the request type for the Query/Balance RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `owner` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
+| `owner` | [string](#string) |  | owner is the owner address of the nft |
 
 
 
@@ -6695,7 +6695,7 @@ QueryBalanceResponse is the response type for the Query/Balance RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `amount` | [uint64](#uint64) |  |  |
+| `amount` | [uint64](#uint64) |  | amount is the number of all NFTs of a given class owned by the owner |
 
 
 
@@ -6710,7 +6710,7 @@ QueryClassRequest is the request type for the Query/Class RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
 
 
 
@@ -6725,7 +6725,7 @@ QueryClassResponse is the response type for the Query/Class RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class` | [Class](#cosmos.nft.v1beta1.Class) |  |  |
+| `class` | [Class](#cosmos.nft.v1beta1.Class) |  | class defines the class of the nft type. |
 
 
 
@@ -6755,8 +6755,8 @@ QueryClassesResponse is the response type for the Query/Classes RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `classes` | [Class](#cosmos.nft.v1beta1.Class) | repeated |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+| `classes` | [Class](#cosmos.nft.v1beta1.Class) | repeated | class defines the class of the nft type. |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
 
@@ -6771,8 +6771,8 @@ QueryNFTRequest is the request type for the Query/NFT RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
+| `id` | [string](#string) |  | id is a unique identifier of the NFT |
 
 
 
@@ -6787,7 +6787,7 @@ QueryNFTResponse is the response type for the Query/NFT RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `nft` | [NFT](#cosmos.nft.v1beta1.NFT) |  |  |
+| `nft` | [NFT](#cosmos.nft.v1beta1.NFT) |  | owner is the owner address of the nft |
 
 
 
@@ -6802,9 +6802,9 @@ QueryNFTstRequest is the request type for the Query/NFTs RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `owner` | [string](#string) |  |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
+| `owner` | [string](#string) |  | owner is the owner address of the nft |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
 
 
@@ -6819,8 +6819,8 @@ QueryNFTsResponse is the response type for the Query/NFTs RPC methods
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `nfts` | [NFT](#cosmos.nft.v1beta1.NFT) | repeated |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+| `nfts` | [NFT](#cosmos.nft.v1beta1.NFT) | repeated | NFT defines the NFT |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
 
@@ -6835,8 +6835,8 @@ QueryOwnerRequest is the request type for the Query/Owner RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
+| `id` | [string](#string) |  | id is a unique identifier of the NFT |
 
 
 
@@ -6851,7 +6851,7 @@ QueryOwnerResponse is the response type for the Query/Owner RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `owner` | [string](#string) |  |  |
+| `owner` | [string](#string) |  | owner is the owner address of the nft |
 
 
 
@@ -6866,7 +6866,7 @@ QuerySupplyRequest is the request type for the Query/Supply RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | class_id associated with the nft |
 
 
 
@@ -6881,7 +6881,7 @@ QuerySupplyResponse is the response type for the Query/Supply RPC method
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `amount` | [uint64](#uint64) |  |  |
+| `amount` | [uint64](#uint64) |  | amount is the number of all NFTs from the given class |
 
 
 
