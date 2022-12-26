@@ -3,7 +3,9 @@ package keeper_test
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"testing"
+	"time"
 
 	ocproto "github.com/line/ostracon/proto/ostracon/types"
 	"github.com/stretchr/testify/suite"
@@ -28,8 +30,6 @@ type KeeperTestSuite struct {
 	vendor   sdk.AccAddress
 	customer sdk.AccAddress
 
-	classID string
-
 	numNFTs int
 }
 
@@ -42,7 +42,20 @@ func createAddresses(size int, prefix string) []sdk.AccAddress {
 	return addrs
 }
 
+func randomString(size int) string {
+	res := make([]rune, size)
+
+	letters := []rune("0123456789abcdef")
+	for i := range res {
+		res[i] = letters[rand.Intn(len(letters))]
+	}
+
+	return string(res)
+}
+
 func (s *KeeperTestSuite) SetupTest() {
+	rand.Seed(time.Now().UnixNano())
+
 	checkTx := false
 	app := simapp.Setup(checkTx)
 
@@ -67,6 +80,13 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.keeper.SetParams(s.ctx, composable.Params{
 		MaxDescendants: maxDescendants,
 	})
+
+	// vendor creates a class
+	class := composable.Class{
+		Id: composable.ClassIDFromOwner(s.vendor),
+	}
+	err := s.keeper.NewClass(s.ctx, class)
+	s.Assert().NoError(err)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
