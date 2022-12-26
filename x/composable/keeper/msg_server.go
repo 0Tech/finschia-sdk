@@ -104,30 +104,127 @@ func (s msgServer) Detach(c context.Context, req *composable.MsgDetach) (*compos
 
 // NewClass defines a method to create a class.
 func (s msgServer) NewClass(c context.Context, req *composable.MsgNewClass) (*composable.MsgNewClassResponse, error) {
-	d := composable.UnimplementedMsgServer{}
-	return d.NewClass(c, req)
+	ctx := sdk.UnwrapSDKContext(c)
+
+	owner := sdk.MustAccAddressFromBech32(req.Owner)
+	id := composable.ClassIDFromOwner(owner)
+	class := composable.Class{
+		Id:      id,
+		Uri:     req.Uri,
+		UriHash: req.UriHash,
+	}
+	if err := s.keeper.NewClass(ctx, class); err != nil {
+		return nil, err
+	}
+
+	if err := ctx.EventManager().EmitTypedEvent(&composable.EventNewClass{
+		Id:      id,
+		Uri:     req.Uri,
+		UriHash: req.UriHash,
+	}); err != nil {
+		panic(err)
+	}
+
+	return &composable.MsgNewClassResponse{}, nil
 }
 
 // UpdateClass defines a method to update a class.
 func (s msgServer) UpdateClass(c context.Context, req *composable.MsgUpdateClass) (*composable.MsgUpdateClassResponse, error) {
-	d := composable.UnimplementedMsgServer{}
-	return d.UpdateClass(c, req)
+	ctx := sdk.UnwrapSDKContext(c)
+
+	class := composable.Class{
+		Id:      req.ClassId,
+		Uri:     req.Uri,
+		UriHash: req.UriHash,
+	}
+	if err := s.keeper.UpdateClass(ctx, class); err != nil {
+		return nil, err
+	}
+
+	if err := ctx.EventManager().EmitTypedEvent(&composable.EventUpdateClass{
+		Id:      req.ClassId,
+		Uri:     req.Uri,
+		UriHash: req.UriHash,
+	}); err != nil {
+		panic(err)
+	}
+
+	return &composable.MsgUpdateClassResponse{}, nil
 }
 
 // MintNFT defines a method to mint an nft.
 func (s msgServer) MintNFT(c context.Context, req *composable.MsgMintNFT) (*composable.MsgMintNFTResponse, error) {
-	d := composable.UnimplementedMsgServer{}
-	return d.MintNFT(c, req)
+	ctx := sdk.UnwrapSDKContext(c)
+
+	recipient := sdk.MustAccAddressFromBech32(req.Recipient)
+	nft := composable.NFT{
+		Uri:     req.Uri,
+		UriHash: req.UriHash,
+	}
+	id, err := s.keeper.MintNFT(ctx, recipient, req.ClassId, nft)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := ctx.EventManager().EmitTypedEvent(&composable.EventMintNFT{
+		ClassId:   req.ClassId,
+		Id:        id,
+		Uri:       req.Uri,
+		UriHash:   req.UriHash,
+		Recipient: req.Recipient,
+	}); err != nil {
+		panic(err)
+	}
+
+	return &composable.MsgMintNFTResponse{}, nil
 }
 
 // BurnNFT defines a method to burn an nft.
 func (s msgServer) BurnNFT(c context.Context, req *composable.MsgBurnNFT) (*composable.MsgBurnNFTResponse, error) {
-	d := composable.UnimplementedMsgServer{}
-	return d.BurnNFT(c, req)
+	ctx := sdk.UnwrapSDKContext(c)
+
+	owner := sdk.MustAccAddressFromBech32(req.Owner)
+	id := composable.FullID{
+		ClassId: req.ClassId,
+		Id:      req.Id,
+	}
+
+	if err := s.keeper.BurnNFT(ctx, owner, id); err != nil {
+		return nil, err
+	}
+
+	if err := ctx.EventManager().EmitTypedEvent(&composable.EventBurnNFT{
+		Owner:   req.Owner,
+		ClassId: req.ClassId,
+		Id:      req.Id,
+	}); err != nil {
+		panic(err)
+	}
+
+	return &composable.MsgBurnNFTResponse{}, nil
 }
 
 // UpdateNFT defines a method to update an nft.
 func (s msgServer) UpdateNFT(c context.Context, req *composable.MsgUpdateNFT) (*composable.MsgUpdateNFTResponse, error) {
-	d := composable.UnimplementedMsgServer{}
-	return d.UpdateNFT(c, req)
+	ctx := sdk.UnwrapSDKContext(c)
+
+	id := composable.NFT{
+		Id:      req.Id,
+		Uri:     req.Uri,
+		UriHash: req.UriHash,
+	}
+	if err := s.keeper.UpdateNFT(ctx, req.ClassId, id); err != nil {
+		return nil, err
+	}
+
+	if err := ctx.EventManager().EmitTypedEvent(&composable.EventUpdateNFT{
+		ClassId: req.ClassId,
+		Id:      req.Id,
+		Uri:     req.Uri,
+		UriHash: req.UriHash,
+	}); err != nil {
+		panic(err)
+	}
+
+	return &composable.MsgUpdateNFTResponse{}, nil
 }

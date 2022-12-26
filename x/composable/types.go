@@ -88,3 +88,7 @@ func ValidateURIHash(uri, hash string) error {
 func ClassOwner(id string) sdk.AccAddress {
 	return sdk.MustAccAddressFromBech32(id)
 }
+
+func ClassIDFromOwner(owner sdk.AccAddress) string {
+	return owner.String()
+}
