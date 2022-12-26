@@ -55,6 +55,9 @@ import (
 	"github.com/line/lbm-sdk/x/collection"
 	collectionkeeper "github.com/line/lbm-sdk/x/collection/keeper"
 	collectionmodule "github.com/line/lbm-sdk/x/collection/module"
+	"github.com/line/lbm-sdk/x/composable"
+	composablekeeper "github.com/line/lbm-sdk/x/composable/keeper"
+	composablemodule "github.com/line/lbm-sdk/x/composable/module"
 	"github.com/line/lbm-sdk/x/crisis"
 	crisiskeeper "github.com/line/lbm-sdk/x/crisis/keeper"
 	crisistypes "github.com/line/lbm-sdk/x/crisis/types"
@@ -175,6 +178,7 @@ var (
 		tokenmodule.AppModuleBasic{},
 		collectionmodule.AppModuleBasic{},
 		nftmodule.AppModuleBasic{},
+		composablemodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
 
@@ -241,6 +245,7 @@ type SimApp struct {
 	TransferKeeper      ibctransferkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	NFTKeeper           nftkeeper.Keeper
+	ComposableKeeper    composablekeeper.Keeper
 	TokenKeeper         tokenkeeper.Keeper
 	CollectionKeeper    collectionkeeper.Keeper
 	WasmKeeper          wasm.Keeper
@@ -315,6 +320,7 @@ func NewSimApp(
 		collection.StoreKey,
 		authzkeeper.StoreKey,
 		nftkeeper.StoreKey,
+		composable.StoreKey,
 		wasm.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -496,6 +502,8 @@ func NewSimApp(
 
 	app.NFTKeeper = nftkeeper.NewKeeper(keys[nftkeeper.StoreKey], appCodec, app.AccountKeeper, app.BankKeeper)
 
+	app.ComposableKeeper = composablekeeper.NewKeeper(keys[composable.StoreKey], appCodec, "")
+
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(icacontrollertypes.SubModuleName, icaControllerIBCModule)
@@ -547,6 +555,7 @@ func NewSimApp(
 		collectionmodule.NewAppModule(appCodec, app.CollectionKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
+		composablemodule.NewAppModule(appCodec, app.ComposableKeeper),
 		transferModule,
 		icaModule,
 		mockModule,
@@ -576,6 +585,7 @@ func NewSimApp(
 		authz.ModuleName,
 		feegrant.ModuleName,
 		nft.ModuleName,
+		composable.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		icatypes.ModuleName,
@@ -601,6 +611,7 @@ func NewSimApp(
 		authz.ModuleName,
 		feegrant.ModuleName,
 		nft.ModuleName,
+		composable.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
@@ -637,6 +648,7 @@ func NewSimApp(
 		ibcmock.ModuleName,
 		feegrant.ModuleName,
 		nft.ModuleName,
+		composable.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
