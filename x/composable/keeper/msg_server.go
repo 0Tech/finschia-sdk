@@ -168,7 +168,7 @@ func (s msgServer) MintNFT(c context.Context, req *composable.MsgMintNFT) (*comp
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventMintNFT{
 		ClassId:   req.ClassId,
-		Id:        id,
+		Id:        *id,
 		Uri:       req.Uri,
 		UriHash:   req.UriHash,
 		Recipient: req.Recipient,

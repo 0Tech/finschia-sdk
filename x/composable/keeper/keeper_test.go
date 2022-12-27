@@ -30,7 +30,7 @@ type KeeperTestSuite struct {
 	vendor   sdk.AccAddress
 	customer sdk.AccAddress
 
-	numNFTs int
+	numNFTs uint64
 }
 
 func createAddresses(size int, prefix string) []sdk.AccAddress {
@@ -76,17 +76,42 @@ func (s *KeeperTestSuite) SetupTest() {
 		*addresses[i] = address
 	}
 
-	const maxDescendants = 3
+	const maxDescendants = 1
 	s.keeper.SetParams(s.ctx, composable.Params{
 		MaxDescendants: maxDescendants,
 	})
 
 	// vendor creates a class
 	class := composable.Class{
-		Id: composable.ClassIDFromOwner(s.vendor),
+		Id:      composable.ClassIDFromOwner(s.vendor),
+		Uri:     randomString(32),
+		UriHash: randomString(32),
 	}
-	err := s.keeper.NewClass(s.ctx, class)
+	err := class.ValidateBasic()
 	s.Assert().NoError(err)
+
+	err = s.keeper.NewClass(s.ctx, class)
+	s.Assert().NoError(err)
+
+	// vendor mints nfts to all accounts by amount of numNFTs
+	s.numNFTs = (maxDescendants + 1) + 1 + 1
+
+	for _, owner := range []sdk.AccAddress{
+		s.vendor,
+		s.customer,
+	} {
+		for range make([]struct{}, s.numNFTs) {
+			nft := composable.NFT{
+				Uri:     randomString(32),
+				UriHash: randomString(32),
+			}
+			err := composable.ValidateURIHash(nft.Uri, nft.UriHash)
+			s.Assert().NoError(err)
+
+			_, err = s.keeper.MintNFT(s.ctx, owner, class.Id, nft)
+			s.Assert().NoError(err)
+		}
+	}
 }
 
 func TestKeeperTestSuite(t *testing.T) {
