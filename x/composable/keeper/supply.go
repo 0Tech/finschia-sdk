@@ -120,18 +120,23 @@ func (k Keeper) MintNFT(ctx sdk.Context, owner sdk.AccAddress, classID string, n
 	}
 	k.setNFT(ctx, classID, nft)
 
-	// TODO: add nft to owner
+	k.setOwner(ctx, fullID, owner)
 
 	return &nft.Id, nil
 }
 
 func (k Keeper) BurnNFT(ctx sdk.Context, owner sdk.AccAddress, id composable.FullID) error {
-	// TODO: subtract nft from owner
+	if real, err := k.getOwner(ctx, id); err != nil || !owner.Equals(real) {
+		return sdkerrors.Wrap(composable.ErrInsufficientNFT.Wrap("not owns root nft"), id.String())
+	}
+	k.deleteOwner(ctx, id)
 
 	if err := k.hasNFT(ctx, id); err != nil {
-		return err
+		panic(err)
 	}
 	k.deleteNFT(ctx, id)
+
+	// TODO: prune children
 
 	return nil
 }

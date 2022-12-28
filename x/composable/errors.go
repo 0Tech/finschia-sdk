@@ -15,4 +15,5 @@ var (
 	ErrClassNotFound      = sdkerrors.Register(composableCodespace, 6, "nft class not found")
 	ErrClassAlreadyExists = sdkerrors.Register(composableCodespace, 7, "nft class already exists")
 	ErrNFTNotFound        = sdkerrors.Register(composableCodespace, 8, "nft not found")
+	ErrInsufficientNFT    = sdkerrors.Register(composableCodespace, 9, "insufficient nft")
 )

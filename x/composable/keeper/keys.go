@@ -10,7 +10,8 @@ var (
 	classKeyPrefix      = []byte{0x10}
 	previousIDKeyPrefix = []byte{0x11}
 
-	nftKeyPrefix = []byte{0x20}
+	nftKeyPrefix   = []byte{0x20}
+	ownerKeyPrefix = []byte{0x21}
 )
 
 func concatenate(components ...[]byte) []byte {
@@ -66,6 +67,14 @@ func previousIDKey(classID string) []byte {
 func nftKey(classID string, id sdk.Uint) []byte {
 	return concatenate(
 		nftKeyPrefix,
+		classIDBytes(classID),
+		nftIDBytes(id),
+	)
+}
+
+func ownerKey(classID string, id sdk.Uint) []byte {
+	return concatenate(
+		ownerKeyPrefix,
 		classIDBytes(classID),
 		nftIDBytes(id),
 	)

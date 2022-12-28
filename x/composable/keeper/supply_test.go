@@ -144,9 +144,9 @@ func (s *KeeperTestSuite) TestBurnNFT() {
 		"valid request": {
 			id: sdk.OneUint(),
 		},
-		"nft not found": {
-			id:  sdk.NewUint(s.numNFTs*2 + 1),
-			err: composable.ErrNFTNotFound,
+		"insufficient nft": {
+			id:  sdk.NewUint(s.numNFTs + 1),
+			err: composable.ErrInsufficientNFT,
 		},
 	}
 
