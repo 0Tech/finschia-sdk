@@ -10,17 +10,27 @@ import (
 	"github.com/line/lbm-sdk/x/composable"
 )
 
-func createAddresses(size int, prefix string) []string {
-	addrs := make([]string, size)
+func createAddresses(size int, prefix string) []sdk.AccAddress {
+	addrs := make([]sdk.AccAddress, size)
 	for i := range addrs {
-		addrs[i] = sdk.AccAddress(fmt.Sprintf("%s%d", prefix, i)).String()
+		addrs[i] = sdk.AccAddress(fmt.Sprintf("%s%d", prefix, i))
 	}
 
 	return addrs
 }
 
+func createClassIDs(size int, prefix string) []string {
+	owners := createAddresses(size, prefix)
+	ids := make([]string, len(owners))
+	for i, owner := range owners {
+		ids[i] = composable.ClassIDFromOwner(owner)
+	}
+
+	return ids
+}
+
 func TestClass(t *testing.T) {
-	id := createAddresses(1, "class")[0]
+	id := createClassIDs(1, "class")[0]
 	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
 	hash := "tIBeTianfOX"
 
@@ -96,7 +106,7 @@ func TestNFT(t *testing.T) {
 }
 
 func TestFullID(t *testing.T) {
-	classIDs := createAddresses(2, "class")
+	classIDs := createClassIDs(2, "class")
 
 	testCases := map[string]struct {
 		classID string

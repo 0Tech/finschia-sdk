@@ -13,11 +13,11 @@ import (
 
 func TestMsgSend(t *testing.T) {
 	addrs := createAddresses(2, "addr")
-	classID := createAddresses(1, "class")[0]
+	classID := createClassIDs(1, "class")[0]
 
 	testCases := map[string]struct {
-		sender    string
-		recipient string
+		sender    sdk.AccAddress
+		recipient sdk.AccAddress
 		classID   string
 		err       error
 	}{
@@ -46,8 +46,8 @@ func TestMsgSend(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgSend{
-				Sender:    tc.sender,
-				Recipient: tc.recipient,
+				Sender:    tc.sender.String(),
+				Recipient: tc.recipient.String(),
 				ClassId:   tc.classID,
 				Id:        sdk.OneUint(),
 			}
@@ -58,17 +58,17 @@ func TestMsgSend(t *testing.T) {
 				return
 			}
 
-			require.Equal(t, []sdk.AccAddress{sdk.MustAccAddressFromBech32(tc.sender)}, msg.GetSigners())
+			require.Equal(t, []sdk.AccAddress{tc.sender}, msg.GetSigners())
 		})
 	}
 }
 
 func TestMsgAttach(t *testing.T) {
 	addr := createAddresses(1, "addr")[0]
-	classIDs := createAddresses(2, "class")
+	classIDs := createClassIDs(2, "class")
 
 	testCases := map[string]struct {
-		owner          string
+		owner          sdk.AccAddress
 		subjectClassID string
 		targetClassID  string
 		err            error
@@ -104,7 +104,7 @@ func TestMsgAttach(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgAttach{
-				Owner:          tc.owner,
+				Owner:          tc.owner.String(),
 				SubjectClassId: tc.subjectClassID,
 				SubjectId:      sdk.OneUint(),
 				TargetClassId:  tc.targetClassID,
@@ -117,17 +117,17 @@ func TestMsgAttach(t *testing.T) {
 				return
 			}
 
-			require.Equal(t, []sdk.AccAddress{sdk.MustAccAddressFromBech32(tc.owner)}, msg.GetSigners())
+			require.Equal(t, []sdk.AccAddress{tc.owner}, msg.GetSigners())
 		})
 	}
 }
 
 func TestMsgDetach(t *testing.T) {
 	addr := createAddresses(1, "addr")[0]
-	classID := createAddresses(1, "class")[0]
+	classID := createClassIDs(1, "class")[0]
 
 	testCases := map[string]struct {
-		owner   string
+		owner   sdk.AccAddress
 		classID string
 		err     error
 	}{
@@ -148,7 +148,7 @@ func TestMsgDetach(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgDetach{
-				Owner:   tc.owner,
+				Owner:   tc.owner.String(),
 				ClassId: tc.classID,
 				Id:      sdk.OneUint(),
 			}
@@ -159,7 +159,7 @@ func TestMsgDetach(t *testing.T) {
 				return
 			}
 
-			require.Equal(t, []sdk.AccAddress{sdk.MustAccAddressFromBech32(tc.owner)}, msg.GetSigners())
+			require.Equal(t, []sdk.AccAddress{tc.owner}, msg.GetSigners())
 		})
 	}
 }
@@ -170,7 +170,7 @@ func TestMsgNewClass(t *testing.T) {
 	hash := "tIBeTianfOX"
 
 	testCases := map[string]struct {
-		owner string
+		owner sdk.AccAddress
 		uri   string
 		err   error
 	}{
@@ -191,7 +191,7 @@ func TestMsgNewClass(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgNewClass{
-				Owner:   tc.owner,
+				Owner:   tc.owner.String(),
 				Uri:     tc.uri,
 				UriHash: hash,
 			}
@@ -202,13 +202,13 @@ func TestMsgNewClass(t *testing.T) {
 				return
 			}
 
-			require.Equal(t, []sdk.AccAddress{sdk.MustAccAddressFromBech32(tc.owner)}, msg.GetSigners())
+			require.Equal(t, []sdk.AccAddress{tc.owner}, msg.GetSigners())
 		})
 	}
 }
 
 func TestMsgUpdateClass(t *testing.T) {
-	classID := createAddresses(1, "class")[0]
+	classID := createClassIDs(1, "class")[0]
 
 	testCases := map[string]struct {
 		classID string
@@ -234,14 +234,14 @@ func TestMsgUpdateClass(t *testing.T) {
 				return
 			}
 
-			owner := tc.classID
-			require.Equal(t, []sdk.AccAddress{sdk.MustAccAddressFromBech32(owner)}, msg.GetSigners())
+			owner := composable.ClassOwner(tc.classID)
+			require.Equal(t, []sdk.AccAddress{owner}, msg.GetSigners())
 		})
 	}
 }
 
 func TestMsgMintNFT(t *testing.T) {
-	classID := createAddresses(1, "class")[0]
+	classID := createClassIDs(1, "class")[0]
 	addr := createAddresses(1, "addr")[0]
 	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
 	hash := "tIBeTianfOX"
@@ -249,7 +249,7 @@ func TestMsgMintNFT(t *testing.T) {
 	testCases := map[string]struct {
 		classID   string
 		uri       string
-		recipient string
+		recipient sdk.AccAddress
 		err       error
 	}{
 		"valid msg": {
@@ -275,7 +275,7 @@ func TestMsgMintNFT(t *testing.T) {
 				ClassId:   tc.classID,
 				Uri:       tc.uri,
 				UriHash:   hash,
-				Recipient: tc.recipient,
+				Recipient: tc.recipient.String(),
 			}
 
 			err := msg.ValidateBasic()
@@ -284,18 +284,18 @@ func TestMsgMintNFT(t *testing.T) {
 				return
 			}
 
-			owner := tc.classID
-			require.Equal(t, []sdk.AccAddress{sdk.MustAccAddressFromBech32(owner)}, msg.GetSigners())
+			owner := composable.ClassOwner(tc.classID)
+			require.Equal(t, []sdk.AccAddress{owner}, msg.GetSigners())
 		})
 	}
 }
 
 func TestMsgBurnNFT(t *testing.T) {
 	addr := createAddresses(1, "addr")[0]
-	classID := createAddresses(1, "class")[0]
+	classID := createClassIDs(1, "class")[0]
 
 	testCases := map[string]struct {
-		owner   string
+		owner   sdk.AccAddress
 		classID string
 		err     error
 	}{
@@ -316,7 +316,7 @@ func TestMsgBurnNFT(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgBurnNFT{
-				Owner:   tc.owner,
+				Owner:   tc.owner.String(),
 				ClassId: tc.classID,
 				Id:      sdk.OneUint(),
 			}
@@ -327,13 +327,13 @@ func TestMsgBurnNFT(t *testing.T) {
 				return
 			}
 
-			require.Equal(t, []sdk.AccAddress{sdk.MustAccAddressFromBech32(tc.owner)}, msg.GetSigners())
+			require.Equal(t, []sdk.AccAddress{tc.owner}, msg.GetSigners())
 		})
 	}
 }
 
 func TestMsgUpdateNFT(t *testing.T) {
-	classID := createAddresses(1, "class")[0]
+	classID := createClassIDs(1, "class")[0]
 
 	testCases := map[string]struct {
 		classID string
@@ -368,15 +368,15 @@ func TestMsgUpdateNFT(t *testing.T) {
 				return
 			}
 
-			owner := tc.classID
-			require.Equal(t, []sdk.AccAddress{sdk.MustAccAddressFromBech32(owner)}, msg.GetSigners())
+			owner := composable.ClassOwner(tc.classID)
+			require.Equal(t, []sdk.AccAddress{owner}, msg.GetSigners())
 		})
 	}
 }
 
 func TestLegacyMsg(t *testing.T) {
 	addrs := createAddresses(2, "addr")
-	classes := createAddresses(2, "class")
+	classIDs := createClassIDs(2, "class")
 	id := sdk.OneUint()
 	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
 	hash := "tIBeTianfOX"
@@ -387,34 +387,34 @@ func TestLegacyMsg(t *testing.T) {
 	}{
 		{
 			&composable.MsgSend{
-				Sender:    addrs[0],
-				Recipient: addrs[1],
-				ClassId:   classes[0],
+				Sender:    addrs[0].String(),
+				Recipient: addrs[1].String(),
+				ClassId:   classIDs[0],
 				Id:        id,
 			},
 			`{"class_id":"link1vdkxzumnxq3kswxp","id":"1","recipient":"link1v9jxgu33p9vj2k","sender":"link1v9jxgu3sunc8hy"}`,
 		},
 		{
 			&composable.MsgAttach{
-				Owner:          addrs[0],
-				SubjectClassId: classes[0],
+				Owner:          addrs[0].String(),
+				SubjectClassId: classIDs[0],
 				SubjectId:      id,
-				TargetClassId:  classes[1],
+				TargetClassId:  classIDs[1],
 				TargetId:       id,
 			},
 			`{"owner":"link1v9jxgu3sunc8hy","subject_class_id":"link1vdkxzumnxq3kswxp","subject_id":"1","target_class_id":"link1vdkxzumnxy7ujgfm","target_id":"1"}`,
 		},
 		{
 			&composable.MsgDetach{
-				Owner:   addrs[0],
-				ClassId: classes[0],
+				Owner:   addrs[0].String(),
+				ClassId: classIDs[0],
 				Id:      id,
 			},
 			`{"class_id":"link1vdkxzumnxq3kswxp","id":"1","owner":"link1v9jxgu3sunc8hy"}`,
 		},
 		{
 			&composable.MsgNewClass{
-				Owner:   addrs[0],
+				Owner:   addrs[0].String(),
 				Uri:     uri,
 				UriHash: hash,
 			},
@@ -422,7 +422,7 @@ func TestLegacyMsg(t *testing.T) {
 		},
 		{
 			&composable.MsgUpdateClass{
-				ClassId: classes[0],
+				ClassId: classIDs[0],
 				Uri:     uri,
 				UriHash: hash,
 			},
@@ -430,24 +430,24 @@ func TestLegacyMsg(t *testing.T) {
 		},
 		{
 			&composable.MsgMintNFT{
-				ClassId:   classes[0],
+				ClassId:   classIDs[0],
 				Uri:       uri,
 				UriHash:   hash,
-				Recipient: addrs[0],
+				Recipient: addrs[0].String(),
 			},
 			`{"class_id":"link1vdkxzumnxq3kswxp","recipient":"link1v9jxgu3sunc8hy","uri":"https://ipfs.io/ipfs/tIBeTianfOX","uri_hash":"tIBeTianfOX"}`,
 		},
 		{
 			&composable.MsgBurnNFT{
-				Owner:   addrs[0],
-				ClassId: classes[0],
+				Owner:   addrs[0].String(),
+				ClassId: classIDs[0],
 				Id:      id,
 			},
 			`{"class_id":"link1vdkxzumnxq3kswxp","id":"1","owner":"link1v9jxgu3sunc8hy"}`,
 		},
 		{
 			&composable.MsgUpdateNFT{
-				ClassId: classes[0],
+				ClassId: classIDs[0],
 				Id:      id,
 				Uri:     uri,
 				UriHash: hash,

@@ -11,7 +11,7 @@ import (
 )
 
 func TestGenesisState(t *testing.T) {
-	classIDs := createAddresses(3, "class")
+	classIDs := createClassIDs(3, "class")
 	addrs := createAddresses(2, "addr")
 
 	testCases := map[string]struct {
@@ -62,7 +62,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -80,7 +80,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -158,7 +158,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -176,7 +176,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -257,7 +257,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -275,7 +275,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -356,7 +356,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -374,7 +374,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -455,7 +455,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -473,7 +473,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -554,7 +554,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -572,7 +572,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -670,7 +670,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -751,7 +751,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -769,7 +769,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -850,7 +850,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[2],
@@ -868,7 +868,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -949,7 +949,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -967,7 +967,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -1048,7 +1048,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -1066,7 +1066,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -1147,7 +1147,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -1165,7 +1165,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -1245,7 +1245,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -1263,7 +1263,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
@@ -1339,7 +1339,7 @@ func TestGenesisState(t *testing.T) {
 				},
 				Balances: []composable.Balance{
 					{
-						Owner: addrs[0],
+						Owner: addrs[0].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[0],
@@ -1357,7 +1357,7 @@ func TestGenesisState(t *testing.T) {
 						},
 					},
 					{
-						Owner: addrs[1],
+						Owner: addrs[1].String(),
 						Balance: []composable.ClassBalance{
 							{
 								ClassId: classIDs[1],
