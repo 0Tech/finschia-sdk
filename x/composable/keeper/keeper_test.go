@@ -100,7 +100,7 @@ func (s *KeeperTestSuite) SetupTest() {
 		s.vendor,
 		s.customer,
 	} {
-		for range make([]struct{}, s.numNFTs) {
+		for i := range make([]struct{}, s.numNFTs) {
 			nft := composable.NFT{
 				Uri:     randomString(32),
 				UriHash: randomString(32),
@@ -108,8 +108,28 @@ func (s *KeeperTestSuite) SetupTest() {
 			err := composable.ValidateURIHash(nft.Uri, nft.UriHash)
 			s.Assert().NoError(err)
 
-			_, err = s.keeper.MintNFT(s.ctx, owner, class.Id, nft)
+			id, err := s.keeper.MintNFT(s.ctx, owner, class.Id, nft)
 			s.Assert().NoError(err)
+
+			// each account attachs its second nft to its first nft
+			if i == 1 {
+				subjectID := composable.FullID{
+					ClassId: class.Id,
+					Id:      *id,
+				}
+				err := subjectID.ValidateBasic()
+				s.Assert().NoError(err)
+
+				targetID := composable.FullID{
+					ClassId: class.Id,
+					Id:      id.Decr(),
+				}
+				err = targetID.ValidateBasic()
+				s.Assert().NoError(err)
+
+				err = s.keeper.Attach(s.ctx, owner, subjectID, targetID)
+				s.Assert().NoError(err)
+			}
 		}
 	}
 }

@@ -16,4 +16,6 @@ var (
 	ErrClassAlreadyExists = sdkerrors.Register(composableCodespace, 7, "nft class already exists")
 	ErrNFTNotFound        = sdkerrors.Register(composableCodespace, 8, "nft not found")
 	ErrInsufficientNFT    = sdkerrors.Register(composableCodespace, 9, "insufficient nft")
+	ErrTooManyDescendants = sdkerrors.Register(composableCodespace, 10, "too many descendants")
+	ErrParentNotFound     = sdkerrors.Register(composableCodespace, 11, "parent not found")
 )

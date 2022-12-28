@@ -10,8 +10,10 @@ var (
 	classKeyPrefix      = []byte{0x10}
 	previousIDKeyPrefix = []byte{0x11}
 
-	nftKeyPrefix   = []byte{0x20}
-	ownerKeyPrefix = []byte{0x21}
+	nftKeyPrefix            = []byte{0x20}
+	ownerKeyPrefix          = []byte{0x21}
+	parentKeyPrefix         = []byte{0x22}
+	numDescendantsKeyPrefix = []byte{0x23}
 )
 
 func concatenate(components ...[]byte) []byte {
@@ -75,6 +77,22 @@ func nftKey(classID string, id sdk.Uint) []byte {
 func ownerKey(classID string, id sdk.Uint) []byte {
 	return concatenate(
 		ownerKeyPrefix,
+		classIDBytes(classID),
+		nftIDBytes(id),
+	)
+}
+
+func parentKey(classID string, id sdk.Uint) []byte {
+	return concatenate(
+		parentKeyPrefix,
+		classIDBytes(classID),
+		nftIDBytes(id),
+	)
+}
+
+func numDescendantsKey(classID string, id sdk.Uint) []byte {
+	return concatenate(
+		numDescendantsKeyPrefix,
 		classIDBytes(classID),
 		nftIDBytes(id),
 	)
