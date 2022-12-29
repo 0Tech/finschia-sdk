@@ -15,6 +15,7 @@ import (
 	sdk "github.com/line/lbm-sdk/types"
 	"github.com/line/lbm-sdk/types/module"
 	"github.com/line/lbm-sdk/x/composable"
+	"github.com/line/lbm-sdk/x/composable/client/cli"
 	"github.com/line/lbm-sdk/x/composable/keeper"
 )
 
@@ -62,9 +63,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 
 // GetTxCmd returns the transaction commands for the module
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	// TODO
-	// return cli.NewTxCmd()
-	return nil
+	return cli.NewTxCmd()
 }
 
 func (b AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
