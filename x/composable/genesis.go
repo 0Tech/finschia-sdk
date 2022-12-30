@@ -32,7 +32,7 @@ func (s GenesisState) ValidateBasic() error {
 
 		class := classNfts.Class
 		if err := class.ValidateBasic(); err != nil {
-			return sdkerrors.Wrap(err, errHint)
+			return sdkerrors.Wrap(sdkerrors.Wrap(err, "class"), errHint)
 		}
 
 		if _, seen := classIDs[class.Id]; seen {
@@ -41,11 +41,12 @@ func (s GenesisState) ValidateBasic() error {
 		classIDs[class.Id] = struct{}{}
 
 		seenID := sdk.ZeroUint()
-		for nftIndex, nft := range classNfts.Nfts {
-			errHint := fmt.Sprintf("%s.nfts[%d]", errHint, nftIndex)
+		for nftIndex, nftState := range classNfts.NftStates {
+			errHint := fmt.Sprintf("%s.nft_states[%d]", errHint, nftIndex)
 
+			nft := nftState.Nft
 			if err := nft.ValidateBasic(); err != nil {
-				return sdkerrors.Wrap(err, errHint)
+				return sdkerrors.Wrap(sdkerrors.Wrap(err, "nft"), errHint)
 			}
 
 			if nft.Id.LTE(seenID) {
@@ -55,61 +56,24 @@ func (s GenesisState) ValidateBasic() error {
 				return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrapf("id %s > previous id %s", nft.Id, classNfts.PreviousId), errHint)
 			}
 			seenID = nft.Id
-		}
-	}
 
-	nftOwners := map[string]struct{}{}
-	for balanceIndex, balance := range s.Balances {
-		errHint := fmt.Sprintf("balances[%d]", balanceIndex)
-
-		if err := ValidateAddress(balance.Owner); err != nil {
-			return sdkerrors.Wrap(err, errHint)
-		}
-
-		if _, seen := nftOwners[balance.Owner]; seen {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrapf("duplicate owner %s", balance.Owner), errHint)
-		}
-		nftOwners[balance.Owner] = struct{}{}
-
-		for classBalanceIndex, classBalance := range balance.Balance {
-			errHint := fmt.Sprintf("%s.balance[%d]", errHint, classBalanceIndex)
-
-			if _, seen := classIDs[classBalance.ClassId]; !seen {
-				return sdkerrors.Wrap(ErrClassNotFound.Wrap(classBalance.ClassId), errHint)
+			// xor must be true
+			hasOwner := (len(nftState.Owner) != 0)
+			hasParent := (nftState.Parent != nil)
+			if hasOwner == hasParent {
+				return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("owner and parent mutually exclusive"), errHint)
 			}
 
-			seenID := sdk.ZeroUint()
-			for idIndex, id := range classBalance.Ids {
-				errHint := fmt.Sprintf("%s.ids[%d]", errHint, idIndex)
-
-				if err := ValidateNFTID(id); err != nil {
-					return sdkerrors.Wrap(err, errHint)
+			if hasOwner {
+				if err := ValidateAddress(nftState.Owner); err != nil {
+					return sdkerrors.Wrap(sdkerrors.Wrap(err, "owner"), errHint)
 				}
-
-				if id.LTE(seenID) {
-					return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("unsorted nfts"), errHint)
-				}
-				seenID = id
 			}
-		}
-	}
 
-	for nftChildrenIndex, nftChildren := range s.Children {
-		errHint := fmt.Sprintf("children[%d]", nftChildrenIndex)
-
-		subject := nftChildren.Subject
-		if err := subject.ValidateBasic(); err != nil {
-			return sdkerrors.Wrap(err, errHint)
-		}
-
-		if len(nftChildren.Children) == 0 {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("empty children"), errHint)
-		}
-		for childIndex, child := range nftChildren.Children {
-			errHint := fmt.Sprintf("%s.children[%d]", errHint, childIndex)
-
-			if err := child.ValidateBasic(); err != nil {
-				return sdkerrors.Wrap(err, errHint)
+			if hasParent {
+				if err := nftState.Parent.ValidateBasic(); err != nil {
+					return sdkerrors.Wrap(sdkerrors.Wrap(err, "parent"), errHint)
+				}
 			}
 		}
 	}

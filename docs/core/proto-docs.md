@@ -1150,16 +1150,14 @@
   
 - [lbm/composable/v1beta1/types.proto](#lbm/composable/v1beta1/types.proto)
     - [Class](#lbm.composable.v1beta1.Class)
+    - [FullID](#lbm.composable.v1beta1.FullID)
     - [NFT](#lbm.composable.v1beta1.NFT)
     - [Params](#lbm.composable.v1beta1.Params)
   
 - [lbm/composable/v1beta1/genesis.proto](#lbm/composable/v1beta1/genesis.proto)
-    - [Balance](#lbm.composable.v1beta1.Balance)
-    - [Children](#lbm.composable.v1beta1.Children)
-    - [ClassBalance](#lbm.composable.v1beta1.ClassBalance)
     - [ClassNFTs](#lbm.composable.v1beta1.ClassNFTs)
-    - [FullID](#lbm.composable.v1beta1.FullID)
     - [GenesisState](#lbm.composable.v1beta1.GenesisState)
+    - [NFTState](#lbm.composable.v1beta1.NFTState)
   
 - [lbm/composable/v1beta1/query.proto](#lbm/composable/v1beta1/query.proto)
     - [QueryBalanceRequest](#lbm.composable.v1beta1.QueryBalanceRequest)
@@ -17530,10 +17528,26 @@ Class defines the class of the nft type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  | id defines the unique identifier of the NFT classification, similar to the contract address of ERC721 |
-| `uri` | [string](#string) |  | uri for the class metadata stored off chain. It can define schema for Class and NFT `Data` attributes. Optional |
-| `uri_hash` | [string](#string) |  | uri_hash is a hash of the document pointed by uri. Optional |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | data is the app specific metadata of the NFT class. Optional |
+| `id` | [string](#string) |  | unique identifier of the NFT classification, similar to the contract address of ERC721 |
+| `uri` | [string](#string) |  | uri for the class metadata stored off chain, which can define schema for Class and NFT `Data` attributes optional |
+| `uri_hash` | [string](#string) |  | hash of the document pointed by uri optional |
+| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | app specific metadata of the NFT class optional |
+
+
+
+
+
+
+<a name="lbm.composable.v1beta1.FullID"></a>
+
+### FullID
+FullID defines a class id and id pair of an nft.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `class_id` | [string](#string) |  | class id of the nft |
+| `id` | [string](#string) |  | id of the nft |
 
 
 
@@ -17548,10 +17562,10 @@ NFT defines the NFT.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  | id is a unique identifier of the NFT |
+| `id` | [string](#string) |  | unique identifier of the NFT |
 | `uri` | [string](#string) |  | uri for the NFT metadata stored off chain |
-| `uri_hash` | [string](#string) |  | uri_hash is a hash of the document pointed by uri |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | data is an app specific data of the NFT. Optional |
+| `uri_hash` | [string](#string) |  | hash of the document pointed by uri |
+| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | app specific data of the NFT optional |
 
 
 
@@ -17589,54 +17603,6 @@ Params defines the parameters for the module.
 
 
 
-<a name="lbm.composable.v1beta1.Balance"></a>
-
-### Balance
-Balance defines an owner address and balance pair.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `owner` | [string](#string) |  | owner is the address of the balance holder |
-| `balance` | [ClassBalance](#lbm.composable.v1beta1.ClassBalance) | repeated | balance defines nft ids in classes |
-
-
-
-
-
-
-<a name="lbm.composable.v1beta1.Children"></a>
-
-### Children
-Children defines children of an nft.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `subject` | [FullID](#lbm.composable.v1beta1.FullID) |  | full id of an nft |
-| `children` | [FullID](#lbm.composable.v1beta1.FullID) | repeated |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1beta1.ClassBalance"></a>
-
-### ClassBalance
-ClassBalance defines nft ids in a class
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  | class id of the following nft ids |
-| `ids` | [string](#string) | repeated | ids is a group of nft ids of the same class |
-
-
-
-
-
-
 <a name="lbm.composable.v1beta1.ClassNFTs"></a>
 
 ### ClassNFTs
@@ -17647,23 +17613,7 @@ ClassNFTs defines all nft of a class.
 | ----- | ---- | ----- | ----------- |
 | `class` | [Class](#lbm.composable.v1beta1.Class) |  | class of the following nfts |
 | `previous_id` | [string](#string) |  | previous nft id of the class |
-| `nfts` | [NFT](#lbm.composable.v1beta1.NFT) | repeated | nfts is a group of nfts of the same class |
-
-
-
-
-
-
-<a name="lbm.composable.v1beta1.FullID"></a>
-
-### FullID
-FullID defines a class id and id pair of an nft.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  | class id of the nft |
-| `id` | [string](#string) |  | id of the nft |
+| `nft_states` | [NFTState](#lbm.composable.v1beta1.NFTState) | repeated | groups of nft states of the same class |
 
 
 
@@ -17678,10 +17628,25 @@ GenesisState defines the nft module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#lbm.composable.v1beta1.Params) |  | params defines all the paramaters of the module. |
-| `nfts` | [ClassNFTs](#lbm.composable.v1beta1.ClassNFTs) | repeated | nfts defines all nfts |
-| `balances` | [Balance](#lbm.composable.v1beta1.Balance) | repeated | balances is an array containing the balances of all the accounts |
-| `children` | [Children](#lbm.composable.v1beta1.Children) | repeated | children is an array containing the children of all nfts |
+| `params` | [Params](#lbm.composable.v1beta1.Params) |  | all the paramaters of the module |
+| `nfts` | [ClassNFTs](#lbm.composable.v1beta1.ClassNFTs) | repeated | nfts grouped by class |
+
+
+
+
+
+
+<a name="lbm.composable.v1beta1.NFTState"></a>
+
+### NFTState
+NFTState defines state of an nft.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `nft` | [NFT](#lbm.composable.v1beta1.NFT) |  | metadata of the nft |
+| `owner` | [string](#string) |  | owner of the nft |
+| `parent` | [FullID](#lbm.composable.v1beta1.FullID) |  | parent of the nft |
 
 
 
