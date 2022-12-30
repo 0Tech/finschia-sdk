@@ -66,10 +66,16 @@ func previousIDKey(classID string) []byte {
 	)
 }
 
-func nftKey(classID string, id sdk.Uint) []byte {
+func nftKeyPrefixOfClass(classID string) []byte {
 	return concatenate(
 		nftKeyPrefix,
 		classIDBytes(classID),
+	)
+}
+
+func nftKey(classID string, id sdk.Uint) []byte {
+	return concatenate(
+		nftKeyPrefixOfClass(classID),
 		nftIDBytes(id),
 	)
 }

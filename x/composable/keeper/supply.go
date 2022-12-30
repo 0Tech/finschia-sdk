@@ -102,6 +102,17 @@ func (k Keeper) setPreviousID(ctx sdk.Context, classID string, id sdk.Uint) {
 	store.Set(key, bz)
 }
 
+func (k Keeper) iterateClasses(ctx sdk.Context, fn func(class composable.Class)) {
+	prefix := classKeyPrefix
+
+	k.iterateImpl(ctx, prefix, func(_, value []byte) {
+		var class composable.Class
+		k.cdc.MustUnmarshal(value, &class)
+
+		fn(class)
+	})
+}
+
 func (k Keeper) MintNFT(ctx sdk.Context, owner sdk.AccAddress, classID string, nft composable.NFT) (*sdk.Uint, error) {
 	if err := k.hasClass(ctx, classID); err != nil {
 		return nil, err
@@ -198,4 +209,15 @@ func (k Keeper) deleteNFT(ctx sdk.Context, id composable.FullID) {
 	key := nftKey(id.ClassId, id.Id)
 
 	store.Delete(key)
+}
+
+func (k Keeper) iterateNFTsOfClass(ctx sdk.Context, classID string, fn func(nft composable.NFT)) {
+	prefix := nftKeyPrefixOfClass(classID)
+
+	k.iterateImpl(ctx, prefix, func(_, value []byte) {
+		var nft composable.NFT
+		k.cdc.MustUnmarshal(value, &nft)
+
+		fn(nft)
+	})
 }
