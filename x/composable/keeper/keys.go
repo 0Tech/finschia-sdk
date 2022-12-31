@@ -16,31 +16,47 @@ var (
 	numDescendantsKeyPrefix = []byte{0x23}
 )
 
-func concatenate(components ...[]byte) []byte {
-	size := 0
+func concatenate(prefix []byte, components ...[]byte) []byte {
+	size := len(prefix) + len(components)
 	for _, component := range components {
 		size += len(component)
 	}
 
-	res := make([]byte, 0, size)
+	res := make([]byte, size)
+	copy(res, prefix)
+
+	cur := len(prefix)
 	for _, component := range components {
-		res = append(res, component...)
+		length := len(component)
+
+		res[cur] = byte(length)
+		copy(res[cur+1:], component)
+
+		cur += 1 + length
 	}
 
 	return res
 }
 
-func lengthPrefixedBytes(bz []byte) []byte {
-	return concatenate(
-		[]byte{byte(len(bz))},
-		bz,
-	)
+func split(prefix []byte, bz []byte) [][]byte {
+	var res [][]byte
+
+	for cur := len(prefix); cur < len(bz); {
+		length := int(bz[cur])
+
+		component := bz[cur+1 : cur+1+length]
+		res = append(res, component)
+
+		cur += 1 + length
+	}
+
+	return res
 }
 
 func classIDBytes(id string) []byte {
 	bz := []byte(id)
 
-	return lengthPrefixedBytes(bz)
+	return bz
 }
 
 func nftIDBytes(id sdk.Uint) []byte {
@@ -49,7 +65,7 @@ func nftIDBytes(id sdk.Uint) []byte {
 		panic(err)
 	}
 
-	return lengthPrefixedBytes(bz)
+	return bz
 }
 
 func classKey(id string) []byte {
