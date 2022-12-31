@@ -1160,8 +1160,6 @@
     - [NFTState](#lbm.composable.v1beta1.NFTState)
   
 - [lbm/composable/v1beta1/query.proto](#lbm/composable/v1beta1/query.proto)
-    - [QueryBalanceRequest](#lbm.composable.v1beta1.QueryBalanceRequest)
-    - [QueryBalanceResponse](#lbm.composable.v1beta1.QueryBalanceResponse)
     - [QueryClassRequest](#lbm.composable.v1beta1.QueryClassRequest)
     - [QueryClassResponse](#lbm.composable.v1beta1.QueryClassResponse)
     - [QueryClassesRequest](#lbm.composable.v1beta1.QueryClassesRequest)
@@ -1172,8 +1170,10 @@
     - [QueryNFTsResponse](#lbm.composable.v1beta1.QueryNFTsResponse)
     - [QueryOwnerRequest](#lbm.composable.v1beta1.QueryOwnerRequest)
     - [QueryOwnerResponse](#lbm.composable.v1beta1.QueryOwnerResponse)
-    - [QuerySupplyRequest](#lbm.composable.v1beta1.QuerySupplyRequest)
-    - [QuerySupplyResponse](#lbm.composable.v1beta1.QuerySupplyResponse)
+    - [QueryParamsRequest](#lbm.composable.v1beta1.QueryParamsRequest)
+    - [QueryParamsResponse](#lbm.composable.v1beta1.QueryParamsResponse)
+    - [QueryParentRequest](#lbm.composable.v1beta1.QueryParentRequest)
+    - [QueryParentResponse](#lbm.composable.v1beta1.QueryParentResponse)
   
     - [Query](#lbm.composable.v1beta1.Query)
   
@@ -17669,37 +17669,6 @@ NFTState defines state of an nft.
 
 
 
-<a name="lbm.composable.v1beta1.QueryBalanceRequest"></a>
-
-### QueryBalanceRequest
-QueryBalanceRequest is the request type for the Query/Balance RPC method
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `owner` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1beta1.QueryBalanceResponse"></a>
-
-### QueryBalanceResponse
-QueryBalanceResponse is the response type for the Query/Balance RPC method
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `amount` | [uint64](#uint64) |  |  |
-
-
-
-
-
-
 <a name="lbm.composable.v1beta1.QueryClassRequest"></a>
 
 ### QueryClassRequest
@@ -17754,7 +17723,7 @@ QueryClassesResponse is the response type for the Query/Classes RPC method
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `classes` | [Class](#lbm.composable.v1beta1.Class) | repeated |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
 
@@ -17802,7 +17771,7 @@ QueryNFTsRequest is the request type for the Query/NFTs RPC method
 | ----- | ---- | ----- | ----------- |
 | `class_id` | [string](#string) |  |  |
 | `owner` | [string](#string) |  |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
 
 
 
@@ -17818,7 +17787,7 @@ QueryNFTsResponse is the response type for the Query/NFTs RPC methods
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `nfts` | [NFT](#lbm.composable.v1beta1.NFT) | repeated |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
 
 
 
@@ -17856,30 +17825,56 @@ QueryOwnerResponse is the response type for the Query/Owner RPC method
 
 
 
-<a name="lbm.composable.v1beta1.QuerySupplyRequest"></a>
+<a name="lbm.composable.v1beta1.QueryParamsRequest"></a>
 
-### QuerySupplyRequest
-QuerySupplyRequest is the request type for the Query/Supply RPC method
+### QueryParamsRequest
+QueryParamsRequest is the request type for the Query/Params RPC method.
+
+
+
+
+
+
+<a name="lbm.composable.v1beta1.QueryParamsResponse"></a>
+
+### QueryParamsResponse
+QueryParamsResponse is the response type for the Query/Params RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `params` | [Params](#lbm.composable.v1beta1.Params) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1beta1.QueryParentRequest"></a>
+
+### QueryParentRequest
+QueryParentRequest is the request type for the Query/Parent RPC method
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `class_id` | [string](#string) |  |  |
+| `id` | [string](#string) |  |  |
 
 
 
 
 
 
-<a name="lbm.composable.v1beta1.QuerySupplyResponse"></a>
+<a name="lbm.composable.v1beta1.QueryParentResponse"></a>
 
-### QuerySupplyResponse
-QuerySupplyResponse is the response type for the Query/Supply RPC method
+### QueryParentResponse
+QueryParentResponse is the response type for the Query/Parent RPC method
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `amount` | [string](#string) |  |  |
+| `parent` | [FullID](#lbm.composable.v1beta1.FullID) |  |  |
 
 
 
@@ -17899,13 +17894,13 @@ Query defines the gRPC querier service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Balance` | [QueryBalanceRequest](#lbm.composable.v1beta1.QueryBalanceRequest) | [QueryBalanceResponse](#lbm.composable.v1beta1.QueryBalanceResponse) | Balance queries the number of NFTs of a given class owned by the owner, same as balanceOf in ERC721 | GET|/lbm/composable/v1beta1/balance/{owner}/classes/{class_id}|
-| `Classes` | [QueryClassesRequest](#lbm.composable.v1beta1.QueryClassesRequest) | [QueryClassesResponse](#lbm.composable.v1beta1.QueryClassesResponse) | Classes queries all NFT classes | GET|/lbm/composable/v1beta1/classes|
-| `Class` | [QueryClassRequest](#lbm.composable.v1beta1.QueryClassRequest) | [QueryClassResponse](#lbm.composable.v1beta1.QueryClassResponse) | Class queries an NFT class based on its id | GET|/lbm/composable/v1beta1/classes/{class_id}|
-| `Supply` | [QuerySupplyRequest](#lbm.composable.v1beta1.QuerySupplyRequest) | [QuerySupplyResponse](#lbm.composable.v1beta1.QuerySupplyResponse) | Supply queries the number of NFTs from the given class, same as totalSupply of ERC721. | GET|/lbm/composable/v1beta1/classes/{class_id}/supply|
-| `NFTs` | [QueryNFTsRequest](#lbm.composable.v1beta1.QueryNFTsRequest) | [QueryNFTsResponse](#lbm.composable.v1beta1.QueryNFTsResponse) | NFTs queries all NFTs of a given class or owner,choose at least one of the two, similar to tokenByIndex in ERC721Enumerable | GET|/lbm/composable/v1beta1/classes/{class_id}/nfts|
-| `NFT` | [QueryNFTRequest](#lbm.composable.v1beta1.QueryNFTRequest) | [QueryNFTResponse](#lbm.composable.v1beta1.QueryNFTResponse) | NFT queries an NFT based on its class and id. | |
-| `Owner` | [QueryOwnerRequest](#lbm.composable.v1beta1.QueryOwnerRequest) | [QueryOwnerResponse](#lbm.composable.v1beta1.QueryOwnerResponse) | Owner queries the owner of the NFT based on its class and id, same as ownerOf in ERC721 | |
+| `Params` | [QueryParamsRequest](#lbm.composable.v1beta1.QueryParamsRequest) | [QueryParamsResponse](#lbm.composable.v1beta1.QueryParamsResponse) | Params queries the module params. | GET|/lbm/composable/v1beta1/params|
+| `Class` | [QueryClassRequest](#lbm.composable.v1beta1.QueryClassRequest) | [QueryClassResponse](#lbm.composable.v1beta1.QueryClassResponse) | Class queries an NFT class based on its id. | GET|/lbm/composable/v1beta1/classes/{class_id}|
+| `Classes` | [QueryClassesRequest](#lbm.composable.v1beta1.QueryClassesRequest) | [QueryClassesResponse](#lbm.composable.v1beta1.QueryClassesResponse) | Classes queries all NFT classes. | GET|/lbm/composable/v1beta1/classes|
+| `NFT` | [QueryNFTRequest](#lbm.composable.v1beta1.QueryNFTRequest) | [QueryNFTResponse](#lbm.composable.v1beta1.QueryNFTResponse) | NFT queries an NFT based on its class and id. | GET|/lbm/composable/v1beta1/classes/{class_id}/nfts/{id}|
+| `NFTs` | [QueryNFTsRequest](#lbm.composable.v1beta1.QueryNFTsRequest) | [QueryNFTsResponse](#lbm.composable.v1beta1.QueryNFTsResponse) | NFTs queries all NFTs of a given class. | GET|/lbm/composable/v1beta1/classes/{class_id}/nfts|
+| `Owner` | [QueryOwnerRequest](#lbm.composable.v1beta1.QueryOwnerRequest) | [QueryOwnerResponse](#lbm.composable.v1beta1.QueryOwnerResponse) | Owner queries the owner of the NFT based on its class and id, same as ownerOf in ERC721. | GET|/lbm/composable/v1beta1/classes/{class_id}/nfts/{id}/owner|
+| `Parent` | [QueryParentRequest](#lbm.composable.v1beta1.QueryParentRequest) | [QueryParentResponse](#lbm.composable.v1beta1.QueryParentResponse) | Parent queries the parent of the NFT based on its class and id. | GET|/lbm/composable/v1beta1/classes/{class_id}/nfts/{id}/parent|
 
  <!-- end services -->
 
