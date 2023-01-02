@@ -12,8 +12,27 @@ import (
 	"github.com/line/lbm-sdk/x/composable/client/cli"
 )
 
+func createAddresses(size int, prefix string) []sdk.AccAddress {
+	addrs := make([]sdk.AccAddress, size)
+	for i := range addrs {
+		addrs[i] = sdk.AccAddress(fmt.Sprintf("%s%d", prefix, i))
+	}
+
+	return addrs
+}
+
+func createClassIDs(size int, prefix string) []string {
+	owners := createAddresses(size, prefix)
+	ids := make([]string, len(owners))
+	for i, owner := range owners {
+		ids[i] = composable.ClassIDFromOwner(owner)
+	}
+
+	return ids
+}
+
 func TestParseFullID(t *testing.T) {
-	classID := "tibetianfox"
+	classID := createClassIDs(1, "class")[0]
 	id := make([]rune, 78)
 	for i := range id {
 		id[i] = '0'
@@ -42,6 +61,11 @@ func TestParseFullID(t *testing.T) {
 			id:        string(id) + "0",
 			err:       composable.ErrInvalidNFTID,
 		},
+		"invalid class id": {
+			delimiter: ":",
+			id:        string(id),
+			err:       composable.ErrInvalidClassID,
+		},
 	}
 
 	for name, tc := range testCases {
@@ -55,7 +79,7 @@ func TestParseFullID(t *testing.T) {
 			}
 
 			require.Equal(t, tc.classID, fullID.ClassId)
-			require.EqualValues(t, sdk.NewUintFromString(tc.id), fullID.Id)
+			require.Equal(t, sdk.NewUintFromString(tc.id), fullID.Id)
 		})
 	}
 }

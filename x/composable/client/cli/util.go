@@ -51,6 +51,9 @@ func ParseFullID(fullIDString string) (*composable.FullID, error) {
 		ClassId: classID,
 		Id:      *id,
 	}
+	if err := fullID.ValidateBasic(); err != nil {
+		return nil, err
+	}
 
 	return &fullID, nil
 }

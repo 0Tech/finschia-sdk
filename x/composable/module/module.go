@@ -56,9 +56,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 
 // GetQueryCmd returns the cli query commands for the module
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	// TODO
-	// return cli.NewQueryCmd()
-	return nil
+	return cli.NewQueryCmd()
 }
 
 // GetTxCmd returns the transaction commands for the module

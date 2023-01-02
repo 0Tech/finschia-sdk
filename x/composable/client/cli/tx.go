@@ -257,6 +257,7 @@ func NewTxCmdNewClass() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+
 	cmd.Flags().String(FlagUri, "", "set uri")
 	cmd.Flags().String(FlagUriHash, "", "set uri-hash")
 
@@ -309,6 +310,7 @@ func NewTxCmdUpdateClass() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+
 	cmd.Flags().String(FlagUri, "", "set uri")
 	cmd.Flags().String(FlagUriHash, "", "set uri-hash")
 
@@ -362,6 +364,7 @@ func NewTxCmdMintNFT() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+
 	cmd.Flags().String(FlagUri, "", "set uri")
 	cmd.Flags().String(FlagUriHash, "", "set uri-hash")
 
@@ -421,12 +424,7 @@ func NewTxCmdUpdateNFT() *cobra.Command {
 				return err
 			}
 
-			classID := id.ClassId
-			if err := composable.ValidateClassID(classID); err != nil {
-				return err
-			}
-
-			owner := composable.ClassOwner(classID).String()
+			owner := composable.ClassOwner(id.ClassId).String()
 			if err := cmd.Flags().Set(flags.FlagFrom, owner); err != nil {
 				return err
 			}
@@ -461,6 +459,7 @@ func NewTxCmdUpdateNFT() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+
 	cmd.Flags().String(FlagUri, "", "set uri")
 	cmd.Flags().String(FlagUriHash, "", "set uri-hash")
 

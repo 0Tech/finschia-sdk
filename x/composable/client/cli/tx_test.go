@@ -522,10 +522,11 @@ func (s *CLITestSuite) TestNewTxCmdUpdateNFT() {
 			args: []string{
 				idToString(composable.FullID{
 					ClassId: composable.ClassIDFromOwner(s.customer),
-					Id:      sdk.ZeroUint(),
+					Id:      sdk.OneUint(),
 				}),
+				fmt.Sprintf("--%s=%s", cli.FlagUri, "https://ipfs.io/ipfs/tIBeTianfOX"),
 			},
-			err: composable.ErrInvalidNFTID,
+			err: composable.ErrInvalidUriHash,
 		},
 	}
 
