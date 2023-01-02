@@ -8,6 +8,7 @@ import (
 
 	sdk "github.com/line/lbm-sdk/types"
 	sdkerrors "github.com/line/lbm-sdk/types/errors"
+	"github.com/line/lbm-sdk/x/composable"
 	"github.com/line/lbm-sdk/x/composable/client/cli"
 )
 
@@ -39,7 +40,7 @@ func TestParseFullID(t *testing.T) {
 			classID:   classID,
 			delimiter: ":",
 			id:        string(id) + "0",
-			err:       sdkerrors.ErrInvalidType,
+			err:       composable.ErrInvalidNFTID,
 		},
 	}
 

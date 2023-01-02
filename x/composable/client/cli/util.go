@@ -7,7 +7,6 @@ import (
 
 	"github.com/line/lbm-sdk/client/flags"
 	"github.com/line/lbm-sdk/codec"
-	sdk "github.com/line/lbm-sdk/types"
 	sdkerrors "github.com/line/lbm-sdk/types/errors"
 	"github.com/line/lbm-sdk/x/composable"
 )
@@ -41,17 +40,16 @@ func ParseFullID(fullIDString string) (*composable.FullID, error) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidType.Wrap("id"), "must be [class-id]:[id]")
 	}
 
-	classID, idString := splitted[0], splitted[1]
+	classID, idStr := splitted[0], splitted[1]
 
-	// TODO revisit
-	id, err := sdk.ParseUint(idString)
+	id, err := composable.NFTIDFromString(idStr)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidType.Wrap("id"), err.Error())
+		return nil, err
 	}
 
 	fullID := composable.FullID{
 		ClassId: classID,
-		Id:      id,
+		Id:      *id,
 	}
 
 	return &fullID, nil

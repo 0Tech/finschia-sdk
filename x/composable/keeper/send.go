@@ -96,7 +96,7 @@ func (k Keeper) GetRootOwner(ctx sdk.Context, id composable.FullID) (*sdk.AccAdd
 	rootID := k.getRoot(ctx, id)
 	owner, err := k.getOwner(ctx, rootID)
 	if err != nil {
-		return nil, err
+		return nil, composable.ErrNFTNotFound.Wrap(id.String())
 	}
 
 	return owner, nil

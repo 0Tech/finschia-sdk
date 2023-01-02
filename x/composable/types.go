@@ -5,6 +5,19 @@ import (
 	sdkerrors "github.com/line/lbm-sdk/types/errors"
 )
 
+func NFTIDFromString(str string) (*sdk.Uint, error) {
+	id, err := sdk.ParseUint(str)
+	if err != nil {
+		return nil, ErrInvalidNFTID.Wrap(err.Error())
+	}
+
+	if err := ValidateNFTID(id); err != nil {
+		return nil, err
+	}
+
+	return &id, nil
+}
+
 func ValidateAddress(address string) error {
 	if _, err := sdk.AccAddressFromBech32(address); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrap(address)
