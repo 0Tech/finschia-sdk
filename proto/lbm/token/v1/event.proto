@@ -55,7 +55,7 @@ enum AttributeKey {
 //
 // Since: 0.46.0 (finschia)
 message EventSend {
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 1;
   // address which triggered the send.
   string operator = 2;
@@ -71,7 +71,7 @@ message EventSend {
 //
 // Since: 0.46.0 (finschia)
 message EventAuthorizeOperator {
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 1;
   // address of a holder which authorized the `operator` address as an operator.
   string holder = 2;
@@ -83,7 +83,7 @@ message EventAuthorizeOperator {
 //
 // Since: 0.46.0 (finschia)
 message EventRevokeOperator {
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 1;
   // address of a holder which revoked the `operator` address as an operator.
   string holder = 2;
@@ -91,21 +91,21 @@ message EventRevokeOperator {
   string operator = 3;
 }
 
-// EventCreateContract is emitted when a new token class is created.
+// EventCreateContract is emitted when a new token contract is created.
 //
 // Since: 0.46.0 (finschia)
 message EventCreateContract {
   // address which created the contract.
   string creator = 1;
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 2;
-  // name defines the human-readable name of the token class.
+  // name defines the human-readable name of the token contract.
   string name = 3;
-  // symbol is an abbreviated name for token class.
+  // symbol is an abbreviated name for token contract.
   string symbol = 4;
-  // uri is an uri for the resource of the token class stored off chain.
+  // uri is an uri for the resource of the token contract stored off chain.
   string uri = 5;
-  // meta is a brief description of token class.
+  // meta is a brief description of token contract.
   string meta = 6;
   // decimals is the number of decimals which one must divide the amount by to get its user representation.
   int32 decimals = 7;
@@ -119,14 +119,14 @@ message EventCreateContract {
 //
 // Since: 0.46.0 (finschia)
 message EventGrant {
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 1;
   // address which granted the permission to `grantee`.
   // it would be empty where the event is triggered by the issuance.
   string granter = 2;
   // address of the grantee.
   string grantee = 3;
-  // permission on the token class.
+  // permission on the token contract.
   Permission permission = 4;
 }
 
@@ -134,11 +134,11 @@ message EventGrant {
 //
 // Since: 0.46.0 (finschia)
 message EventRenounce {
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 1;
   // address of the grantee which abandons its grant.
   string grantee = 2;
-  // permission on the token class.
+  // permission on the token contract.
   Permission permission = 3;
 }
 
@@ -146,7 +146,7 @@ message EventRenounce {
 //
 // Since: 0.46.0 (finschia)
 message EventMint {
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 1;
   // address which triggered the mint.
   string operator = 2;
@@ -160,7 +160,7 @@ message EventMint {
 //
 // Since: 0.46.0 (finschia)
 message EventBurn {
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 1;
   // address which triggered the burn.
   string operator = 2;
@@ -170,14 +170,15 @@ message EventBurn {
   string amount = 4 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Int", (gogoproto.nullable) = false];
 }
 
-// EventModifyContract is emitted when the information of a token class is modified.
+// EventModifyContract is emitted when the information of a token contract is modified.
 //
 // Since: 0.46.0 (finschia)
 message EventModifyContract {
-  // contract id associated with the token class.
+  // id associated with the token contract.
   string contract_id = 1;
   // address which triggered the modify.
   string operator = 2;
-  // changes on the metadata of the class.
+  // changes on the metadata of the contract.
+  // refer to the comments on MsgModify for the possible keys.
   repeated Attribute changes = 3 [(gogoproto.nullable) = false];
 }

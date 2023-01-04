@@ -408,6 +408,7 @@ message MsgModifyContract {
   // the address of the grantee which must have modify permission.
   string operator = 2;
   // changes to apply.
+  // possible keys: name, uri, meta
   repeated Attribute changes = 3 [(gogoproto.nullable) = false];
 }
 
