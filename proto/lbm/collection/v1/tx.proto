@@ -449,8 +449,8 @@ message MsgCreateNFTClass {
 
 // MsgCreateNFTClassResponse is the Msg/CreateNFTClass response type.
 message MsgCreateNFTClassResponse {
-  // id of the new token type.
-  string class_id = 1;
+  // the new token type.
+  string token_type = 1;
 }
 
 // MsgMintFT is the Msg/MintFT request type.
