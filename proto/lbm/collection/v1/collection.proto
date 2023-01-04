@@ -121,7 +121,7 @@ message TokenType {
   // contract id associated with the contract.
   string contract_id = 1;
   // token type defines the unique identifier of the token type.
-  string class_id = 2;
+  string token_type = 2;
   // name defines the human-readable name of the token type.
   string name = 3;
   // meta is a brief description of the token type.

@@ -19,9 +19,7 @@ service Query {
   //   - `contract_id` is of invalid format.
   // - ErrInvalidAddress
   //   - `address` is of invalid format.
-  rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/balances/{address}/{token_id}";
-  }
+  rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse) {}
 
   // AllBalances queries the balance of all token classes for a single account.
   // Throws:
@@ -29,9 +27,7 @@ service Query {
   //   - `contract_id` is of invalid format.
   // - ErrInvalidAddress
   //   - `address` is of invalid format.
-  rpc AllBalances(QueryAllBalancesRequest) returns (QueryAllBalancesResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/balances/{address}";
-  }
+  rpc AllBalances(QueryAllBalancesRequest) returns (QueryAllBalancesResponse) {}
 
   // FTSupply queries the number of tokens from a given contract id and token id.
   // Throws:
@@ -40,9 +36,7 @@ service Query {
   //   - `class_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token class of `class_id`.
-  rpc FTSupply(QueryFTSupplyRequest) returns (QueryFTSupplyResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/fts/{token_id}/supply";
-  }
+  rpc FTSupply(QueryFTSupplyRequest) returns (QueryFTSupplyResponse) {}
 
   // FTMinted queries the number of minted tokens from a given contract id and token id.
   // Throws:
@@ -51,9 +45,7 @@ service Query {
   //   - `class_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token class of `class_id`.
-  rpc FTMinted(QueryFTMintedRequest) returns (QueryFTMintedResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/fts/{token_id}/minted";
-  }
+  rpc FTMinted(QueryFTMintedRequest) returns (QueryFTMintedResponse) {}
 
   // FTBurnt queries the number of burnt tokens from a given contract id and token id.
   // Throws:
@@ -62,9 +54,7 @@ service Query {
   //   - `class_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token class of `class_id`.
-  rpc FTBurnt(QueryFTBurntRequest) returns (QueryFTBurntResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/fts/{token_id}/burnt";
-  }
+  rpc FTBurnt(QueryFTBurntRequest) returns (QueryFTBurntResponse) {}
 
   // NFTSupply queries the number of tokens from a given contract id and token type.
   // Throws:
@@ -73,9 +63,7 @@ service Query {
   //   - `class_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token class of `class_id`.
-  rpc NFTSupply(QueryNFTSupplyRequest) returns (QueryNFTSupplyResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nft_classes/{class_id}/supply";
-  }
+  rpc NFTSupply(QueryNFTSupplyRequest) returns (QueryNFTSupplyResponse) {}
 
   // NFTMinted queries the number of minted tokens from a given contract id and token type.
   // Throws:
@@ -84,9 +72,7 @@ service Query {
   //   - `class_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token class of `class_id`.
-  rpc NFTMinted(QueryNFTMintedRequest) returns (QueryNFTMintedResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nft_classes/{class_id}/minted";
-  }
+  rpc NFTMinted(QueryNFTMintedRequest) returns (QueryNFTMintedResponse) {}
 
   // NFTBurnt queries the number of burnt tokens from a given contract id and token type.
   // Throws:
@@ -95,9 +81,7 @@ service Query {
   //   - `class_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token class of `class_id`.
-  rpc NFTBurnt(QueryNFTBurntRequest) returns (QueryNFTBurntResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nft_classes/{class_id}/burnt";
-  }
+  rpc NFTBurnt(QueryNFTBurntRequest) returns (QueryNFTBurntResponse) {}
 
   // Contract queries a contract metadata based on its contract id.
   // Throws:
@@ -105,9 +89,7 @@ service Query {
   //   - `contract_id` is of invalid format.
   // - ErrNotFound
   //   - there is no contract of `contract_id`.
-  rpc Contract(QueryContractRequest) returns (QueryContractResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}";
-  }
+  rpc Contract(QueryContractRequest) returns (QueryContractResponse) {}
 
   // ClassTypeName queries the fully qualified message type name of a token class from its class id.
   // Throws:
@@ -117,30 +99,24 @@ service Query {
   // - ErrNotFound
   //   - there is no token class of `class_id`.
   // Since: 0.46.0 (finschia)
-  rpc ClassTypeName(QueryClassTypeNameRequest) returns (QueryClassTypeNameResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/classes/{class_id}/type_name";
-  }
+  rpc ClassTypeName(QueryClassTypeNameRequest) returns (QueryClassTypeNameResponse) {}
 
-  // NFTClass queries metadata of a token type.
+  // TokenType queries metadata of a token type.
   // Throws:
   // - ErrInvalidRequest
   //   - `contract_id` is of invalid format.
   //   - `class_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token class of `class_id`.
-  rpc NFTClass(QueryNFTClassRequest) returns (QueryNFTClassResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nft_classes/{class_id}";
-  }
+  rpc TokenType(QueryTokenTypeRequest) returns (QueryTokenTypeResponse) {}
 
-  // NFTClasses queries metadata of all the token types.
+  // TokenTypes queries metadata of all the token types.
   // Throws:
   // - ErrInvalidRequest
   //   - `contract_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token contract of `contract_id`.
-  rpc NFTClasses(QueryNFTClassesRequest) returns (QueryNFTClassesResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nft_classes";
-  }
+  rpc TokenTypes(QueryTokenTypesRequest) returns (QueryTokenTypesResponse) {}
 
   // Token queries a metadata of a token from its token id.
   // Throws:
@@ -149,20 +125,16 @@ service Query {
   //   - `token_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token of `token_id`.
-  rpc Token(QueryTokenRequest) returns (QueryTokenResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/tokens/{token_id}";
-  }
+  rpc Token(QueryTokenRequest) returns (QueryTokenResponse) {}
 
-  // NFTsByClassID queries all token metadata with token type.
+  // TokensWithTokenType queries all token metadata with token type.
   // Throws:
   // - ErrInvalidRequest
   //   - `contract_id` is of invalid format.
   //   - `token_type` is of invalid format.
   // - ErrNotFound
   //   - there is no contract of `contract_id`.
-  rpc NFTsByClassID(QueryNFTsByClassIDRequest) returns (QueryNFTsByClassIDResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nfts_by_class_id/{class_id}";
-  }
+  rpc TokensWithTokenType(QueryTokensWithTokenTypeRequest) returns (QueryTokensWithTokenTypeResponse) {}
 
   // Tokens queries all token metadata.
   // Throws:
@@ -170,9 +142,7 @@ service Query {
   //   - `contract_id` is of invalid format.
   // - ErrNotFound
   //   - there is no contract of `contract_id`.
-  rpc Tokens(QueryTokensRequest) returns (QueryTokensResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/tokens";
-  }
+  rpc Tokens(QueryTokensRequest) returns (QueryTokensResponse) {}
 
   // Root queries the root of a given nft.
   // Throws:
@@ -181,9 +151,7 @@ service Query {
   //   - `token_id` is of invalid format.
   // - ErrNotFound
   //   - there is no token of `token_id`.
-  rpc Root(QueryRootRequest) returns (QueryRootResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nfts/{token_id}/root";
-  }
+  rpc Root(QueryRootRequest) returns (QueryRootResponse) {}
 
   // Parent queries the parent of a given nft.
   // Throws:
@@ -193,18 +161,14 @@ service Query {
   // - ErrNotFound
   //   - there is no token of `token_id`.
   //   - token is the root.
-  rpc Parent(QueryParentRequest) returns (QueryParentResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nfts/{token_id}/parent";
-  }
+  rpc Parent(QueryParentRequest) returns (QueryParentResponse) {}
 
   // Children queries the children of a given nft.
   // Throws:
   // - ErrInvalidRequest
   //   - `contract_id` is of invalid format.
   //   - `token_id` is of invalid format.
-  rpc Children(QueryChildrenRequest) returns (QueryChildrenResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/nfts/{token_id}/children";
-  }
+  rpc Children(QueryChildrenRequest) returns (QueryChildrenResponse) {}
 
   // GrantsByGrantee queries all permissions on a given grantee.
   // Throws:
@@ -212,9 +176,7 @@ service Query {
   //   - `contract_id` is of invalid format.
   // - ErrInvalidAddress
   //   - `grantee` is of invalid format.
-  rpc GrantsByGrantee(QueryGrantsByGranteeRequest) returns (QueryGrantsByGranteeResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/grants/{grantee}";
-  }
+  rpc GrantsByGrantee(QueryGrantsByGranteeRequest) returns (QueryGrantsByGranteeResponse) {}
 
   // Approved queries whether the proxy is approved by the approver.
   // Throws:
@@ -225,9 +187,7 @@ service Query {
   //   - `approver` is of invalid format.
   // - ErrNotFound
   //   - there is no authorization given by `approver` to `proxy`.
-  rpc Approved(QueryApprovedRequest) returns (QueryApprovedResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/accounts/{address}/proxies/{approver}";
-  }
+  rpc Approved(QueryApprovedRequest) returns (QueryApprovedResponse) {}
 
   // Approvers queries approvers of a given proxy.
   // Throws:
@@ -235,9 +195,7 @@ service Query {
   //   - `contract_id` is of invalid format.
   // - ErrInvalidAddress
   //   - `proxy` is of invalid format.
-  rpc Approvers(QueryApproversRequest) returns (QueryApproversResponse) {
-    option (google.api.http).get = "/lbm/collection/v1/contracts/{contract_id}/accounts/{address}/approvers";
-  }
+  rpc Approvers(QueryApproversRequest) returns (QueryApproversResponse) {}
 }
 
 // QueryBalanceRequest is the request type for the Query/Balance RPC method.
@@ -323,7 +281,7 @@ message QueryNFTSupplyRequest {
   // contract id associated with the contract.
   string contract_id = 1;
   // token type associated with the token type.
-  string class_id = 2;
+  string token_type = 2;
 }
 
 // QueryNFTSupplyResponse is the response type for the Query/NFTSupply RPC method.
@@ -337,7 +295,7 @@ message QueryNFTMintedRequest {
   // contract id associated with the contract.
   string contract_id = 1;
   // token type associated with the token type.
-  string class_id = 2;
+  string token_type = 2;
 }
 
 // QueryNFTMintedResponse is the response type for the Query/NFTMinted RPC method.
@@ -351,7 +309,7 @@ message QueryNFTBurntRequest {
   // contract id associated with the contract.
   string contract_id = 1;
   // token type associated with the token type.
-  string class_id = 2;
+  string token_type = 2;
 }
 
 // QueryNFTBurntResponse is the response type for the Query/NFTBurnt RPC method.
@@ -390,22 +348,22 @@ message QueryClassTypeNameResponse {
   string name = 1;
 }
 
-// QueryNFTClassRequest is the request type for the Query/NFTClass RPC method.
-message QueryNFTClassRequest {
+// QueryTokenTypeRequest is the request type for the Query/TokenType RPC method.
+message QueryTokenTypeRequest {
   // contract id associated with the contract.
   string contract_id = 1;
   // token type associated with the token type.
-  string class_id = 2;
+  string token_type = 2;
 }
 
-// QueryNFTClassResponse is the response type for the Query/NFTClass RPC method.
-message QueryNFTClassResponse {
+// QueryTokenTypeResponse is the response type for the Query/TokenType RPC method.
+message QueryTokenTypeResponse {
   // token type is the information of the token type.
-  TokenType class = 1 [(gogoproto.nullable) = false];
+  TokenType token_type = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryNFTClassesRequest is the request type for the Query/NFTClasses RPC method.
-message QueryNFTClassesRequest {
+// QueryTokenTypesRequest is the request type for the Query/TokenTypes RPC method.
+message QueryTokenTypesRequest {
   // contract id associated with the contract.
   string contract_id = 1;
 
@@ -413,10 +371,10 @@ message QueryNFTClassesRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryNFTClassesResponse is the response type for the Query/NFTClasses RPC method.
-message QueryNFTClassesResponse {
+// QueryTokenTypesResponse is the response type for the Query/TokenTypes RPC method.
+message QueryTokenTypesResponse {
   // token types is the informations of all the token types.
-  repeated TokenType classes = 1 [(gogoproto.nullable) = false];
+  repeated TokenType token_types = 1 [(gogoproto.nullable) = false];
 
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -436,19 +394,19 @@ message QueryTokenResponse {
   google.protobuf.Any token = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryNFTsByClassIDRequest is the request type for the Query/NFTsByClassID RPC method.
-message QueryNFTsByClassIDRequest {
+// QueryTokensWithTokenTypeRequest is the request type for the Query/TokensWithTokenType RPC method.
+message QueryTokensWithTokenTypeRequest {
   // contract id associated with the contract.
   string contract_id = 1;
   // token type associated with the token type.
-  string class_id = 2;
+  string token_type = 2;
 
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 3;
 }
 
-// QueryNFTsByClassIDResponse is the response type for the Query/NFTsByClassID RPC method.
-message QueryNFTsByClassIDResponse {
+// QueryTokensWithTokenTypeResponse is the response type for the Query/TokensWithTokenType RPC method.
+message QueryTokensWithTokenTypeResponse {
   // informations of all the tokens.
   repeated google.protobuf.Any tokens = 1 [(gogoproto.nullable) = false];
 
