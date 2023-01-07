@@ -11,45 +11,35 @@ message Params {
   uint32 max_descendants = 1;
 }
 
-// Class defines the class of the nft type.
-message Class {
-  // unique identifier of the NFT classification, similar to the contract address of ERC721
+// Trait defines a trait associated with a classification of nft.
+message Trait {
+  // indentifier of the trait
   string id = 1;
 
-  // uri for the class metadata stored off chain, which can define schema for Class and NFT `Data` attributes
-  // optional
-  string uri = 2;
-
-  // hash of the document pointed by uri
-  // optional
-  string uri_hash = 3;
-
-  // app specific metadata of the NFT class
-  // optional
-  google.protobuf.Any data = 4;
+  // flag to tell whether a property value of the trait can be mutated or not
+  bool mutable = 2;
 }
 
-// NFT defines the NFT.
+// Class defines a classification of nft.
+message Class {
+  // identifier of the classfication
+  string id = 1;
+}
+
+// Property defines a property associated with an nft.
+message Property {
+  // identifier of the property
+  string id = 1;
+
+  // fact associated with the property
+  string fact = 2;
+}
+
+// NFT defines a non-fungible token.
 message NFT {
-  // unique identifier of the NFT
-  string id = 1 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
-
-  // uri for the NFT metadata stored off chain
-  string uri = 2;
-
-  // hash of the document pointed by uri
-  string uri_hash = 3;
-
-  // app specific data of the NFT
-  // optional
-  google.protobuf.Any data = 4;
-}
-
-// FullID defines a class id and id pair of an nft.
-message FullID {
-  // class id of the nft
+  // identifier of the class for the nft
   string class_id = 1;
 
-  // id of the nft
+  // identifier of the nft
   string id = 2 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
 }

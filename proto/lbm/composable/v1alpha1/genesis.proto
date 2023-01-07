@@ -12,30 +12,36 @@ message GenesisState {
   // all the paramaters of the module
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // nfts grouped by class
-  repeated ClassNFTs nfts = 2 [(gogoproto.nullable) = false];
+  // classes
+  repeated GenesisClass classes = 2 [(gogoproto.nullable) = false];
 }
 
-// ClassNFTs defines all nft of a class.
-message ClassNFTs {
-  // class of the following nfts
+// GenesisClass defines a class and its relevant data.
+message GenesisClass {
+  // class of subject
   Class class = 1 [(gogoproto.nullable) = false];
 
-  // previous nft id of the class
-  string previous_id = 2 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
+  // traits of the class
+  repeated Trait traits = 2 [(gogoproto.nullable) = false];
 
-  // groups of nft states of the same class
-  repeated NFTState nft_states = 3 [(gogoproto.nullable) = false];
+  // last minted nft of the class
+  NFT last_minted_nft = 3 [(gogoproto.nullable) = false];
+
+  // nfts of the class
+  repeated GenesisNFT nfts = 4 [(gogoproto.nullable) = false];
 }
 
-// NFTState defines state of an nft.
-message NFTState {
-  // metadata of the nft
+// GenesisNFT defines an nft and its relevant data.
+message GenesisNFT {
+  // nft of subject
   NFT nft = 1 [(gogoproto.nullable) = false];
 
-  // owner of the nft
-  string owner = 2 [(gogoproto.nullable) = true];
+  // properties of the nft
+  repeated Property properties = 2 [(gogoproto.nullable) = false];
 
-  // parent of the nft
-  FullID parent = 3;
+  // owner of the nft (mutually exclusive with parent)
+  string owner = 3;
+
+  // parent of the nft (mutually exclusive with owner)
+  NFT parent = 4;
 }

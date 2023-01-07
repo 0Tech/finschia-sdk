@@ -5,6 +5,7 @@ import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
 import "cosmos/base/query/v1beta1/pagination.proto";
+
 import "lbm/composable/v1alpha1/types.proto";
 
 option go_package = "github.com/line/lbm-sdk/x/composable";
@@ -16,32 +17,52 @@ service Query {
     option (google.api.http).get = "/lbm/composable/v1alpha1/params";
   }
 
-  // Class queries an NFT class based on its id.
+  // Class queries a class.
   rpc Class(QueryClassRequest) returns (QueryClassResponse) {
     option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}";
   }
 
-  // Classes queries all NFT classes.
+  // Classes queries all classes.
   rpc Classes(QueryClassesRequest) returns (QueryClassesResponse) {
     option (google.api.http).get = "/lbm/composable/v1alpha1/classes";
   }
 
-  // NFT queries an NFT based on its class and id.
+  // Trait queries a trait of a class.
+  rpc Trait(QueryTraitRequest) returns (QueryTraitResponse) {
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/traits/{trait_id}";
+  }
+
+  // Traits queries all traits of a class.
+  rpc Traits(QueryTraitsRequest) returns (QueryTraitsResponse) {
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/traits";
+  }
+
+  // NFT queries an nft.
   rpc NFT(QueryNFTRequest) returns (QueryNFTResponse) {
     option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}";
   }
 
-  // NFTs queries all NFTs of a given class.
+  // NFTs queries all nfts.
   rpc NFTs(QueryNFTsRequest) returns (QueryNFTsResponse) {
     option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts";
   }
 
-  // Owner queries the owner of the NFT based on its class and id, same as ownerOf in ERC721.
+  // Property queries a property of a class.
+  rpc Property(QueryPropertyRequest) returns (QueryPropertyResponse) {
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/properties/{property_id}";
+  }
+
+  // Properties queries all properties of a class.
+  rpc Properties(QueryPropertiesRequest) returns (QueryPropertiesResponse) {
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/properties";
+  }
+
+  // Owner queries the owner of an nft.
   rpc Owner(QueryOwnerRequest) returns (QueryOwnerResponse) {
     option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/owner";
   }
 
-  // Parent queries the parent of the NFT based on its class and id.
+  // Parent queries the parent of an nft.
   rpc Parent(QueryParentRequest) returns (QueryParentResponse) {
     option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/parent";
   }
@@ -52,79 +73,149 @@ message QueryParamsRequest {}
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
+  // parameters of the module
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryClassRequest is the request type for the Query/Class RPC method
+// QueryClassRequest is the request type for the Query/Class RPC method.
 message QueryClassRequest {
+  // identifier of a class
   string class_id = 1;
 }
 
-// QueryClassResponse is the response type for the Query/Class RPC method
+// QueryClassResponse is the response type for the Query/Class RPC method.
 message QueryClassResponse {
   Class class = 1;
 }
 
-// QueryClassesRequest is the request type for the Query/Classes RPC method
+// QueryClassesRequest is the request type for the Query/Classes RPC method.
 message QueryClassesRequest {
-  // pagination defines an optional pagination for the request.
+  // optional pagination for the request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryClassesResponse is the response type for the Query/Classes RPC method
+// QueryClassesResponse is the response type for the Query/Classes RPC method.
 message QueryClassesResponse {
   repeated Class classes = 1 [(gogoproto.nullable) = false];
 
-  // pagination defines the pagination in the response.
+  // pagination in the response
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryNFTRequest is the request type for the Query/NFT RPC method
+// QueryTraitRequest is the request type for the Query/Trait RPC method.
+message QueryTraitRequest {
+  // identifier of a class
+  string class_id = 1;
+
+  // identifier of a trait
+  string trait_id = 2;
+}
+
+// QueryTraitResponse is the response type for the Query/Trait RPC method.
+message QueryTraitResponse {
+  Trait trait = 1;
+}
+
+// QueryTraitsRequest is the request type for the Query/Traits RPC method.
+message QueryTraitsRequest {
+  // identifier of a class
+  string class_id = 1;
+
+  // optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryTraitsResponse is the response type for the Query/Traits RPC method.
+message QueryTraitsResponse {
+  repeated Trait traits = 1 [(gogoproto.nullable) = false];
+
+  // pagination in the response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryNFTRequest is the request type for the Query/NFT RPC method.
 message QueryNFTRequest {
   string class_id = 1;
   string id       = 2;
 }
 
-// QueryNFTResponse is the response type for the Query/NFT RPC method
+// QueryNFTResponse is the response type for the Query/NFT RPC method.
 message QueryNFTResponse {
   NFT nft = 1;
 }
 
-// QueryNFTsRequest is the request type for the Query/NFTs RPC method
+// QueryNFTsRequest is the request type for the Query/NFTs RPC method.
 message QueryNFTsRequest {
+  // identifier of a class
   string class_id = 1;
-  string owner    = 2;
 
-  // pagination defines an optional pagination for the request.
-  cosmos.base.query.v1beta1.PageRequest pagination = 3;
+  // optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryNFTsResponse is the response type for the Query/NFTs RPC methods
+// QueryNFTsResponse is the response type for the Query/NFTs RPC method.
 message QueryNFTsResponse {
   repeated NFT nfts = 1 [(gogoproto.nullable) = false];
 
-  // pagination defines the pagination in the response.
+  // pagination in the response
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryOwnerRequest is the request type for the Query/Owner RPC method
+// QueryPropertyRequest is the request type for the Query/Property RPC method.
+message QueryPropertyRequest {
+  // identifier of a class
+  string class_id = 1;
+
+  // identifier of an nft
+  string id = 2;
+
+  // identifier of a property
+  string property_id = 3;
+}
+
+// QueryPropertyResponse is the response type for the Query/Property RPC method.
+message QueryPropertyResponse {
+  Property property = 1;
+}
+
+// QueryPropertiesRequest is the request type for the Query/Properties RPC method.
+message QueryPropertiesRequest {
+  // identifier of a class
+  string class_id = 1;
+
+  // identifier of an nft
+  string id = 2;
+
+  // optional pagination for the request
+  cosmos.base.query.v1beta1.PageRequest pagination = 3;
+}
+
+// QueryPropertiesResponse is the response type for the Query/Properties RPC method.
+message QueryPropertiesResponse {
+  repeated Property properties = 1 [(gogoproto.nullable) = false];
+
+  // pagination in the response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryOwnerRequest is the request type for the Query/Owner RPC method.
 message QueryOwnerRequest {
   string class_id = 1;
   string id       = 2;
 }
 
-// QueryOwnerResponse is the response type for the Query/Owner RPC method
+// QueryOwnerResponse is the response type for the Query/Owner RPC method.
 message QueryOwnerResponse {
   string owner = 1;
 }
 
-// QueryParentRequest is the request type for the Query/Parent RPC method
+// QueryParentRequest is the request type for the Query/Parent RPC method.
 message QueryParentRequest {
   string class_id = 1;
   string id       = 2;
 }
 
-// QueryParentResponse is the response type for the Query/Parent RPC method
+// QueryParentResponse is the response type for the Query/Parent RPC method.
 message QueryParentResponse {
-  FullID parent = 1;
+  NFT parent = 1;
 }

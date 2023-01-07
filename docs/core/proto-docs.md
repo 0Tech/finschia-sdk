@@ -1138,6 +1138,13 @@
   
     - [Msg](#lbm.collection.v1.Msg)
   
+- [lbm/composable/v1alpha1/types.proto](#lbm/composable/v1alpha1/types.proto)
+    - [Class](#lbm.composable.v1alpha1.Class)
+    - [NFT](#lbm.composable.v1alpha1.NFT)
+    - [Params](#lbm.composable.v1alpha1.Params)
+    - [Property](#lbm.composable.v1alpha1.Property)
+    - [Trait](#lbm.composable.v1alpha1.Trait)
+  
 - [lbm/composable/v1alpha1/event.proto](#lbm/composable/v1alpha1/event.proto)
     - [EventAttach](#lbm.composable.v1alpha1.EventAttach)
     - [EventBurnNFT](#lbm.composable.v1alpha1.EventBurnNFT)
@@ -1148,16 +1155,10 @@
     - [EventUpdateClass](#lbm.composable.v1alpha1.EventUpdateClass)
     - [EventUpdateNFT](#lbm.composable.v1alpha1.EventUpdateNFT)
   
-- [lbm/composable/v1alpha1/types.proto](#lbm/composable/v1alpha1/types.proto)
-    - [Class](#lbm.composable.v1alpha1.Class)
-    - [FullID](#lbm.composable.v1alpha1.FullID)
-    - [NFT](#lbm.composable.v1alpha1.NFT)
-    - [Params](#lbm.composable.v1alpha1.Params)
-  
 - [lbm/composable/v1alpha1/genesis.proto](#lbm/composable/v1alpha1/genesis.proto)
-    - [ClassNFTs](#lbm.composable.v1alpha1.ClassNFTs)
+    - [GenesisClass](#lbm.composable.v1alpha1.GenesisClass)
+    - [GenesisNFT](#lbm.composable.v1alpha1.GenesisNFT)
     - [GenesisState](#lbm.composable.v1alpha1.GenesisState)
-    - [NFTState](#lbm.composable.v1alpha1.NFTState)
   
 - [lbm/composable/v1alpha1/query.proto](#lbm/composable/v1alpha1/query.proto)
     - [QueryClassRequest](#lbm.composable.v1alpha1.QueryClassRequest)
@@ -1174,6 +1175,14 @@
     - [QueryParamsResponse](#lbm.composable.v1alpha1.QueryParamsResponse)
     - [QueryParentRequest](#lbm.composable.v1alpha1.QueryParentRequest)
     - [QueryParentResponse](#lbm.composable.v1alpha1.QueryParentResponse)
+    - [QueryPropertiesRequest](#lbm.composable.v1alpha1.QueryPropertiesRequest)
+    - [QueryPropertiesResponse](#lbm.composable.v1alpha1.QueryPropertiesResponse)
+    - [QueryPropertyRequest](#lbm.composable.v1alpha1.QueryPropertyRequest)
+    - [QueryPropertyResponse](#lbm.composable.v1alpha1.QueryPropertyResponse)
+    - [QueryTraitRequest](#lbm.composable.v1alpha1.QueryTraitRequest)
+    - [QueryTraitResponse](#lbm.composable.v1alpha1.QueryTraitResponse)
+    - [QueryTraitsRequest](#lbm.composable.v1alpha1.QueryTraitsRequest)
+    - [QueryTraitsResponse](#lbm.composable.v1alpha1.QueryTraitsResponse)
   
     - [Query](#lbm.composable.v1alpha1.Query)
   
@@ -17351,168 +17360,6 @@ Msg defines the collection Msg service.
 
 
 
-<a name="lbm/composable/v1alpha1/event.proto"></a>
-<p align="right"><a href="#top">Top</a></p>
-
-## lbm/composable/v1alpha1/event.proto
-
-
-
-<a name="lbm.composable.v1alpha1.EventAttach"></a>
-
-### EventAttach
-EventAttach is emitted on Msg/Attach
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `owner` | [string](#string) |  |  |
-| `subject_class_id` | [string](#string) |  |  |
-| `subject_id` | [string](#string) |  |  |
-| `target_class_id` | [string](#string) |  |  |
-| `target_id` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.EventBurnNFT"></a>
-
-### EventBurnNFT
-EventBurnNFT is emitted on Msg/BurnNFT
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `owner` | [string](#string) |  |  |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.EventDetach"></a>
-
-### EventDetach
-EventDetach is emitted on Msg/Detach
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `owner` | [string](#string) |  |  |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.EventMintNFT"></a>
-
-### EventMintNFT
-EventMintNFT is emitted on Msg/MintNFT
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
-| `uri` | [string](#string) |  |  |
-| `uri_hash` | [string](#string) |  |  |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
-| `recipient` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.EventNewClass"></a>
-
-### EventNewClass
-EventNewClass is emitted on Msg/NewClass
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  |  |
-| `uri` | [string](#string) |  |  |
-| `uri_hash` | [string](#string) |  |  |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.EventSend"></a>
-
-### EventSend
-EventSend is emitted on Msg/Send
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `sender` | [string](#string) |  |  |
-| `receiver` | [string](#string) |  |  |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.EventUpdateClass"></a>
-
-### EventUpdateClass
-EventUpdateClass is emitted on Msg/UpdateClass
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  |  |
-| `uri` | [string](#string) |  |  |
-| `uri_hash` | [string](#string) |  |  |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.EventUpdateNFT"></a>
-
-### EventUpdateNFT
-EventUpdateNFT is emitted on Msg/UpdateNFT
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `id` | [string](#string) |  |  |
-| `uri` | [string](#string) |  |  |
-| `uri_hash` | [string](#string) |  |  |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
-
-
-
-
-
- <!-- end messages -->
-
- <!-- end enums -->
-
- <!-- end HasExtensions -->
-
- <!-- end services -->
-
-
-
 <a name="lbm/composable/v1alpha1/types.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -17523,31 +17370,12 @@ EventUpdateNFT is emitted on Msg/UpdateNFT
 <a name="lbm.composable.v1alpha1.Class"></a>
 
 ### Class
-Class defines the class of the nft type.
+Class defines a classification of nft.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  | unique identifier of the NFT classification, similar to the contract address of ERC721 |
-| `uri` | [string](#string) |  | uri for the class metadata stored off chain, which can define schema for Class and NFT `Data` attributes optional |
-| `uri_hash` | [string](#string) |  | hash of the document pointed by uri optional |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | app specific metadata of the NFT class optional |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.FullID"></a>
-
-### FullID
-FullID defines a class id and id pair of an nft.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  | class id of the nft |
-| `id` | [string](#string) |  | id of the nft |
+| `id` | [string](#string) |  | identifier of the classfication |
 
 
 
@@ -17557,15 +17385,13 @@ FullID defines a class id and id pair of an nft.
 <a name="lbm.composable.v1alpha1.NFT"></a>
 
 ### NFT
-NFT defines the NFT.
+NFT defines a non-fungible token.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  | unique identifier of the NFT |
-| `uri` | [string](#string) |  | uri for the NFT metadata stored off chain |
-| `uri_hash` | [string](#string) |  | hash of the document pointed by uri |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | app specific data of the NFT optional |
+| `class_id` | [string](#string) |  | identifier of the class for the nft |
+| `id` | [string](#string) |  | identifier of the nft |
 
 
 
@@ -17581,6 +17407,186 @@ Params defines the parameters for the module.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `max_descendants` | [uint32](#uint32) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.Property"></a>
+
+### Property
+Property defines a property associated with an nft.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  | identifier of the property |
+| `fact` | [string](#string) |  | fact associated with the property |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.Trait"></a>
+
+### Trait
+Trait defines a trait associated with a classification of nft.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [string](#string) |  | indentifier of the trait |
+| `mutable` | [bool](#bool) |  | flag to tell whether a property value of the trait can be mutated or not |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
+
+
+
+<a name="lbm/composable/v1alpha1/event.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## lbm/composable/v1alpha1/event.proto
+
+
+
+<a name="lbm.composable.v1alpha1.EventAttach"></a>
+
+### EventAttach
+EventAttach is emitted on Msg/Attach.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `owner` | [string](#string) |  |  |
+| `subject` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
+| `target` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.EventBurnNFT"></a>
+
+### EventBurnNFT
+EventBurnNFT is emitted on Msg/BurnNFT.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `owner` | [string](#string) |  |  |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.EventDetach"></a>
+
+### EventDetach
+EventDetach is emitted on Msg/Detach.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `owner` | [string](#string) |  |  |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.EventMintNFT"></a>
+
+### EventMintNFT
+EventMintNFT is emitted on Msg/MintNFT.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
+| `properties` | [Property](#lbm.composable.v1alpha1.Property) | repeated |  |
+| `recipient` | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.EventNewClass"></a>
+
+### EventNewClass
+EventNewClass is emitted on Msg/NewClass.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `class` | [Class](#lbm.composable.v1alpha1.Class) |  |  |
+| `traits` | [Trait](#lbm.composable.v1alpha1.Trait) | repeated |  |
+| `data` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.EventSend"></a>
+
+### EventSend
+EventSend is emitted on Msg/Send.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `sender` | [string](#string) |  |  |
+| `receiver` | [string](#string) |  |  |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.EventUpdateClass"></a>
+
+### EventUpdateClass
+EventUpdateClass is emitted on Msg/UpdateClass.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `class` | [Class](#lbm.composable.v1alpha1.Class) |  |  |
+| `data` | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.EventUpdateNFT"></a>
+
+### EventUpdateNFT
+EventUpdateNFT is emitted on Msg/UpdateNFT.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
+| `property` | [Property](#lbm.composable.v1alpha1.Property) |  |  |
 
 
 
@@ -17603,17 +17609,36 @@ Params defines the parameters for the module.
 
 
 
-<a name="lbm.composable.v1alpha1.ClassNFTs"></a>
+<a name="lbm.composable.v1alpha1.GenesisClass"></a>
 
-### ClassNFTs
-ClassNFTs defines all nft of a class.
+### GenesisClass
+GenesisClass defines a class and its relevant data.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class` | [Class](#lbm.composable.v1alpha1.Class) |  | class of the following nfts |
-| `previous_id` | [string](#string) |  | previous nft id of the class |
-| `nft_states` | [NFTState](#lbm.composable.v1alpha1.NFTState) | repeated | groups of nft states of the same class |
+| `class` | [Class](#lbm.composable.v1alpha1.Class) |  | class of subject |
+| `traits` | [Trait](#lbm.composable.v1alpha1.Trait) | repeated | traits of the class |
+| `last_minted_nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | last minted nft of the class |
+| `nfts` | [GenesisNFT](#lbm.composable.v1alpha1.GenesisNFT) | repeated | nfts of the class |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.GenesisNFT"></a>
+
+### GenesisNFT
+GenesisNFT defines an nft and its relevant data.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | nft of subject |
+| `properties` | [Property](#lbm.composable.v1alpha1.Property) | repeated | properties of the nft |
+| `owner` | [string](#string) |  | owner of the nft (mutually exclusive with parent) |
+| `parent` | [NFT](#lbm.composable.v1alpha1.NFT) |  | parent of the nft (mutually exclusive with owner) |
 
 
 
@@ -17629,24 +17654,7 @@ GenesisState defines the nft module's genesis state.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `params` | [Params](#lbm.composable.v1alpha1.Params) |  | all the paramaters of the module |
-| `nfts` | [ClassNFTs](#lbm.composable.v1alpha1.ClassNFTs) | repeated | nfts grouped by class |
-
-
-
-
-
-
-<a name="lbm.composable.v1alpha1.NFTState"></a>
-
-### NFTState
-NFTState defines state of an nft.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | metadata of the nft |
-| `owner` | [string](#string) |  | owner of the nft |
-| `parent` | [FullID](#lbm.composable.v1alpha1.FullID) |  | parent of the nft |
+| `classes` | [GenesisClass](#lbm.composable.v1alpha1.GenesisClass) | repeated | classes |
 
 
 
@@ -17672,12 +17680,12 @@ NFTState defines state of an nft.
 <a name="lbm.composable.v1alpha1.QueryClassRequest"></a>
 
 ### QueryClassRequest
-QueryClassRequest is the request type for the Query/Class RPC method
+QueryClassRequest is the request type for the Query/Class RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
+| `class_id` | [string](#string) |  | identifier of a class |
 
 
 
@@ -17687,7 +17695,7 @@ QueryClassRequest is the request type for the Query/Class RPC method
 <a name="lbm.composable.v1alpha1.QueryClassResponse"></a>
 
 ### QueryClassResponse
-QueryClassResponse is the response type for the Query/Class RPC method
+QueryClassResponse is the response type for the Query/Class RPC method.
 
 
 | Field | Type | Label | Description |
@@ -17702,12 +17710,12 @@ QueryClassResponse is the response type for the Query/Class RPC method
 <a name="lbm.composable.v1alpha1.QueryClassesRequest"></a>
 
 ### QueryClassesRequest
-QueryClassesRequest is the request type for the Query/Classes RPC method
+QueryClassesRequest is the request type for the Query/Classes RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | optional pagination for the request |
 
 
 
@@ -17717,13 +17725,13 @@ QueryClassesRequest is the request type for the Query/Classes RPC method
 <a name="lbm.composable.v1alpha1.QueryClassesResponse"></a>
 
 ### QueryClassesResponse
-QueryClassesResponse is the response type for the Query/Classes RPC method
+QueryClassesResponse is the response type for the Query/Classes RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `classes` | [Class](#lbm.composable.v1alpha1.Class) | repeated |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination in the response |
 
 
 
@@ -17733,7 +17741,7 @@ QueryClassesResponse is the response type for the Query/Classes RPC method
 <a name="lbm.composable.v1alpha1.QueryNFTRequest"></a>
 
 ### QueryNFTRequest
-QueryNFTRequest is the request type for the Query/NFT RPC method
+QueryNFTRequest is the request type for the Query/NFT RPC method.
 
 
 | Field | Type | Label | Description |
@@ -17749,7 +17757,7 @@ QueryNFTRequest is the request type for the Query/NFT RPC method
 <a name="lbm.composable.v1alpha1.QueryNFTResponse"></a>
 
 ### QueryNFTResponse
-QueryNFTResponse is the response type for the Query/NFT RPC method
+QueryNFTResponse is the response type for the Query/NFT RPC method.
 
 
 | Field | Type | Label | Description |
@@ -17764,14 +17772,13 @@ QueryNFTResponse is the response type for the Query/NFT RPC method
 <a name="lbm.composable.v1alpha1.QueryNFTsRequest"></a>
 
 ### QueryNFTsRequest
-QueryNFTsRequest is the request type for the Query/NFTs RPC method
+QueryNFTsRequest is the request type for the Query/NFTs RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  |  |
-| `owner` | [string](#string) |  |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | pagination defines an optional pagination for the request. |
+| `class_id` | [string](#string) |  | identifier of a class |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | optional pagination for the request |
 
 
 
@@ -17781,13 +17788,13 @@ QueryNFTsRequest is the request type for the Query/NFTs RPC method
 <a name="lbm.composable.v1alpha1.QueryNFTsResponse"></a>
 
 ### QueryNFTsResponse
-QueryNFTsResponse is the response type for the Query/NFTs RPC methods
+QueryNFTsResponse is the response type for the Query/NFTs RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `nfts` | [NFT](#lbm.composable.v1alpha1.NFT) | repeated |  |
-| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination in the response |
 
 
 
@@ -17797,7 +17804,7 @@ QueryNFTsResponse is the response type for the Query/NFTs RPC methods
 <a name="lbm.composable.v1alpha1.QueryOwnerRequest"></a>
 
 ### QueryOwnerRequest
-QueryOwnerRequest is the request type for the Query/Owner RPC method
+QueryOwnerRequest is the request type for the Query/Owner RPC method.
 
 
 | Field | Type | Label | Description |
@@ -17813,7 +17820,7 @@ QueryOwnerRequest is the request type for the Query/Owner RPC method
 <a name="lbm.composable.v1alpha1.QueryOwnerResponse"></a>
 
 ### QueryOwnerResponse
-QueryOwnerResponse is the response type for the Query/Owner RPC method
+QueryOwnerResponse is the response type for the Query/Owner RPC method.
 
 
 | Field | Type | Label | Description |
@@ -17843,7 +17850,7 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#lbm.composable.v1alpha1.Params) |  |  |
+| `params` | [Params](#lbm.composable.v1alpha1.Params) |  | parameters of the module |
 
 
 
@@ -17853,7 +17860,7 @@ QueryParamsResponse is the response type for the Query/Params RPC method.
 <a name="lbm.composable.v1alpha1.QueryParentRequest"></a>
 
 ### QueryParentRequest
-QueryParentRequest is the request type for the Query/Parent RPC method
+QueryParentRequest is the request type for the Query/Parent RPC method.
 
 
 | Field | Type | Label | Description |
@@ -17869,12 +17876,140 @@ QueryParentRequest is the request type for the Query/Parent RPC method
 <a name="lbm.composable.v1alpha1.QueryParentResponse"></a>
 
 ### QueryParentResponse
-QueryParentResponse is the response type for the Query/Parent RPC method
+QueryParentResponse is the response type for the Query/Parent RPC method.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `parent` | [FullID](#lbm.composable.v1alpha1.FullID) |  |  |
+| `parent` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.QueryPropertiesRequest"></a>
+
+### QueryPropertiesRequest
+QueryPropertiesRequest is the request type for the Query/Properties RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `class_id` | [string](#string) |  | identifier of a class |
+| `id` | [string](#string) |  | identifier of an nft |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | optional pagination for the request |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.QueryPropertiesResponse"></a>
+
+### QueryPropertiesResponse
+QueryPropertiesResponse is the response type for the Query/Properties RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `properties` | [Property](#lbm.composable.v1alpha1.Property) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination in the response |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.QueryPropertyRequest"></a>
+
+### QueryPropertyRequest
+QueryPropertyRequest is the request type for the Query/Property RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `class_id` | [string](#string) |  | identifier of a class |
+| `id` | [string](#string) |  | identifier of an nft |
+| `property_id` | [string](#string) |  | identifier of a property |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.QueryPropertyResponse"></a>
+
+### QueryPropertyResponse
+QueryPropertyResponse is the response type for the Query/Property RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `property` | [Property](#lbm.composable.v1alpha1.Property) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.QueryTraitRequest"></a>
+
+### QueryTraitRequest
+QueryTraitRequest is the request type for the Query/Trait RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `class_id` | [string](#string) |  | identifier of a class |
+| `trait_id` | [string](#string) |  | identifier of a trait |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.QueryTraitResponse"></a>
+
+### QueryTraitResponse
+QueryTraitResponse is the response type for the Query/Trait RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `trait` | [Trait](#lbm.composable.v1alpha1.Trait) |  |  |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.QueryTraitsRequest"></a>
+
+### QueryTraitsRequest
+QueryTraitsRequest is the request type for the Query/Traits RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `class_id` | [string](#string) |  | identifier of a class |
+| `pagination` | [cosmos.base.query.v1beta1.PageRequest](#cosmos.base.query.v1beta1.PageRequest) |  | optional pagination for the request |
+
+
+
+
+
+
+<a name="lbm.composable.v1alpha1.QueryTraitsResponse"></a>
+
+### QueryTraitsResponse
+QueryTraitsResponse is the response type for the Query/Traits RPC method.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `traits` | [Trait](#lbm.composable.v1alpha1.Trait) | repeated |  |
+| `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination in the response |
 
 
 
@@ -17895,12 +18030,16 @@ Query defines the gRPC querier service.
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
 | `Params` | [QueryParamsRequest](#lbm.composable.v1alpha1.QueryParamsRequest) | [QueryParamsResponse](#lbm.composable.v1alpha1.QueryParamsResponse) | Params queries the module params. | GET|/lbm/composable/v1alpha1/params|
-| `Class` | [QueryClassRequest](#lbm.composable.v1alpha1.QueryClassRequest) | [QueryClassResponse](#lbm.composable.v1alpha1.QueryClassResponse) | Class queries an NFT class based on its id. | GET|/lbm/composable/v1alpha1/classes/{class_id}|
-| `Classes` | [QueryClassesRequest](#lbm.composable.v1alpha1.QueryClassesRequest) | [QueryClassesResponse](#lbm.composable.v1alpha1.QueryClassesResponse) | Classes queries all NFT classes. | GET|/lbm/composable/v1alpha1/classes|
-| `NFT` | [QueryNFTRequest](#lbm.composable.v1alpha1.QueryNFTRequest) | [QueryNFTResponse](#lbm.composable.v1alpha1.QueryNFTResponse) | NFT queries an NFT based on its class and id. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}|
-| `NFTs` | [QueryNFTsRequest](#lbm.composable.v1alpha1.QueryNFTsRequest) | [QueryNFTsResponse](#lbm.composable.v1alpha1.QueryNFTsResponse) | NFTs queries all NFTs of a given class. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts|
-| `Owner` | [QueryOwnerRequest](#lbm.composable.v1alpha1.QueryOwnerRequest) | [QueryOwnerResponse](#lbm.composable.v1alpha1.QueryOwnerResponse) | Owner queries the owner of the NFT based on its class and id, same as ownerOf in ERC721. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/owner|
-| `Parent` | [QueryParentRequest](#lbm.composable.v1alpha1.QueryParentRequest) | [QueryParentResponse](#lbm.composable.v1alpha1.QueryParentResponse) | Parent queries the parent of the NFT based on its class and id. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/parent|
+| `Class` | [QueryClassRequest](#lbm.composable.v1alpha1.QueryClassRequest) | [QueryClassResponse](#lbm.composable.v1alpha1.QueryClassResponse) | Class queries a class. | GET|/lbm/composable/v1alpha1/classes/{class_id}|
+| `Classes` | [QueryClassesRequest](#lbm.composable.v1alpha1.QueryClassesRequest) | [QueryClassesResponse](#lbm.composable.v1alpha1.QueryClassesResponse) | Classes queries all classes. | GET|/lbm/composable/v1alpha1/classes|
+| `Trait` | [QueryTraitRequest](#lbm.composable.v1alpha1.QueryTraitRequest) | [QueryTraitResponse](#lbm.composable.v1alpha1.QueryTraitResponse) | Trait queries a trait of a class. | GET|/lbm/composable/v1alpha1/classes/{class_id}/traits/{trait_id}|
+| `Traits` | [QueryTraitsRequest](#lbm.composable.v1alpha1.QueryTraitsRequest) | [QueryTraitsResponse](#lbm.composable.v1alpha1.QueryTraitsResponse) | Traits queries all traits of a class. | GET|/lbm/composable/v1alpha1/classes/{class_id}/traits|
+| `NFT` | [QueryNFTRequest](#lbm.composable.v1alpha1.QueryNFTRequest) | [QueryNFTResponse](#lbm.composable.v1alpha1.QueryNFTResponse) | NFT queries an nft. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}|
+| `NFTs` | [QueryNFTsRequest](#lbm.composable.v1alpha1.QueryNFTsRequest) | [QueryNFTsResponse](#lbm.composable.v1alpha1.QueryNFTsResponse) | NFTs queries all nfts. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts|
+| `Property` | [QueryPropertyRequest](#lbm.composable.v1alpha1.QueryPropertyRequest) | [QueryPropertyResponse](#lbm.composable.v1alpha1.QueryPropertyResponse) | Property queries a property of a class. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/properties/{property_id}|
+| `Properties` | [QueryPropertiesRequest](#lbm.composable.v1alpha1.QueryPropertiesRequest) | [QueryPropertiesResponse](#lbm.composable.v1alpha1.QueryPropertiesResponse) | Properties queries all properties of a class. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/properties|
+| `Owner` | [QueryOwnerRequest](#lbm.composable.v1alpha1.QueryOwnerRequest) | [QueryOwnerResponse](#lbm.composable.v1alpha1.QueryOwnerResponse) | Owner queries the owner of an nft. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/owner|
+| `Parent` | [QueryParentRequest](#lbm.composable.v1alpha1.QueryParentRequest) | [QueryParentResponse](#lbm.composable.v1alpha1.QueryParentResponse) | Parent queries the parent of an nft. | GET|/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/parent|
 
  <!-- end services -->
 
@@ -17921,11 +18060,9 @@ MsgAttach is the Msg/Attach request type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `owner` | [string](#string) |  | owner of the nfts |
-| `subject_class_id` | [string](#string) |  | class id of the subject nft |
-| `subject_id` | [string](#string) |  | id of the subject nft |
-| `target_class_id` | [string](#string) |  | class id of the target nft |
-| `target_id` | [string](#string) |  | id of the target nft |
+| `owner` | [string](#string) |  | owner of the nft |
+| `subject` | [NFT](#lbm.composable.v1alpha1.NFT) |  | subject nft |
+| `target` | [NFT](#lbm.composable.v1alpha1.NFT) |  | target nft |
 
 
 
@@ -17951,8 +18088,7 @@ MsgBurnNFT is the Msg/BurnNFT request type.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `owner` | [string](#string) |  | owner of the nft |
-| `class_id` | [string](#string) |  | class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721 |
-| `id` | [string](#string) |  | id defines the unique identification of nft |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | nft to burn |
 
 
 
@@ -17977,9 +18113,8 @@ MsgDetach is the Msg/Detach request type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `owner` | [string](#string) |  | owner of the nfts |
-| `class_id` | [string](#string) |  | class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721 |
-| `id` | [string](#string) |  | id defines the unique identification of nft |
+| `owner` | [string](#string) |  | owner of the nft |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | nft |
 
 
 
@@ -18004,11 +18139,9 @@ MsgMintNFT is the Msg/MintNFT request type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  | class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721 |
-| `uri` | [string](#string) |  | uri for the NFT metadata stored off chain |
-| `uri_hash` | [string](#string) |  | uri_hash is a hash of the document pointed by uri |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | data is an app specific data of the NFT. Optional |
-| `recipient` | [string](#string) |  | recipient of the nft |
+| `class_id` | [string](#string) |  | identifier of a class |
+| `properties` | [Property](#lbm.composable.v1alpha1.Property) | repeated | properties of the new nft |
+| `recipient` | [string](#string) |  | recipient of the new nft |
 
 
 
@@ -18023,7 +18156,7 @@ MsgMintNFTResponse is the Msg/MintNFT response type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  | id of minted nft |
+| `id` | [string](#string) |  | identifier of the new nft |
 
 
 
@@ -18039,9 +18172,8 @@ MsgNewClass is the Msg/NewClass request type.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `owner` | [string](#string) |  | owner of the new class |
-| `uri` | [string](#string) |  | uri for the class metadata stored off chain. It can define schema for Class and NFT `Data` attributes. Optional |
-| `uri_hash` | [string](#string) |  | uri_hash is a hash of the document pointed by uri. Optional |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | data is the app specific metadata of the class. Optional |
+| `traits` | [Trait](#lbm.composable.v1alpha1.Trait) | repeated | traits of the new class |
+| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | app specific metadata of the new class (optional) |
 
 
 
@@ -18056,7 +18188,7 @@ MsgNewClassResponse is the Msg/NewClass response type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `id` | [string](#string) |  | id of the new class |
+| `class_id` | [string](#string) |  | identifier of the new class |
 
 
 
@@ -18073,8 +18205,7 @@ MsgSend is the Msg/Send request type.
 | ----- | ---- | ----- | ----------- |
 | `sender` | [string](#string) |  | sender of the nft |
 | `recipient` | [string](#string) |  | recipient of the nft |
-| `class_id` | [string](#string) |  | class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721 |
-| `id` | [string](#string) |  | id defines the unique identification of nft |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | nft to send |
 
 
 
@@ -18099,10 +18230,8 @@ MsgUpdateClass is the Msg/UpdateClass request type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  | class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721 |
-| `uri` | [string](#string) |  | uri for the class metadata stored off chain. It can define schema for Class and NFT `Data` attributes. Optional |
-| `uri_hash` | [string](#string) |  | uri_hash is a hash of the document pointed by uri. Optional |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | data is the app specific metadata of the class. Optional |
+| `class_id` | [string](#string) |  | identifier of a class |
+| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | app specific metadata of the class (optional) |
 
 
 
@@ -18127,11 +18256,8 @@ MsgUpdateNFT is the Msg/UpdateNFT request type.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class_id` | [string](#string) |  | class_id defines the unique identifier of the nft classification, similar to the contract address of ERC721 |
-| `id` | [string](#string) |  | id defines the unique identification of nft |
-| `uri` | [string](#string) |  | uri for the NFT metadata stored off chain |
-| `uri_hash` | [string](#string) |  | uri_hash is a hash of the document pointed by uri |
-| `data` | [google.protobuf.Any](#google.protobuf.Any) |  | data is an app specific data of the NFT. Optional |
+| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | nft to update |
+| `property` | [Property](#lbm.composable.v1alpha1.Property) |  | new property |
 
 
 
