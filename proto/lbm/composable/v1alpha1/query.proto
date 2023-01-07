@@ -1,11 +1,11 @@
 syntax = "proto3";
-package lbm.composable.v1beta1;
+package lbm.composable.v1alpha1;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "lbm/composable/v1beta1/types.proto";
+import "lbm/composable/v1alpha1/types.proto";
 
 option go_package = "github.com/line/lbm-sdk/x/composable";
 
@@ -13,37 +13,37 @@ option go_package = "github.com/line/lbm-sdk/x/composable";
 service Query {
   // Params queries the module params.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/lbm/composable/v1beta1/params";
+    option (google.api.http).get = "/lbm/composable/v1alpha1/params";
   }
 
   // Class queries an NFT class based on its id.
   rpc Class(QueryClassRequest) returns (QueryClassResponse) {
-    option (google.api.http).get = "/lbm/composable/v1beta1/classes/{class_id}";
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}";
   }
 
   // Classes queries all NFT classes.
   rpc Classes(QueryClassesRequest) returns (QueryClassesResponse) {
-    option (google.api.http).get = "/lbm/composable/v1beta1/classes";
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes";
   }
 
   // NFT queries an NFT based on its class and id.
   rpc NFT(QueryNFTRequest) returns (QueryNFTResponse) {
-    option (google.api.http).get = "/lbm/composable/v1beta1/classes/{class_id}/nfts/{id}";
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}";
   }
 
   // NFTs queries all NFTs of a given class.
   rpc NFTs(QueryNFTsRequest) returns (QueryNFTsResponse) {
-    option (google.api.http).get = "/lbm/composable/v1beta1/classes/{class_id}/nfts";
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts";
   }
 
   // Owner queries the owner of the NFT based on its class and id, same as ownerOf in ERC721.
   rpc Owner(QueryOwnerRequest) returns (QueryOwnerResponse) {
-    option (google.api.http).get = "/lbm/composable/v1beta1/classes/{class_id}/nfts/{id}/owner";
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/owner";
   }
 
   // Parent queries the parent of the NFT based on its class and id.
   rpc Parent(QueryParentRequest) returns (QueryParentResponse) {
-    option (google.api.http).get = "/lbm/composable/v1beta1/classes/{class_id}/nfts/{id}/parent";
+    option (google.api.http).get = "/lbm/composable/v1alpha1/classes/{class_id}/nfts/{id}/parent";
   }
 }
 

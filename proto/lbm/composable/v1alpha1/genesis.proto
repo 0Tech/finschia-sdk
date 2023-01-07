@@ -1,9 +1,9 @@
 syntax = "proto3";
-package lbm.composable.v1beta1;
+package lbm.composable.v1alpha1;
 
 import "gogoproto/gogo.proto";
 
-import "lbm/composable/v1beta1/types.proto";
+import "lbm/composable/v1alpha1/types.proto";
 
 option go_package = "github.com/line/lbm-sdk/x/composable";
 

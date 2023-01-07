@@ -1,5 +1,5 @@
 syntax = "proto3";
-package lbm.composable.v1beta1;
+package lbm.composable.v1alpha1;
 
 import "google/protobuf/any.proto";
 import "gogoproto/gogo.proto";
