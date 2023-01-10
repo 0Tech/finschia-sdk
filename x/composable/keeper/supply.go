@@ -6,11 +6,15 @@ import (
 	"github.com/line/lbm-sdk/x/composable"
 )
 
-func (k Keeper) NewClass(ctx sdk.Context, class composable.Class) error {
+func (k Keeper) NewClass(ctx sdk.Context, class composable.Class, traits []composable.Trait) error {
 	if err := k.hasClass(ctx, class.Id); err == nil {
 		return composable.ErrClassAlreadyExists.Wrap(class.Id)
 	}
 	k.setClass(ctx, class)
+
+	for _, trait := range traits {
+		k.setTrait(ctx, class.Id, trait)
+	}
 
 	k.setPreviousID(ctx, class.Id, sdk.ZeroUint())
 
@@ -64,6 +68,44 @@ func (k Keeper) setClass(ctx sdk.Context, class composable.Class) {
 	store.Set(key, bz)
 }
 
+func (k Keeper) hasTrait(ctx sdk.Context, classID string, traitID string) error {
+	_, err := k.getTraitBytes(ctx, classID, traitID)
+	return err
+}
+
+func (k Keeper) GetTrait(ctx sdk.Context, classID string, traitID string) (*composable.Trait, error) {
+	bz, err := k.getTraitBytes(ctx, classID, traitID)
+	if err != nil {
+		return nil, err
+	}
+
+	var trait composable.Trait
+	k.cdc.MustUnmarshal(bz, &trait)
+
+	return &trait, nil
+}
+
+func (k Keeper) getTraitBytes(ctx sdk.Context, classID string, traitID string) ([]byte, error) {
+	store := ctx.KVStore(k.storeKey)
+	key := traitKey(classID, traitID)
+
+	bz := store.Get(key)
+	if bz == nil {
+		return nil, composable.ErrTraitNotFound.Wrapf("%s, %s", classID, traitID)
+	}
+
+	return bz, nil
+}
+
+func (k Keeper) setTrait(ctx sdk.Context, classID string, trait composable.Trait) {
+	store := ctx.KVStore(k.storeKey)
+	key := traitKey(classID, trait.Id)
+
+	bz := k.cdc.MustMarshal(&trait)
+
+	store.Set(key, bz)
+}
+
 func (k Keeper) GetPreviousID(ctx sdk.Context, classID string) sdk.Uint {
 	bz, err := k.getPreviousIDBytes(ctx, classID)
 	if err != nil {
@@ -113,7 +155,7 @@ func (k Keeper) iterateClasses(ctx sdk.Context, fn func(class composable.Class))
 	})
 }
 
-func (k Keeper) MintNFT(ctx sdk.Context, owner sdk.AccAddress, classID string) (*sdk.Uint, error) {
+func (k Keeper) MintNFT(ctx sdk.Context, owner sdk.AccAddress, classID string, properties []composable.Property) (*sdk.Uint, error) {
 	if err := k.hasClass(ctx, classID); err != nil {
 		return nil, err
 	}
@@ -131,9 +173,55 @@ func (k Keeper) MintNFT(ctx sdk.Context, owner sdk.AccAddress, classID string) (
 	}
 	k.setNFT(ctx, nft)
 
+	for _, property := range properties {
+		if err := k.hasTrait(ctx, nft.ClassId, property.Id); err != nil {
+			return nil, sdkerrors.Wrap(err, property.Id)
+		}
+
+		k.setProperty(ctx, nft, property)
+	}
+
 	k.setOwner(ctx, nft, owner)
 
 	return &nft.Id, nil
+}
+
+func (k Keeper) hasProperty(ctx sdk.Context, nft composable.NFT, propertyID string) error {
+	_, err := k.getPropertyBytes(ctx, nft, propertyID)
+	return err
+}
+
+func (k Keeper) GetProperty(ctx sdk.Context, nft composable.NFT, propertyID string) (*composable.Property, error) {
+	bz, err := k.getPropertyBytes(ctx, nft, propertyID)
+	if err != nil {
+		return nil, err
+	}
+
+	var property composable.Property
+	k.cdc.MustUnmarshal(bz, &property)
+
+	return &property, nil
+}
+
+func (k Keeper) getPropertyBytes(ctx sdk.Context, nft composable.NFT, propertyID string) ([]byte, error) {
+	store := ctx.KVStore(k.storeKey)
+	key := propertyKey(nft.ClassId, nft.Id, propertyID)
+
+	bz := store.Get(key)
+	if bz == nil {
+		return nil, composable.ErrTraitNotFound.Wrapf("%s, %s", nft.ClassId, propertyID)
+	}
+
+	return bz, nil
+}
+
+func (k Keeper) setProperty(ctx sdk.Context, nft composable.NFT, property composable.Property) {
+	store := ctx.KVStore(k.storeKey)
+	key := propertyKey(nft.ClassId, nft.Id, property.Id)
+
+	bz := k.cdc.MustMarshal(&property)
+
+	store.Set(key, bz)
 }
 
 func (k Keeper) BurnNFT(ctx sdk.Context, owner sdk.AccAddress, nft composable.NFT) error {
@@ -152,12 +240,21 @@ func (k Keeper) BurnNFT(ctx sdk.Context, owner sdk.AccAddress, nft composable.NF
 	return nil
 }
 
-func (k Keeper) UpdateNFT(ctx sdk.Context, nft composable.NFT) error {
+func (k Keeper) UpdateNFT(ctx sdk.Context, nft composable.NFT, property composable.Property) error {
 	if err := k.hasNFT(ctx, nft); err != nil {
 		return err
 	}
 
-	// TODO: set properties
+	trait, err := k.GetTrait(ctx, nft.ClassId, property.Id)
+	if err != nil {
+		return err
+	}
+
+	if !trait.Mutable {
+		return composable.ErrTraitImmutable.Wrap(property.Id)
+	}
+
+	k.setProperty(ctx, nft, property)
 
 	return nil
 }

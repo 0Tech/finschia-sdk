@@ -26,8 +26,10 @@ func (s *KeeperTestSuite) TestMsgSend() {
 			req := &composable.MsgSend{
 				Sender:    s.vendor.String(),
 				Recipient: s.customer.String(),
-				ClassId:   composable.ClassIDFromOwner(s.vendor),
-				Id:        tc.id,
+				Nft: composable.NFT{
+					ClassId: composable.ClassIDFromOwner(s.vendor),
+					Id:      tc.id,
+				},
 			}
 			err := req.ValidateBasic()
 			s.Assert().NoError(err)
@@ -62,11 +64,15 @@ func (s *KeeperTestSuite) TestMsgAttach() {
 
 			classID := composable.ClassIDFromOwner(s.vendor)
 			req := &composable.MsgAttach{
-				Owner:          s.vendor.String(),
-				SubjectClassId: classID,
-				SubjectId:      sdk.NewUint(s.numNFTs),
-				TargetClassId:  classID,
-				TargetId:       tc.targetID,
+				Owner: s.vendor.String(),
+				Subject: composable.NFT{
+					ClassId: classID,
+					Id:      sdk.NewUint(s.numNFTs),
+				},
+				Target: composable.NFT{
+					ClassId: classID,
+					Id:      tc.targetID,
+				},
 			}
 			err := req.ValidateBasic()
 			s.Assert().NoError(err)
@@ -100,9 +106,11 @@ func (s *KeeperTestSuite) TestMsgDetach() {
 			ctx, _ := s.ctx.CacheContext()
 
 			req := &composable.MsgDetach{
-				Owner:   s.vendor.String(),
-				ClassId: composable.ClassIDFromOwner(s.vendor),
-				Id:      tc.id,
+				Owner: s.vendor.String(),
+				Nft: composable.NFT{
+					ClassId: composable.ClassIDFromOwner(s.vendor),
+					Id:      tc.id,
+				},
 			}
 			err := req.ValidateBasic()
 			s.Assert().NoError(err)
@@ -136,9 +144,7 @@ func (s *KeeperTestSuite) TestMsgNewClass() {
 			ctx, _ := s.ctx.CacheContext()
 
 			req := &composable.MsgNewClass{
-				Owner:   tc.owner.String(),
-				Uri:     randomString(32),
-				UriHash: randomString(32),
+				Owner: tc.owner.String(),
 			}
 			err := req.ValidateBasic()
 			s.Assert().NoError(err)
@@ -173,8 +179,6 @@ func (s *KeeperTestSuite) TestMsgUpdateClass() {
 
 			req := &composable.MsgUpdateClass{
 				ClassId: tc.classID,
-				Uri:     randomString(32),
-				UriHash: randomString(32),
 			}
 			err := req.ValidateBasic()
 			s.Assert().NoError(err)
@@ -208,9 +212,12 @@ func (s *KeeperTestSuite) TestMsgMintNFT() {
 			ctx, _ := s.ctx.CacheContext()
 
 			req := &composable.MsgMintNFT{
-				ClassId:   tc.classID,
-				Uri:       randomString(32),
-				UriHash:   randomString(32),
+				ClassId: tc.classID,
+				Properties: []composable.Property{
+					{
+						Id: s.mutableTraitID,
+					},
+				},
 				Recipient: s.customer.String(),
 			}
 			err := req.ValidateBasic()
@@ -245,9 +252,11 @@ func (s *KeeperTestSuite) TestMsgBurnNFT() {
 			ctx, _ := s.ctx.CacheContext()
 
 			req := &composable.MsgBurnNFT{
-				Owner:   s.vendor.String(),
-				ClassId: composable.ClassIDFromOwner(s.vendor),
-				Id:      tc.id,
+				Owner: s.vendor.String(),
+				Nft: composable.NFT{
+					ClassId: composable.ClassIDFromOwner(s.vendor),
+					Id:      tc.id,
+				},
 			}
 			err := req.ValidateBasic()
 			s.Assert().NoError(err)
@@ -281,10 +290,13 @@ func (s *KeeperTestSuite) TestMsgUpdateNFT() {
 			ctx, _ := s.ctx.CacheContext()
 
 			req := &composable.MsgUpdateNFT{
-				ClassId: composable.ClassIDFromOwner(s.vendor),
-				Id:      tc.id,
-				Uri:     randomString(32),
-				UriHash: randomString(32),
+				Nft: composable.NFT{
+					ClassId: composable.ClassIDFromOwner(s.vendor),
+					Id:      tc.id,
+				},
+				Property: composable.Property{
+					Id: s.mutableTraitID,
+				},
 			}
 			err := req.ValidateBasic()
 			s.Assert().NoError(err)

@@ -24,20 +24,20 @@ func (s *KeeperTestSuite) TestSend() {
 		s.Run(name, func() {
 			ctx, _ := s.ctx.CacheContext()
 
-			fullID := composable.FullID{
+			nft := composable.NFT{
 				ClassId: composable.ClassIDFromOwner(s.vendor),
 				Id:      tc.id,
 			}
-			err := fullID.ValidateBasic()
+			err := nft.ValidateBasic()
 			s.Assert().NoError(err)
 
-			err = s.keeper.Send(ctx, s.vendor, s.customer, fullID)
+			err = s.keeper.Send(ctx, s.vendor, s.customer, nft)
 			s.Require().ErrorIs(err, tc.err)
 			if err != nil {
 				return
 			}
 
-			got, err := s.keeper.GetRootOwner(ctx, fullID)
+			got, err := s.keeper.GetRootOwner(ctx, nft)
 			s.Require().NoError(err)
 			s.Require().Equal(s.customer, *got)
 		})
@@ -66,21 +66,21 @@ func (s *KeeperTestSuite) TestAttach() {
 		s.Run(name, func() {
 			ctx, _ := s.ctx.CacheContext()
 
-			subjectID := composable.FullID{
+			subject := composable.NFT{
 				ClassId: composable.ClassIDFromOwner(s.vendor),
 				Id:      sdk.NewUint(s.numNFTs),
 			}
-			err := subjectID.ValidateBasic()
+			err := subject.ValidateBasic()
 			s.Assert().NoError(err)
 
-			targetID := composable.FullID{
-				ClassId: subjectID.ClassId,
+			target := composable.NFT{
+				ClassId: subject.ClassId,
 				Id:      tc.targetID,
 			}
-			err = targetID.ValidateBasic()
+			err = target.ValidateBasic()
 			s.Assert().NoError(err)
 
-			err = s.keeper.Attach(ctx, s.vendor, subjectID, targetID)
+			err = s.keeper.Attach(ctx, s.vendor, subject, target)
 			s.Require().ErrorIs(err, tc.err)
 			if err != nil {
 				return
@@ -113,14 +113,14 @@ func (s *KeeperTestSuite) TestDetach() {
 		s.Run(name, func() {
 			ctx, _ := s.ctx.CacheContext()
 
-			id := composable.FullID{
+			nft := composable.NFT{
 				ClassId: composable.ClassIDFromOwner(s.vendor),
 				Id:      tc.id,
 			}
-			err := id.ValidateBasic()
+			err := nft.ValidateBasic()
 			s.Assert().NoError(err)
 
-			err = s.keeper.Detach(ctx, s.vendor, id)
+			err = s.keeper.Detach(ctx, s.vendor, nft)
 			s.Require().ErrorIs(err, tc.err)
 			if err != nil {
 				return

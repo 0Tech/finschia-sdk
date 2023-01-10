@@ -94,15 +94,14 @@ func (s msgServer) NewClass(c context.Context, req *composable.MsgNewClass) (*co
 		Id: id,
 	}
 
-	// TODO: traits
-
-	if err := s.keeper.NewClass(ctx, class); err != nil {
+	if err := s.keeper.NewClass(ctx, class, req.Traits); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventNewClass{
-		Class: class,
-		Data:  req.Data,
+		Class:  class,
+		Traits: req.Traits, // TODO: sort
+		Data:   req.Data,
 	}); err != nil {
 		panic(err)
 	}
@@ -140,15 +139,18 @@ func (s msgServer) MintNFT(c context.Context, req *composable.MsgMintNFT) (*comp
 
 	recipient := sdk.MustAccAddressFromBech32(req.Recipient)
 
-	// TODO: traits
-
-	_, err := s.keeper.MintNFT(ctx, recipient, req.ClassId)
+	id, err := s.keeper.MintNFT(ctx, recipient, req.ClassId, req.Properties)
 	if err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventMintNFT{
-		Recipient: req.Recipient,
+		Nft: composable.NFT{
+			ClassId: req.ClassId,
+			Id:      *id,
+		},
+		Properties: req.Properties, // TODO: sort
+		Recipient:  req.Recipient,
 	}); err != nil {
 		panic(err)
 	}
@@ -180,9 +182,7 @@ func (s msgServer) BurnNFT(c context.Context, req *composable.MsgBurnNFT) (*comp
 func (s msgServer) UpdateNFT(c context.Context, req *composable.MsgUpdateNFT) (*composable.MsgUpdateNFTResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	// TODO: property
-
-	if err := s.keeper.UpdateNFT(ctx, req.Nft); err != nil {
+	if err := s.keeper.UpdateNFT(ctx, req.Nft, req.Property); err != nil {
 		return nil, err
 	}
 

@@ -30,6 +30,9 @@ type KeeperTestSuite struct {
 	vendor   sdk.AccAddress
 	customer sdk.AccAddress
 
+	mutableTraitID   string
+	immutableTraitID string
+
 	numNFTs uint64
 }
 
@@ -93,14 +96,25 @@ func (s *KeeperTestSuite) SetupTest() {
 
 	// vendor creates a class
 	class := composable.Class{
-		Id:      composable.ClassIDFromOwner(s.vendor),
-		Uri:     randomString(32),
-		UriHash: randomString(32),
+		Id: composable.ClassIDFromOwner(s.vendor),
 	}
 	err := class.ValidateBasic()
 	s.Assert().NoError(err)
 
-	err = s.keeper.NewClass(s.ctx, class)
+	s.mutableTraitID = "level"
+	s.immutableTraitID = "color"
+
+	traits := []composable.Trait{
+		{
+			Id:      s.mutableTraitID,
+			Mutable: true,
+		},
+		{
+			Id: s.immutableTraitID,
+		},
+	}
+
+	err = s.keeper.NewClass(s.ctx, class, traits)
 	s.Assert().NoError(err)
 
 	// vendor mints nfts to all accounts by amount of numNFTs
@@ -111,33 +125,35 @@ func (s *KeeperTestSuite) SetupTest() {
 		s.customer,
 	} {
 		for i := range make([]struct{}, s.numNFTs) {
-			nft := composable.NFT{
-				Uri:     randomString(32),
-				UriHash: randomString(32),
+			properties := []composable.Property{
+				{
+					Id: s.mutableTraitID,
+				},
+				{
+					Id: s.immutableTraitID,
+				},
 			}
-			err := composable.ValidateURIHash(nft.Uri, nft.UriHash)
-			s.Assert().NoError(err)
 
-			id, err := s.keeper.MintNFT(s.ctx, owner, class.Id, nft)
+			id, err := s.keeper.MintNFT(s.ctx, owner, class.Id, properties)
 			s.Assert().NoError(err)
 
 			// each account attachs its second nft to its first nft
 			if i == 1 {
-				subjectID := composable.FullID{
+				subject := composable.NFT{
 					ClassId: class.Id,
 					Id:      *id,
 				}
-				err := subjectID.ValidateBasic()
+				err := subject.ValidateBasic()
 				s.Assert().NoError(err)
 
-				targetID := composable.FullID{
+				target := composable.NFT{
 					ClassId: class.Id,
 					Id:      id.Decr(),
 				}
-				err = targetID.ValidateBasic()
+				err = target.ValidateBasic()
 				s.Assert().NoError(err)
 
-				err = s.keeper.Attach(s.ctx, owner, subjectID, targetID)
+				err = s.keeper.Attach(s.ctx, owner, subject, target)
 				s.Assert().NoError(err)
 			}
 		}

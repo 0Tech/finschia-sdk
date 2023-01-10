@@ -8,12 +8,15 @@ var (
 	paramsKey = []byte{0x00}
 
 	classKeyPrefix      = []byte{0x10}
-	previousIDKeyPrefix = []byte{0x11}
+	traitKeyPrefix      = []byte{0x11}
+	previousIDKeyPrefix = []byte{0x12}
 
-	nftKeyPrefix            = []byte{0x20}
-	ownerKeyPrefix          = []byte{0x21}
-	parentKeyPrefix         = []byte{0x22}
-	numDescendantsKeyPrefix = []byte{0x23}
+	nftKeyPrefix      = []byte{0x20}
+	propertyKeyPrefix = []byte{0x21}
+	ownerKeyPrefix    = []byte{0x22}
+
+	parentKeyPrefix         = []byte{0x30}
+	numDescendantsKeyPrefix = []byte{0x31}
 )
 
 func concatenate(prefix []byte, components ...[]byte) []byte {
@@ -59,6 +62,12 @@ func classIDBytes(id string) []byte {
 	return bz
 }
 
+func traitIDBytes(id string) []byte {
+	bz := []byte(id)
+
+	return bz
+}
+
 func nftIDBytes(id sdk.Uint) []byte {
 	bz, err := id.Marshal()
 	if err != nil {
@@ -68,10 +77,24 @@ func nftIDBytes(id sdk.Uint) []byte {
 	return bz
 }
 
+func propertyIDBytes(id string) []byte {
+	bz := []byte(id)
+
+	return bz
+}
+
 func classKey(id string) []byte {
 	return concatenate(
 		classKeyPrefix,
 		classIDBytes(id),
+	)
+}
+
+func traitKey(classID string, traitID string) []byte {
+	return concatenate(
+		traitKeyPrefix,
+		classIDBytes(classID),
+		traitIDBytes(traitID),
 	)
 }
 
@@ -93,6 +116,15 @@ func nftKey(classID string, id sdk.Uint) []byte {
 	return concatenate(
 		nftKeyPrefixOfClass(classID),
 		nftIDBytes(id),
+	)
+}
+
+func propertyKey(classID string, id sdk.Uint, propertyID string) []byte {
+	return concatenate(
+		propertyKeyPrefix,
+		classIDBytes(classID),
+		nftIDBytes(id),
+		propertyIDBytes(propertyID),
 	)
 }
 
