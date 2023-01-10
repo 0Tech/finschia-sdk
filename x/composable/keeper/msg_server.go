@@ -182,12 +182,13 @@ func (s msgServer) BurnNFT(c context.Context, req *composable.MsgBurnNFT) (*comp
 func (s msgServer) UpdateNFT(c context.Context, req *composable.MsgUpdateNFT) (*composable.MsgUpdateNFTResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if err := s.keeper.UpdateNFT(ctx, req.Nft, req.Property); err != nil {
+	if err := s.keeper.UpdateNFT(ctx, req.Nft, req.Properties); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventUpdateNFT{
-		Nft: req.Nft,
+		Nft:        req.Nft,
+		Properties: req.Properties,
 	}); err != nil {
 		panic(err)
 	}

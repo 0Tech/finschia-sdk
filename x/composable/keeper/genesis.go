@@ -2,102 +2,99 @@ package keeper
 
 import (
 	sdk "github.com/line/lbm-sdk/types"
-	// sdkerrors "github.com/line/lbm-sdk/types/errors"
+	sdkerrors "github.com/line/lbm-sdk/types/errors"
 	"github.com/line/lbm-sdk/x/composable"
 )
 
 func (k Keeper) InitGenesis(ctx sdk.Context, gs *composable.GenesisState) error {
 	k.SetParams(ctx, gs.Params)
 
-	// for _, classState := range gs.Nfts {
-	// 	class := classState.Class
-	// 	k.setClass(ctx, class)
+	for _, genClass := range gs.Classes {
+		class := composable.Class{
+			Id: genClass.Id,
+		}
+		k.setClass(ctx, class)
 
-	// 	k.setPreviousID(ctx, class.Id, classState.PreviousId)
+		// TODO: trait
 
-	// 	for _, nftState := range classState.NftStates {
-	// 		nft := nftState.Nft
-	// 		k.setNFT(ctx, class.Id, nft)
+		k.setPreviousID(ctx, class.Id, genClass.LastMintedNftId)
 
-	// 		id := composable.FullID{
-	// 			ClassId: class.Id,
-	// 			Id:      nft.Id,
-	// 		}
+		for _, genNFT := range genClass.Nfts {
+			nft := composable.NFT{
+				ClassId: class.Id,
+				Id:      genNFT.Id,
+			}
+			k.setNFT(ctx, nft)
 
-	// 		if owner := nftState.Owner; len(owner) != 0 {
-	// 			k.setOwner(ctx, id, sdk.MustAccAddressFromBech32(owner))
-	// 		}
+			// TODO: property
 
-	// 		if parent := nftState.Parent; parent != nil {
-	// 			k.setParent(ctx, id, *parent)
+			if owner := genNFT.Owner; len(owner) != 0 {
+				k.setOwner(ctx, nft, sdk.MustAccAddressFromBech32(owner))
+			}
 
-	// 			numDescendants := k.getNumDescendants(ctx, id)
-	// 			diff := 1 + numDescendants
-	// 			k.iterateAncestors(ctx, *parent, func(id composable.FullID) {
-	// 				old := k.getNumDescendants(ctx, id)
-	// 				new := old + diff
-	// 				k.updateNumDescendants(ctx, id, new)
-	// 			})
-	// 		}
-	// 	}
-	// }
+			if parent := genNFT.Parent; parent != nil {
+				k.setParent(ctx, nft, *parent)
+
+				numDescendants := k.getNumDescendants(ctx, nft)
+				diff := 1 + numDescendants
+				k.iterateAncestors(ctx, *parent, func(id composable.NFT) {
+					old := k.getNumDescendants(ctx, id)
+					new := old + diff
+					k.updateNumDescendants(ctx, id, new)
+				})
+			}
+		}
+	}
 
 	return nil
 }
 
 func (k Keeper) ExportGenesis(ctx sdk.Context) *composable.GenesisState {
-	// classes := k.getClasses(ctx)
+	classes := k.getClasses(ctx)
 
-	// var classStates []composable.ClassNFTs
-	// if len(classes) != 0 {
-	// 	classStates = make([]composable.ClassNFTs, len(classes))
-	// }
+	var genClasses []composable.GenesisClass
+	if len(classes) != 0 {
+		genClasses = make([]composable.GenesisClass, len(classes))
+	}
 
-	// for classIndex := range classStates {
-	// 	class := classes[classIndex]
+	for classIndex, class := range classes {
+		genClasses[classIndex].Id = class.Id
+		genClasses[classIndex].LastMintedNftId = k.GetPreviousID(ctx, class.Id)
 
-	// 	classStates[classIndex].Class = class
-	// 	classStates[classIndex].PreviousId = k.GetPreviousID(ctx, class.Id)
+		// TODO: trait
 
-	// 	nfts := k.getNFTsOfClass(ctx, class.Id)
+		nfts := k.getNFTsOfClass(ctx, class.Id)
 
-	// 	var nftStates []composable.NFTState
-	// 	if len(nfts) != 0 {
-	// 		nftStates = make([]composable.NFTState, len(nfts))
-	// 	}
+		var genNFTs []composable.GenesisNFT
+		if len(nfts) != 0 {
+			genNFTs = make([]composable.GenesisNFT, len(nfts))
+		}
 
-	// 	for nftIndex := range nftStates {
-	// 		nft := nfts[nftIndex]
+		for nftIndex, nft := range nfts {
+			genNFTs[nftIndex].Id = nft.Id
 
-	// 		nftStates[nftIndex].Nft = nft
+			// TODO: property
 
-	// 		id := composable.FullID{
-	// 			ClassId: class.Id,
-	// 			Id:      nft.Id,
-	// 		}
+			if owner, err := k.getOwner(ctx, nft); err == nil {
+				genNFTs[nftIndex].Owner = owner.String()
+				continue
+			}
 
-	// 		if owner, err := k.getOwner(ctx, id); err == nil {
-	// 			nftStates[nftIndex].Owner = owner.String()
-	// 			continue
-	// 		}
+			if parent, err := k.getParent(ctx, nft); err == nil {
+				genNFTs[nftIndex].Parent = parent
+				continue
+			}
 
-	// 		if parent, err := k.getParent(ctx, id); err == nil {
-	// 			nftStates[nftIndex].Parent = parent
-	// 			continue
-	// 		}
+			panic(sdkerrors.Wrap(sdkerrors.ErrNotFound.Wrap("owner or parent"), nft.String()))
+		}
 
-	// 		panic(sdkerrors.Wrap(sdkerrors.ErrNotFound.Wrap("owner or parent"), id.String()))
-	// 	}
+		genClasses[classIndex].Nfts = genNFTs
+	}
 
-	// 	classStates[classIndex].NftStates = nftStates
-	// }
-
-	// return &composable.GenesisState{
-	// 	Params: k.GetParams(ctx),
-	// 	Nfts:   classStates,
-	// }
-
-	return &composable.GenesisState{}
+	return &composable.GenesisState{
+		Params:  k.GetParams(ctx),
+		Classes: genClasses,
+	}
 }
 
 func (k Keeper) getClasses(ctx sdk.Context) (classes []composable.Class) {

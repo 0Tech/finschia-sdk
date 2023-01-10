@@ -355,34 +355,50 @@ func TestMsgUpdateNFT(t *testing.T) {
 	traitID := "uri"
 
 	testCases := map[string]struct {
-		classID string
-		traitID string
-		err     error
+		classID  string
+		traitIDs []string
+		err      error
 	}{
 		"valid msg": {
 			classID: classID,
-			traitID: traitID,
+			traitIDs: []string{
+				traitID,
+			},
 		},
 		"invalid class id": {
-			traitID: traitID,
-			err:     composable.ErrInvalidClassID,
+			traitIDs: []string{
+				traitID,
+			},
+			err: composable.ErrInvalidClassID,
+		},
+		"empty properties": {
+			classID: classID,
+			err:     sdkerrors.ErrInvalidRequest,
 		},
 		"invalid trait id": {
 			classID: classID,
-			err:     composable.ErrInvalidTraitID,
+			traitIDs: []string{
+				"",
+			},
+			err: composable.ErrInvalidTraitID,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
+			properties := make([]composable.Property, len(tc.traitIDs))
+			for i, id := range tc.traitIDs {
+				properties[i] = composable.Property{
+					Id: id,
+				}
+			}
+
 			msg := composable.MsgUpdateNFT{
 				Nft: composable.NFT{
 					ClassId: tc.classID,
 					Id:      sdk.OneUint(),
 				},
-				Property: composable.Property{
-					Id: tc.traitID,
-				},
+				Properties: properties,
 			}
 
 			err := msg.ValidateBasic()
@@ -489,12 +505,14 @@ func TestLegacyMsg(t *testing.T) {
 					ClassId: classIDs[0],
 					Id:      id,
 				},
-				Property: composable.Property{
-					Id:   "uri",
-					Fact: uri,
+				Properties: []composable.Property{
+					{
+						Id:   "uri",
+						Fact: uri,
+					},
 				},
 			},
-			`{"nft":{"class_id":"link1vdkxzumnxq3kswxp","id":"1"},"property":{"fact":"https://ipfs.io/ipfs/tIBeTianfOX","id":"uri"}}`,
+			`{"nft":{"class_id":"link1vdkxzumnxq3kswxp","id":"1"},"properties":[{"fact":"https://ipfs.io/ipfs/tIBeTianfOX","id":"uri"}]}`,
 		},
 	}
 

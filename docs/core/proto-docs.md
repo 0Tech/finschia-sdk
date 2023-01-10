@@ -17586,7 +17586,7 @@ EventUpdateNFT is emitted on Msg/UpdateNFT.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  |  |
-| `property` | [Property](#lbm.composable.v1alpha1.Property) |  |  |
+| `properties` | [Property](#lbm.composable.v1alpha1.Property) | repeated |  |
 
 
 
@@ -18257,7 +18257,7 @@ MsgUpdateNFT is the Msg/UpdateNFT request type.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | nft to update |
-| `property` | [Property](#lbm.composable.v1alpha1.Property) |  | new property |
+| `properties` | [Property](#lbm.composable.v1alpha1.Property) | repeated | new properties |
 
 
 

@@ -56,6 +56,6 @@ message EventBurnNFT {
 
 // EventUpdateNFT is emitted on Msg/UpdateNFT.
 message EventUpdateNFT {
-  NFT      nft      = 1 [(gogoproto.nullable) = false];
-  Property property = 2 [(gogoproto.nullable) = false];
+  NFT               nft        = 1 [(gogoproto.nullable) = false];
+  repeated Property properties = 2 [(gogoproto.nullable) = false];
 }

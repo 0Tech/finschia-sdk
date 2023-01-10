@@ -75,7 +75,6 @@ func (s *CLITestSuite) SetupSuite() {
 	// vendor creates a class
 	classID := composable.ClassIDFromOwner(s.vendor)
 	s.newClass(s.vendor)
-	s.Assert().NoError(err)
 
 	// vendor mints nfts to all accounts by amount of numNFTs
 	s.numNFTs = (maxDescendants + 1) + 1 + 1

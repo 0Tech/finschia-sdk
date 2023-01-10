@@ -31,55 +31,39 @@ func TestImportExportGenesis(t *testing.T) {
 		"no compositions": {
 			gs: &composable.GenesisState{
 				Params: composable.DefaultParams(),
-				Nfts: []composable.ClassNFTs{
+				Classes: []composable.GenesisClass{
 					{
-						Class: composable.Class{
-							Id: classIDs[0],
-						},
-						PreviousId: sdk.NewUint(100),
-						NftStates: []composable.NFTState{
+						Id:              classIDs[0],
+						LastMintedNftId: sdk.NewUint(100),
+						Nfts: []composable.GenesisNFT{
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(1),
-								},
+								Id:    sdk.NewUint(1),
 								Owner: addr.String(),
 							},
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(10),
-								},
+								Id:    sdk.NewUint(10),
 								Owner: addr.String(),
 							},
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(100),
-								},
+								Id:    sdk.NewUint(100),
 								Owner: addr.String(),
 							},
 						},
 					},
 					{
-						Class: composable.Class{
-							Id: classIDs[1],
-						},
-						PreviousId: sdk.NewUint(10000),
-						NftStates: []composable.NFTState{
+						Id:              classIDs[1],
+						LastMintedNftId: sdk.NewUint(10000),
+						Nfts: []composable.GenesisNFT{
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(100),
-								},
+								Id:    sdk.NewUint(100),
 								Owner: addr.String(),
 							},
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(1000),
-								},
+								Id:    sdk.NewUint(1000),
 								Owner: addr.String(),
 							},
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(10000),
-								},
+								Id:    sdk.NewUint(10000),
 								Owner: addr.String(),
 							},
 						},
@@ -90,24 +74,18 @@ func TestImportExportGenesis(t *testing.T) {
 		"with compositions": {
 			gs: &composable.GenesisState{
 				Params: composable.DefaultParams(),
-				Nfts: []composable.ClassNFTs{
+				Classes: []composable.GenesisClass{
 					{
-						Class: composable.Class{
-							Id: classIDs[0],
-						},
-						PreviousId: sdk.NewUint(2),
-						NftStates: []composable.NFTState{
+						Id:              classIDs[0],
+						LastMintedNftId: sdk.NewUint(2),
+						Nfts: []composable.GenesisNFT{
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(1),
-								},
+								Id:    sdk.NewUint(1),
 								Owner: addr.String(),
 							},
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(2),
-								},
-								Parent: &composable.FullID{
+								Id: sdk.NewUint(2),
+								Parent: &composable.NFT{
 									ClassId: classIDs[1],
 									Id:      sdk.NewUint(1),
 								},
@@ -115,22 +93,16 @@ func TestImportExportGenesis(t *testing.T) {
 						},
 					},
 					{
-						Class: composable.Class{
-							Id: classIDs[1],
-						},
-						PreviousId: sdk.NewUint(2),
-						NftStates: []composable.NFTState{
+						Id:              classIDs[1],
+						LastMintedNftId: sdk.NewUint(2),
+						Nfts: []composable.GenesisNFT{
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(1),
-								},
+								Id:    sdk.NewUint(1),
 								Owner: addr.String(),
 							},
 							{
-								Nft: composable.NFT{
-									Id: sdk.NewUint(2),
-								},
-								Parent: &composable.FullID{
+								Id: sdk.NewUint(2),
+								Parent: &composable.NFT{
 									ClassId: classIDs[0],
 									Id:      sdk.NewUint(1),
 								},

@@ -397,8 +397,8 @@ func NewTxCmdUpdateNFT() *cobra.Command {
 			}
 
 			msg := composable.MsgUpdateNFT{
-				Nft:      *nft,
-				Property: properties[0], // TODO
+				Nft:        *nft,
+				Properties: properties,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err

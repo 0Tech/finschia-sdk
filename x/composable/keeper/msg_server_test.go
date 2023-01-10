@@ -294,8 +294,10 @@ func (s *KeeperTestSuite) TestMsgUpdateNFT() {
 					ClassId: composable.ClassIDFromOwner(s.vendor),
 					Id:      tc.id,
 				},
-				Property: composable.Property{
-					Id: s.mutableTraitID,
+				Properties: []composable.Property{
+					{
+						Id: s.mutableTraitID,
+					},
 				},
 			}
 			err := req.ValidateBasic()

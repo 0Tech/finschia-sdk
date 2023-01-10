@@ -278,7 +278,11 @@ func (m MsgUpdateNFT) ValidateBasic() error {
 		return err
 	}
 
-	if err := m.Property.ValidateBasic(); err != nil {
+	if len(m.Properties) == 0 {
+		return sdkerrors.ErrInvalidRequest.Wrap("empty properties")
+	}
+
+	if err := Properties(m.Properties).ValidateBasic(); err != nil {
 		return err
 	}
 

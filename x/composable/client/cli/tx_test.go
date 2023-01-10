@@ -289,7 +289,7 @@ func (s *CLITestSuite) TestNewTxCmdNewClass() {
 		"invalid traits": {
 			args: []string{
 				s.vendor.String(),
-				"invalid",
+				"",
 			},
 			err: sdkerrors.ErrInvalidType,
 		},
@@ -399,7 +399,7 @@ func (s *CLITestSuite) TestNewTxCmdMintNFT() {
 		"invalid properties": {
 			args: []string{
 				composable.ClassIDFromOwner(s.customer),
-				"invalid",
+				"",
 				s.customer.String(),
 			},
 			err: sdkerrors.ErrInvalidType,
@@ -504,6 +504,8 @@ func (s *CLITestSuite) TestNewTxCmdUpdateNFT() {
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10)))),
 	}
 
+	properties := `[{"id":"uri"}]`
+
 	testCases := map[string]struct {
 		args []string
 		err  error
@@ -514,13 +516,13 @@ func (s *CLITestSuite) TestNewTxCmdUpdateNFT() {
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
 				}.String(),
-				"[]",
+				properties,
 			},
 		},
 		"invalid id": {
 			args: []string{
 				"",
-				"[]",
+				properties,
 			},
 			err: sdkerrors.ErrInvalidType,
 		},
@@ -529,7 +531,7 @@ func (s *CLITestSuite) TestNewTxCmdUpdateNFT() {
 				composable.NFT{
 					Id: sdk.OneUint(),
 				}.String(),
-				"[]",
+				properties,
 			},
 			err: composable.ErrInvalidClassID,
 		},
@@ -539,8 +541,9 @@ func (s *CLITestSuite) TestNewTxCmdUpdateNFT() {
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
 				}.String(),
-				"invalid",
+				"",
 			},
+			err: sdkerrors.ErrInvalidType,
 		},
 		"invalid msg": {
 			args: []string{

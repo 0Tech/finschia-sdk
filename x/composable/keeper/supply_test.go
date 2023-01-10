@@ -104,7 +104,7 @@ func (s *KeeperTestSuite) TestMintNFT() {
 		},
 		"trait not found": {
 			classID:    composable.ClassIDFromOwner(s.vendor),
-			propertyID: "invalid",
+			propertyID: "no-such-a-trait",
 			err:        composable.ErrTraitNotFound,
 		},
 	}
@@ -199,12 +199,13 @@ func (s *KeeperTestSuite) TestUpdateNFT() {
 			propertyID: s.mutableTraitID,
 		},
 		"nft not found": {
-			id:  sdk.NewUint(s.numNFTs*2 + 1),
-			err: composable.ErrNFTNotFound,
+			id:         sdk.NewUint(s.numNFTs*2 + 1),
+			propertyID: s.mutableTraitID,
+			err:        composable.ErrNFTNotFound,
 		},
 		"trait not found": {
 			id:         sdk.OneUint(),
-			propertyID: "invalid",
+			propertyID: "no-such-a-trait",
 			err:        composable.ErrTraitNotFound,
 		},
 		"trait immutable": {
@@ -229,8 +230,10 @@ func (s *KeeperTestSuite) TestUpdateNFT() {
 				Id:   tc.propertyID,
 				Fact: randomString(32),
 			}
+			err = property.ValidateBasic()
+			s.Assert().NoError(err)
 
-			err = s.keeper.UpdateNFT(ctx, nft, property)
+			err = s.keeper.UpdateNFT(ctx, nft, []composable.Property{property})
 			s.Require().ErrorIs(err, tc.err)
 			if err != nil {
 				return

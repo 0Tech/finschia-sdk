@@ -142,8 +142,8 @@ message MsgUpdateNFT {
   // nft to update
   NFT nft = 1 [(gogoproto.nullable) = false];
 
-  // new property
-  Property property = 2 [(gogoproto.nullable) = false];
+  // new properties
+  repeated Property properties = 2 [(gogoproto.nullable) = false];
 }
 
 // MsgUpdateNFTResponse is the Msg/UpdateNFT response type.

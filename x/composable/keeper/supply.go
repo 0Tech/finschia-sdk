@@ -240,21 +240,23 @@ func (k Keeper) BurnNFT(ctx sdk.Context, owner sdk.AccAddress, nft composable.NF
 	return nil
 }
 
-func (k Keeper) UpdateNFT(ctx sdk.Context, nft composable.NFT, property composable.Property) error {
+func (k Keeper) UpdateNFT(ctx sdk.Context, nft composable.NFT, properties []composable.Property) error {
 	if err := k.hasNFT(ctx, nft); err != nil {
 		return err
 	}
 
-	trait, err := k.GetTrait(ctx, nft.ClassId, property.Id)
-	if err != nil {
-		return err
-	}
+	for _, property := range properties {
+		trait, err := k.GetTrait(ctx, nft.ClassId, property.Id)
+		if err != nil {
+			return err
+		}
 
-	if !trait.Mutable {
-		return composable.ErrTraitImmutable.Wrap(property.Id)
-	}
+		if !trait.Mutable {
+			return composable.ErrTraitImmutable.Wrap(property.Id)
+		}
 
-	k.setProperty(ctx, nft, property)
+		k.setProperty(ctx, nft, property)
+	}
 
 	return nil
 }
