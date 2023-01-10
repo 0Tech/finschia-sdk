@@ -1,6 +1,8 @@
 package composable
 
 import (
+	"fmt"
+
 	sdk "github.com/line/lbm-sdk/types"
 	sdkerrors "github.com/line/lbm-sdk/types/errors"
 )
@@ -31,43 +33,83 @@ func (class Class) ValidateBasic() error {
 		return err
 	}
 
-	if err := ValidateURIHash(class.Uri, class.UriHash); err != nil {
-		return err
+	return nil
+}
+
+func (t Trait) ValidateBasic() error {
+	if len(t.Id) == 0 {
+		return ErrInvalidTraitID.Wrap("empty")
+	}
+
+	return nil
+}
+
+type Traits []Trait
+
+func (t Traits) ValidateBasic() error {
+	seenNames := map[string]struct{}{}
+	for i, trait := range t {
+		errHint := fmt.Sprintf("trait %d", i)
+
+		if err := trait.ValidateBasic(); err != nil {
+			return sdkerrors.Wrap(err, errHint)
+		}
+
+		if _, seen := seenNames[trait.Id]; seen {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("duplicate id"), errHint)
+		}
+		seenNames[trait.Id] = struct{}{}
 	}
 
 	return nil
 }
 
 func (nft NFT) ValidateBasic() error {
+	if err := ValidateClassID(nft.ClassId); err != nil {
+		return err
+	}
+
 	if err := ValidateNFTID(nft.Id); err != nil {
 		return err
 	}
 
-	if err := ValidateURIHash(nft.Uri, nft.UriHash); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (id FullID) ValidateBasic() error {
-	if err := ValidateClassID(id.ClassId); err != nil {
-		return err
-	}
-
-	if err := ValidateNFTID(id.Id); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (l FullID) Equal(r FullID) bool {
+func (l NFT) Equal(r NFT) bool {
 	if l.ClassId != r.ClassId {
 		return false
 	}
 
 	return l.Id.Equal(r.Id)
+}
+
+func (p Property) ValidateBasic() error {
+	if len(p.Id) == 0 {
+		return ErrInvalidTraitID.Wrap("empty")
+	}
+
+	return nil
+}
+
+type Properties []Property
+
+func (p Properties) ValidateBasic() error {
+	seenNames := map[string]struct{}{}
+	for i, property := range p {
+		errHint := fmt.Sprintf("property %d", i)
+
+		if err := property.ValidateBasic(); err != nil {
+			return sdkerrors.Wrap(err, errHint)
+		}
+
+		if _, seen := seenNames[property.Id]; seen {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("duplicate id"), errHint)
+		}
+		seenNames[property.Id] = struct{}{}
+	}
+
+	return nil
 }
 
 func ValidateClassID(id string) error {
@@ -81,18 +123,6 @@ func ValidateClassID(id string) error {
 func ValidateNFTID(id sdk.Uint) error {
 	if id.IsZero() {
 		return ErrInvalidNFTID.Wrap("zero nft id")
-	}
-
-	return nil
-}
-
-func ValidateURIHash(uri, hash string) error {
-	if len(uri) != 0 && len(hash) == 0 {
-		return ErrInvalidUriHash.Wrap("empty hash for non-empty uri")
-	}
-
-	if len(uri) == 0 && len(hash) != 0 {
-		return ErrInvalidUriHash.Wrap("non-empty hash for empty uri")
 	}
 
 	return nil

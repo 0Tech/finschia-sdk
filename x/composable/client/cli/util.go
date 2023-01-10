@@ -33,11 +33,11 @@ func parseParams(codec codec.Codec, paramsJSON string) (*composable.Params, erro
 	return &params, nil
 }
 
-func ParseFullID(fullIDString string) (*composable.FullID, error) {
+func ParseNFT(nftString string) (*composable.NFT, error) {
 	const delimiter = ":"
-	splitted := strings.Split(fullIDString, delimiter)
+	splitted := strings.Split(nftString, delimiter)
 	if len(splitted) != 2 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidType.Wrap("id"), "must be [class-id]:[id]")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidType.Wrap("nft"), "must be [class-id]:[id]")
 	}
 
 	classID, idStr := splitted[0], splitted[1]
@@ -47,13 +47,13 @@ func ParseFullID(fullIDString string) (*composable.FullID, error) {
 		return nil, err
 	}
 
-	fullID := composable.FullID{
+	nft := composable.NFT{
 		ClassId: classID,
 		Id:      *id,
 	}
-	if err := fullID.ValidateBasic(); err != nil {
+	if err := nft.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	return &fullID, nil
+	return &nft, nil
 }

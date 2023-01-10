@@ -113,100 +113,92 @@ func (k Keeper) iterateClasses(ctx sdk.Context, fn func(class composable.Class))
 	})
 }
 
-func (k Keeper) MintNFT(ctx sdk.Context, owner sdk.AccAddress, classID string, nft composable.NFT) (*sdk.Uint, error) {
+func (k Keeper) MintNFT(ctx sdk.Context, owner sdk.AccAddress, classID string) (*sdk.Uint, error) {
 	if err := k.hasClass(ctx, classID); err != nil {
 		return nil, err
 	}
 
-	nft.Id = k.GetPreviousID(ctx, classID).Incr()
-	k.setPreviousID(ctx, classID, nft.Id)
+	id := k.GetPreviousID(ctx, classID).Incr()
+	k.setPreviousID(ctx, classID, id)
 
-	fullID := composable.FullID{
+	nft := composable.NFT{
 		ClassId: classID,
-		Id:      nft.Id,
+		Id:      id,
 	}
 
-	if err := k.hasNFT(ctx, fullID); err == nil {
-		panic(sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("nft already exists"), fullID.String()))
+	if err := k.hasNFT(ctx, nft); err == nil {
+		panic(sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("nft already exists"), nft.String()))
 	}
-	k.setNFT(ctx, classID, nft)
+	k.setNFT(ctx, nft)
 
-	k.setOwner(ctx, fullID, owner)
+	k.setOwner(ctx, nft, owner)
 
 	return &nft.Id, nil
 }
 
-func (k Keeper) BurnNFT(ctx sdk.Context, owner sdk.AccAddress, id composable.FullID) error {
-	if err := k.validateOwner(ctx, id, owner); err != nil {
+func (k Keeper) BurnNFT(ctx sdk.Context, owner sdk.AccAddress, nft composable.NFT) error {
+	if err := k.validateOwner(ctx, nft, owner); err != nil {
 		return err
 	}
-	k.deleteOwner(ctx, id)
+	k.deleteOwner(ctx, nft)
 
-	if err := k.hasNFT(ctx, id); err != nil {
+	if err := k.hasNFT(ctx, nft); err != nil {
 		panic(err)
 	}
-	k.deleteNFT(ctx, id)
+	k.deleteNFT(ctx, nft)
 
 	// TODO: prune children
 
 	return nil
 }
 
-func (k Keeper) UpdateNFT(ctx sdk.Context, classID string, nft composable.NFT) error {
-	fullID := composable.FullID{
-		ClassId: classID,
-		Id:      nft.Id,
-	}
-
-	if err := k.hasNFT(ctx, fullID); err != nil {
+func (k Keeper) UpdateNFT(ctx sdk.Context, nft composable.NFT) error {
+	if err := k.hasNFT(ctx, nft); err != nil {
 		return err
 	}
-	k.setNFT(ctx, classID, nft)
+
+	// TODO: set properties
 
 	return nil
 }
 
-func (k Keeper) hasNFT(ctx sdk.Context, id composable.FullID) error {
-	_, err := k.getNFTBytes(ctx, id)
+func (k Keeper) hasNFT(ctx sdk.Context, nft composable.NFT) error {
+	_, err := k.getNFTBytes(ctx, nft)
 	return err
 }
 
-func (k Keeper) GetNFT(ctx sdk.Context, id composable.FullID) (*composable.NFT, error) {
-	bz, err := k.getNFTBytes(ctx, id)
-	if err != nil {
+func (k Keeper) GetNFT(ctx sdk.Context, nft composable.NFT) (*composable.NFT, error) {
+	if err := k.hasNFT(ctx, nft); err != nil {
 		return nil, err
 	}
-
-	var nft composable.NFT
-	k.cdc.MustUnmarshal(bz, &nft)
 
 	return &nft, nil
 }
 
-func (k Keeper) getNFTBytes(ctx sdk.Context, id composable.FullID) ([]byte, error) {
+func (k Keeper) getNFTBytes(ctx sdk.Context, nft composable.NFT) ([]byte, error) {
 	store := ctx.KVStore(k.storeKey)
-	key := nftKey(id.ClassId, id.Id)
+	key := nftKey(nft.ClassId, nft.Id)
 
 	bz := store.Get(key)
 	if bz == nil {
-		return nil, composable.ErrNFTNotFound.Wrap(id.String())
+		return nil, composable.ErrNFTNotFound.Wrap(nft.String())
 	}
 
 	return bz, nil
 }
 
-func (k Keeper) setNFT(ctx sdk.Context, classID string, nft composable.NFT) {
+func (k Keeper) setNFT(ctx sdk.Context, nft composable.NFT) {
 	store := ctx.KVStore(k.storeKey)
-	key := nftKey(classID, nft.Id)
+	key := nftKey(nft.ClassId, nft.Id)
 
 	bz := k.cdc.MustMarshal(&nft)
 
 	store.Set(key, bz)
 }
 
-func (k Keeper) deleteNFT(ctx sdk.Context, id composable.FullID) {
+func (k Keeper) deleteNFT(ctx sdk.Context, nft composable.NFT) {
 	store := ctx.KVStore(k.storeKey)
-	key := nftKey(id.ClassId, id.Id)
+	key := nftKey(nft.ClassId, nft.Id)
 
 	store.Delete(key)
 }

@@ -35,7 +35,6 @@ func (s queryServer) grpcError(err error) error {
 	mapping := map[*sdkerrors.Error]codes.Code{
 		composable.ErrInvalidClassID: codes.InvalidArgument,
 		composable.ErrInvalidNFTID:   codes.InvalidArgument,
-		composable.ErrInvalidUriHash: codes.InvalidArgument,
 		// composable.ErrInvalidComposition: codes.InvalidArgument,
 		composable.ErrClassNotFound: codes.NotFound,
 		// composable.ErrClassAlreadyExists: codes.AlreadyExists,
@@ -71,7 +70,7 @@ func (s queryServer) Params(c context.Context, req *composable.QueryParamsReques
 	}, nil
 }
 
-// Class queries an NFT class based on its id
+// Class queries a class.
 func (s queryServer) Class(c context.Context, req *composable.QueryClassRequest) (_ *composable.QueryClassResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
@@ -95,7 +94,7 @@ func (s queryServer) Class(c context.Context, req *composable.QueryClassRequest)
 	}, nil
 }
 
-// Classes queries all NFT classes
+// Classes queries all classes.
 func (s queryServer) Classes(c context.Context, req *composable.QueryClassesRequest) (_ *composable.QueryClassesResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
@@ -127,7 +126,19 @@ func (s queryServer) Classes(c context.Context, req *composable.QueryClassesRequ
 	}, nil
 }
 
-// NFT queries an NFT based on its class and id.
+// Trait queries a trait of a class.
+func (s queryServer) Trait(ctx context.Context, req *composable.QueryTraitRequest) (*composable.QueryTraitResponse, error) {
+	d := composable.UnimplementedQueryServer{}
+	return d.Trait(ctx, req)
+}
+
+// Traits queries all traits of a class.
+func (s queryServer) Traits(ctx context.Context, req *composable.QueryTraitsRequest) (*composable.QueryTraitsResponse, error) {
+	d := composable.UnimplementedQueryServer{}
+	return d.Traits(ctx, req)
+}
+
+// NFT queries an nft.
 func (s queryServer) NFT(c context.Context, req *composable.QueryNFTRequest) (_ *composable.QueryNFTResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
@@ -142,25 +153,24 @@ func (s queryServer) NFT(c context.Context, req *composable.QueryNFTRequest) (_ 
 		return nil, err
 	}
 
-	fullID := composable.FullID{
+	nft := composable.NFT{
 		ClassId: req.ClassId,
 		Id:      *id,
 	}
-	if err := fullID.ValidateBasic(); err != nil {
+	if err := nft.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	nft, err := s.keeper.GetNFT(ctx, fullID)
-	if err != nil {
+	if err := s.keeper.hasNFT(ctx, nft); err != nil {
 		return nil, err
 	}
 
 	return &composable.QueryNFTResponse{
-		Nft: nft,
+		Nft: &nft,
 	}, nil
 }
 
-// NFTs queries all NFTs of a given class
+// NFTs queries all nfts.
 func (s queryServer) NFTs(c context.Context, req *composable.QueryNFTsRequest) (_ *composable.QueryNFTsResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
@@ -196,7 +206,19 @@ func (s queryServer) NFTs(c context.Context, req *composable.QueryNFTsRequest) (
 	}, nil
 }
 
-// Owner queries the owner of the NFT based on its class and id, same as ownerOf in ERC721
+// Property queries a property of a class.
+func (s queryServer) Property(ctx context.Context, req *composable.QueryPropertyRequest) (*composable.QueryPropertyResponse, error) {
+	d := composable.UnimplementedQueryServer{}
+	return d.Property(ctx, req)
+}
+
+// Properties queries all properties of a class.
+func (s queryServer) Properties(ctx context.Context, req *composable.QueryPropertiesRequest) (*composable.QueryPropertiesResponse, error) {
+	d := composable.UnimplementedQueryServer{}
+	return d.Properties(ctx, req)
+}
+
+// Owner queries the owner of an nft.
 func (s queryServer) Owner(c context.Context, req *composable.QueryOwnerRequest) (_ *composable.QueryOwnerResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
@@ -211,15 +233,15 @@ func (s queryServer) Owner(c context.Context, req *composable.QueryOwnerRequest)
 		return nil, err
 	}
 
-	fullID := composable.FullID{
+	nft := composable.NFT{
 		ClassId: req.ClassId,
 		Id:      *id,
 	}
-	if err := fullID.ValidateBasic(); err != nil {
+	if err := nft.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	owner, err := s.keeper.GetRootOwner(ctx, fullID)
+	owner, err := s.keeper.GetRootOwner(ctx, nft)
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +251,7 @@ func (s queryServer) Owner(c context.Context, req *composable.QueryOwnerRequest)
 	}, nil
 }
 
-// Parent queries the parent of the NFT based on its class and id
+// Parent queries the parent of an nft.
 func (s queryServer) Parent(c context.Context, req *composable.QueryParentRequest) (_ *composable.QueryParentResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
@@ -244,15 +266,15 @@ func (s queryServer) Parent(c context.Context, req *composable.QueryParentReques
 		return nil, err
 	}
 
-	fullID := composable.FullID{
+	nft := composable.NFT{
 		ClassId: req.ClassId,
 		Id:      *id,
 	}
-	if err := fullID.ValidateBasic(); err != nil {
+	if err := nft.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	parent, err := s.keeper.getParent(ctx, fullID)
+	parent, err := s.keeper.getParent(ctx, nft)
 	if err != nil {
 		return nil, err
 	}

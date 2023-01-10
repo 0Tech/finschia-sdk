@@ -1,10 +1,10 @@
 package composable
 
 import (
-	"fmt"
+// "fmt"
 
-	sdk "github.com/line/lbm-sdk/types"
-	sdkerrors "github.com/line/lbm-sdk/types/errors"
+// sdk "github.com/line/lbm-sdk/types"
+// sdkerrors "github.com/line/lbm-sdk/types/errors"
 )
 
 const (
@@ -26,57 +26,57 @@ func DefaultParams() Params {
 
 // ValidateBasic check the given genesis state has no integrity issues
 func (s GenesisState) ValidateBasic() error {
-	classIDs := map[string]struct{}{}
-	for classIndex, classNfts := range s.Nfts {
-		errHint := fmt.Sprintf("nfts[%d]", classIndex)
+	// classIDs := map[string]struct{}{}
+	// for classIndex, classNfts := range s.Nfts {
+	// 	errHint := fmt.Sprintf("nfts[%d]", classIndex)
 
-		class := classNfts.Class
-		if err := class.ValidateBasic(); err != nil {
-			return sdkerrors.Wrap(sdkerrors.Wrap(err, "class"), errHint)
-		}
+	// 	class := classNfts.Class
+	// 	if err := class.ValidateBasic(); err != nil {
+	// 		return sdkerrors.Wrap(sdkerrors.Wrap(err, "class"), errHint)
+	// 	}
 
-		if _, seen := classIDs[class.Id]; seen {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrapf("duplicate class id %s", class.Id), errHint)
-		}
-		classIDs[class.Id] = struct{}{}
+	// 	if _, seen := classIDs[class.Id]; seen {
+	// 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrapf("duplicate class id %s", class.Id), errHint)
+	// 	}
+	// 	classIDs[class.Id] = struct{}{}
 
-		seenID := sdk.ZeroUint()
-		for nftIndex, nftState := range classNfts.NftStates {
-			errHint := fmt.Sprintf("%s.nft_states[%d]", errHint, nftIndex)
+	// 	seenID := sdk.ZeroUint()
+	// 	for nftIndex, nftState := range classNfts.NftStates {
+	// 		errHint := fmt.Sprintf("%s.nft_states[%d]", errHint, nftIndex)
 
-			nft := nftState.Nft
-			if err := nft.ValidateBasic(); err != nil {
-				return sdkerrors.Wrap(sdkerrors.Wrap(err, "nft"), errHint)
-			}
+	// 		nft := nftState.Nft
+	// 		if err := nft.ValidateBasic(); err != nil {
+	// 			return sdkerrors.Wrap(sdkerrors.Wrap(err, "nft"), errHint)
+	// 		}
 
-			if nft.Id.LTE(seenID) {
-				return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("unsorted nfts"), errHint)
-			}
-			if nft.Id.GT(classNfts.PreviousId) {
-				return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrapf("id %s > previous id %s", nft.Id, classNfts.PreviousId), errHint)
-			}
-			seenID = nft.Id
+	// 		if nft.Id.LTE(seenID) {
+	// 			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("unsorted nfts"), errHint)
+	// 		}
+	// 		if nft.Id.GT(classNfts.PreviousId) {
+	// 			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrapf("id %s > previous id %s", nft.Id, classNfts.PreviousId), errHint)
+	// 		}
+	// 		seenID = nft.Id
 
-			// xor must be true
-			hasOwner := (len(nftState.Owner) != 0)
-			hasParent := (nftState.Parent != nil)
-			if hasOwner == hasParent {
-				return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("owner and parent mutually exclusive"), errHint)
-			}
+	// 		// xor must be true
+	// 		hasOwner := (len(nftState.Owner) != 0)
+	// 		hasParent := (nftState.Parent != nil)
+	// 		if hasOwner == hasParent {
+	// 			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("owner and parent mutually exclusive"), errHint)
+	// 		}
 
-			if hasOwner {
-				if err := ValidateAddress(nftState.Owner); err != nil {
-					return sdkerrors.Wrap(sdkerrors.Wrap(err, "owner"), errHint)
-				}
-			}
+	// 		if hasOwner {
+	// 			if err := ValidateAddress(nftState.Owner); err != nil {
+	// 				return sdkerrors.Wrap(sdkerrors.Wrap(err, "owner"), errHint)
+	// 			}
+	// 		}
 
-			if hasParent {
-				if err := nftState.Parent.ValidateBasic(); err != nil {
-					return sdkerrors.Wrap(sdkerrors.Wrap(err, "parent"), errHint)
-				}
-			}
-		}
-	}
+	// 		if hasParent {
+	// 			if err := nftState.Parent.ValidateBasic(); err != nil {
+	// 				return sdkerrors.Wrap(sdkerrors.Wrap(err, "parent"), errHint)
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	return nil
 }

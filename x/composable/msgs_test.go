@@ -48,8 +48,10 @@ func TestMsgSend(t *testing.T) {
 			msg := composable.MsgSend{
 				Sender:    tc.sender.String(),
 				Recipient: tc.recipient.String(),
-				ClassId:   tc.classID,
-				Id:        sdk.OneUint(),
+				Nft: composable.NFT{
+					ClassId: tc.classID,
+					Id:      sdk.OneUint(),
+				},
 			}
 
 			err := msg.ValidateBasic()
@@ -104,11 +106,15 @@ func TestMsgAttach(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgAttach{
-				Owner:          tc.owner.String(),
-				SubjectClassId: tc.subjectClassID,
-				SubjectId:      sdk.OneUint(),
-				TargetClassId:  tc.targetClassID,
-				TargetId:       sdk.OneUint(),
+				Owner: tc.owner.String(),
+				Subject: composable.NFT{
+					ClassId: tc.subjectClassID,
+					Id:      sdk.OneUint(),
+				},
+				Target: composable.NFT{
+					ClassId: tc.targetClassID,
+					Id:      sdk.OneUint(),
+				},
 			}
 
 			err := msg.ValidateBasic()
@@ -148,9 +154,11 @@ func TestMsgDetach(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgDetach{
-				Owner:   tc.owner.String(),
-				ClassId: tc.classID,
-				Id:      sdk.OneUint(),
+				Owner: tc.owner.String(),
+				Nft: composable.NFT{
+					ClassId: tc.classID,
+					Id:      sdk.OneUint(),
+				},
 			}
 
 			err := msg.ValidateBasic()
@@ -166,34 +174,36 @@ func TestMsgDetach(t *testing.T) {
 
 func TestMsgNewClass(t *testing.T) {
 	addr := createAddresses(1, "addr")[0]
-	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
-	hash := "tIBeTianfOX"
+	traitID := "uri"
 
 	testCases := map[string]struct {
-		owner sdk.AccAddress
-		uri   string
-		err   error
+		owner   sdk.AccAddress
+		traitID string
+		err     error
 	}{
 		"valid msg": {
-			owner: addr,
-			uri:   uri,
+			owner:   addr,
+			traitID: traitID,
 		},
 		"invalid owner": {
-			uri: uri,
-			err: sdkerrors.ErrInvalidAddress,
+			traitID: traitID,
+			err:     sdkerrors.ErrInvalidAddress,
 		},
-		"invalid uri hash": {
+		"invalid trait id": {
 			owner: addr,
-			err:   composable.ErrInvalidUriHash,
+			err:   composable.ErrInvalidTraitID,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgNewClass{
-				Owner:   tc.owner.String(),
-				Uri:     tc.uri,
-				UriHash: hash,
+				Owner: tc.owner.String(),
+				Traits: []composable.Trait{
+					{
+						Id: tc.traitID,
+					},
+				},
 			}
 
 			err := msg.ValidateBasic()
@@ -242,39 +252,45 @@ func TestMsgUpdateClass(t *testing.T) {
 
 func TestMsgMintNFT(t *testing.T) {
 	classID := createClassIDs(1, "class")[0]
+	traitID := "uri"
 	addr := createAddresses(1, "addr")[0]
-	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
-	hash := "tIBeTianfOX"
 
 	testCases := map[string]struct {
 		classID   string
-		uri       string
+		traitID   string
 		recipient sdk.AccAddress
 		err       error
 	}{
 		"valid msg": {
 			classID:   classID,
-			uri:       uri,
+			traitID:   traitID,
 			recipient: addr,
 		},
 		"invalid class id": {
-			uri:       uri,
 			recipient: addr,
+			traitID:   traitID,
 			err:       composable.ErrInvalidClassID,
 		},
-		"invalid uri hash": {
-			classID:   classID,
-			recipient: addr,
-			err:       composable.ErrInvalidUriHash,
+		"invalid trait id": {
+			classID: classID,
+			err:     composable.ErrInvalidTraitID,
+		},
+		"invalid recipient": {
+			classID: classID,
+			traitID: traitID,
+			err:     sdkerrors.ErrInvalidAddress,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgMintNFT{
-				ClassId:   tc.classID,
-				Uri:       tc.uri,
-				UriHash:   hash,
+				ClassId: tc.classID,
+				Properties: []composable.Property{
+					{
+						Id: tc.traitID,
+					},
+				},
 				Recipient: tc.recipient.String(),
 			}
 
@@ -316,9 +332,11 @@ func TestMsgBurnNFT(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgBurnNFT{
-				Owner:   tc.owner.String(),
-				ClassId: tc.classID,
-				Id:      sdk.OneUint(),
+				Owner: tc.owner.String(),
+				Nft: composable.NFT{
+					ClassId: tc.classID,
+					Id:      sdk.OneUint(),
+				},
 			}
 
 			err := msg.ValidateBasic()
@@ -334,32 +352,37 @@ func TestMsgBurnNFT(t *testing.T) {
 
 func TestMsgUpdateNFT(t *testing.T) {
 	classID := createClassIDs(1, "class")[0]
+	traitID := "uri"
 
 	testCases := map[string]struct {
 		classID string
-		id      sdk.Uint
+		traitID string
 		err     error
 	}{
 		"valid msg": {
 			classID: classID,
-			id:      sdk.OneUint(),
+			traitID: traitID,
 		},
 		"invalid class id": {
-			id:  sdk.OneUint(),
-			err: composable.ErrInvalidClassID,
+			traitID: traitID,
+			err:     composable.ErrInvalidClassID,
 		},
-		"invalid id": {
+		"invalid trait id": {
 			classID: classID,
-			id:      sdk.ZeroUint(),
-			err:     composable.ErrInvalidNFTID,
+			err:     composable.ErrInvalidTraitID,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			msg := composable.MsgUpdateNFT{
-				ClassId: tc.classID,
-				Id:      tc.id,
+				Nft: composable.NFT{
+					ClassId: tc.classID,
+					Id:      sdk.OneUint(),
+				},
+				Property: composable.Property{
+					Id: tc.traitID,
+				},
 			}
 
 			err := msg.ValidateBasic()
@@ -379,7 +402,6 @@ func TestLegacyMsg(t *testing.T) {
 	classIDs := createClassIDs(2, "class")
 	id := sdk.OneUint()
 	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
-	hash := "tIBeTianfOX"
 
 	testCase := []struct {
 		msg legacytx.LegacyMsg
@@ -389,75 +411,95 @@ func TestLegacyMsg(t *testing.T) {
 			&composable.MsgSend{
 				Sender:    addrs[0].String(),
 				Recipient: addrs[1].String(),
-				ClassId:   classIDs[0],
-				Id:        id,
+				Nft: composable.NFT{
+					ClassId: classIDs[0],
+					Id:      id,
+				},
 			},
-			`{"class_id":"link1vdkxzumnxq3kswxp","id":"1","recipient":"link1v9jxgu33p9vj2k","sender":"link1v9jxgu3sunc8hy"}`,
+			`{"nft":{"class_id":"link1vdkxzumnxq3kswxp","id":"1"},"recipient":"link1v9jxgu33p9vj2k","sender":"link1v9jxgu3sunc8hy"}`,
 		},
 		{
 			&composable.MsgAttach{
-				Owner:          addrs[0].String(),
-				SubjectClassId: classIDs[0],
-				SubjectId:      id,
-				TargetClassId:  classIDs[1],
-				TargetId:       id,
+				Owner: addrs[0].String(),
+				Subject: composable.NFT{
+					ClassId: classIDs[0],
+					Id:      id,
+				},
+				Target: composable.NFT{
+					ClassId: classIDs[1],
+					Id:      id,
+				},
 			},
-			`{"owner":"link1v9jxgu3sunc8hy","subject_class_id":"link1vdkxzumnxq3kswxp","subject_id":"1","target_class_id":"link1vdkxzumnxy7ujgfm","target_id":"1"}`,
+			`{"owner":"link1v9jxgu3sunc8hy","subject":{"class_id":"link1vdkxzumnxq3kswxp","id":"1"},"target":{"class_id":"link1vdkxzumnxy7ujgfm","id":"1"}}`,
 		},
 		{
 			&composable.MsgDetach{
-				Owner:   addrs[0].String(),
-				ClassId: classIDs[0],
-				Id:      id,
+				Owner: addrs[0].String(),
+				Nft: composable.NFT{
+					ClassId: classIDs[0],
+					Id:      id,
+				},
 			},
-			`{"class_id":"link1vdkxzumnxq3kswxp","id":"1","owner":"link1v9jxgu3sunc8hy"}`,
+			`{"nft":{"class_id":"link1vdkxzumnxq3kswxp","id":"1"},"owner":"link1v9jxgu3sunc8hy"}`,
 		},
 		{
 			&composable.MsgNewClass{
-				Owner:   addrs[0].String(),
-				Uri:     uri,
-				UriHash: hash,
+				Owner: addrs[0].String(),
+				Traits: []composable.Trait{
+					{
+						Id:      "uri",
+						Mutable: true,
+					},
+				},
 			},
-			`{"owner":"link1v9jxgu3sunc8hy","uri":"https://ipfs.io/ipfs/tIBeTianfOX","uri_hash":"tIBeTianfOX"}`,
+			`{"owner":"link1v9jxgu3sunc8hy","traits":[{"id":"uri","mutable":true}]}`,
 		},
 		{
 			&composable.MsgUpdateClass{
 				ClassId: classIDs[0],
-				Uri:     uri,
-				UriHash: hash,
 			},
-			`{"class_id":"link1vdkxzumnxq3kswxp","uri":"https://ipfs.io/ipfs/tIBeTianfOX","uri_hash":"tIBeTianfOX"}`,
+			`{"class_id":"link1vdkxzumnxq3kswxp"}`,
 		},
 		{
 			&composable.MsgMintNFT{
-				ClassId:   classIDs[0],
-				Uri:       uri,
-				UriHash:   hash,
+				ClassId: classIDs[0],
+				Properties: []composable.Property{
+					{
+						Id:   "uri",
+						Fact: uri,
+					},
+				},
 				Recipient: addrs[0].String(),
 			},
-			`{"class_id":"link1vdkxzumnxq3kswxp","recipient":"link1v9jxgu3sunc8hy","uri":"https://ipfs.io/ipfs/tIBeTianfOX","uri_hash":"tIBeTianfOX"}`,
+			`{"class_id":"link1vdkxzumnxq3kswxp","properties":[{"fact":"https://ipfs.io/ipfs/tIBeTianfOX","id":"uri"}],"recipient":"link1v9jxgu3sunc8hy"}`,
 		},
 		{
 			&composable.MsgBurnNFT{
-				Owner:   addrs[0].String(),
-				ClassId: classIDs[0],
-				Id:      id,
+				Owner: addrs[0].String(),
+				Nft: composable.NFT{
+					ClassId: classIDs[0],
+					Id:      id,
+				},
 			},
-			`{"class_id":"link1vdkxzumnxq3kswxp","id":"1","owner":"link1v9jxgu3sunc8hy"}`,
+			`{"nft":{"class_id":"link1vdkxzumnxq3kswxp","id":"1"},"owner":"link1v9jxgu3sunc8hy"}`,
 		},
 		{
 			&composable.MsgUpdateNFT{
-				ClassId: classIDs[0],
-				Id:      id,
-				Uri:     uri,
-				UriHash: hash,
+				Nft: composable.NFT{
+					ClassId: classIDs[0],
+					Id:      id,
+				},
+				Property: composable.Property{
+					Id:   "uri",
+					Fact: uri,
+				},
 			},
-			`{"class_id":"link1vdkxzumnxq3kswxp","id":"1","uri":"https://ipfs.io/ipfs/tIBeTianfOX","uri_hash":"tIBeTianfOX"}`,
+			`{"nft":{"class_id":"link1vdkxzumnxq3kswxp","id":"1"},"property":{"fact":"https://ipfs.io/ipfs/tIBeTianfOX","id":"uri"}}`,
 		},
 	}
 
 	for _, tc := range testCase {
-		name := sdk.MsgTypeURL(tc.msg)
+		name := sdk.MsgTypeURL(tc.msg)[1:]
 		t.Run(name, func(t *testing.T) {
 			require.Equal(t, composable.RouterKey, tc.msg.Route())
 			require.Equal(t, sdk.MsgTypeURL(tc.msg), tc.msg.Type())

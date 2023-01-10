@@ -133,14 +133,14 @@ func NewQueryCmdNFT() *cobra.Command {
 				return err
 			}
 
-			id, err := ParseFullID(args[0])
+			nft, err := ParseNFT(args[0])
 			if err != nil {
 				return err
 			}
 
 			req := composable.QueryNFTRequest{
-				ClassId: id.ClassId,
-				Id:      id.Id.String(),
+				ClassId: nft.ClassId,
+				Id:      nft.Id.String(),
 			}
 
 			queryClient := composable.NewQueryClient(clientCtx)
@@ -204,14 +204,14 @@ func NewQueryCmdOwner() *cobra.Command {
 				return err
 			}
 
-			id, err := ParseFullID(args[0])
+			nft, err := ParseNFT(args[0])
 			if err != nil {
 				return err
 			}
 
 			req := composable.QueryOwnerRequest{
-				ClassId: id.ClassId,
-				Id:      id.Id.String(),
+				ClassId: nft.ClassId,
+				Id:      nft.Id.String(),
 			}
 
 			queryClient := composable.NewQueryClient(clientCtx)
@@ -240,14 +240,14 @@ func NewQueryCmdParent() *cobra.Command {
 				return err
 			}
 
-			id, err := ParseFullID(args[0])
+			nft, err := ParseNFT(args[0])
 			if err != nil {
 				return err
 			}
 
 			req := composable.QueryParentRequest{
-				ClassId: id.ClassId,
-				Id:      id.Id.String(),
+				ClassId: nft.ClassId,
+				Id:      nft.Id.String(),
 			}
 
 			queryClient := composable.NewQueryClient(clientCtx)

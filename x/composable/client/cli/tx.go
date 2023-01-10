@@ -105,7 +105,7 @@ func NewTxCmdSend() *cobra.Command {
 				return err
 			}
 
-			id, err := ParseFullID(args[2])
+			nft, err := ParseNFT(args[2])
 			if err != nil {
 				return err
 			}
@@ -113,8 +113,7 @@ func NewTxCmdSend() *cobra.Command {
 			msg := composable.MsgSend{
 				Sender:    sender,
 				Recipient: args[1],
-				ClassId:   id.ClassId,
-				Id:        id.Id,
+				Nft:       *nft,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -146,22 +145,20 @@ func NewTxCmdAttach() *cobra.Command {
 				return err
 			}
 
-			subjectID, err := ParseFullID(args[1])
+			subject, err := ParseNFT(args[1])
 			if err != nil {
 				return sdkerrors.Wrap(err, "subject")
 			}
 
-			targetID, err := ParseFullID(args[2])
+			target, err := ParseNFT(args[2])
 			if err != nil {
 				return sdkerrors.Wrap(err, "target")
 			}
 
 			msg := composable.MsgAttach{
-				Owner:          owner,
-				SubjectClassId: subjectID.ClassId,
-				SubjectId:      subjectID.Id,
-				TargetClassId:  targetID.ClassId,
-				TargetId:       targetID.Id,
+				Owner:   owner,
+				Subject: *subject,
+				Target:  *target,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -193,15 +190,14 @@ func NewTxCmdDetach() *cobra.Command {
 				return err
 			}
 
-			id, err := ParseFullID(args[1])
+			nft, err := ParseNFT(args[1])
 			if err != nil {
 				return err
 			}
 
 			msg := composable.MsgDetach{
-				Owner:   owner,
-				ClassId: id.ClassId,
-				Id:      id.Id,
+				Owner: owner,
+				Nft:   *nft,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -233,20 +229,10 @@ func NewTxCmdNewClass() *cobra.Command {
 				return err
 			}
 
-			uri, err := cmd.Flags().GetString(FlagUri)
-			if err != nil {
-				return err
-			}
-
-			uriHash, err := cmd.Flags().GetString(FlagUriHash)
-			if err != nil {
-				return err
-			}
+			// traits
 
 			msg := composable.MsgNewClass{
-				Owner:   owner,
-				Uri:     uri,
-				UriHash: uriHash,
+				Owner: owner,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -257,9 +243,6 @@ func NewTxCmdNewClass() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
-
-	cmd.Flags().String(FlagUri, "", "set uri")
-	cmd.Flags().String(FlagUriHash, "", "set uri-hash")
 
 	return cmd
 }
@@ -286,20 +269,8 @@ func NewTxCmdUpdateClass() *cobra.Command {
 				return err
 			}
 
-			uri, err := cmd.Flags().GetString(FlagUri)
-			if err != nil {
-				return err
-			}
-
-			uriHash, err := cmd.Flags().GetString(FlagUriHash)
-			if err != nil {
-				return err
-			}
-
 			msg := composable.MsgUpdateClass{
 				ClassId: classID,
-				Uri:     uri,
-				UriHash: uriHash,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -310,9 +281,6 @@ func NewTxCmdUpdateClass() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
-
-	cmd.Flags().String(FlagUri, "", "set uri")
-	cmd.Flags().String(FlagUriHash, "", "set uri-hash")
 
 	return cmd
 }
@@ -339,20 +307,8 @@ func NewTxCmdMintNFT() *cobra.Command {
 				return err
 			}
 
-			uri, err := cmd.Flags().GetString(FlagUri)
-			if err != nil {
-				return err
-			}
-
-			uriHash, err := cmd.Flags().GetString(FlagUriHash)
-			if err != nil {
-				return err
-			}
-
 			msg := composable.MsgMintNFT{
 				ClassId:   classID,
-				Uri:       uri,
-				UriHash:   uriHash,
 				Recipient: args[1],
 			}
 			if err := msg.ValidateBasic(); err != nil {
@@ -364,9 +320,6 @@ func NewTxCmdMintNFT() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
-
-	cmd.Flags().String(FlagUri, "", "set uri")
-	cmd.Flags().String(FlagUriHash, "", "set uri-hash")
 
 	return cmd
 }
@@ -389,15 +342,14 @@ func NewTxCmdBurnNFT() *cobra.Command {
 				return err
 			}
 
-			id, err := ParseFullID(args[1])
+			nft, err := ParseNFT(args[1])
 			if err != nil {
 				return err
 			}
 
 			msg := composable.MsgBurnNFT{
-				Owner:   owner,
-				ClassId: id.ClassId,
-				Id:      id.Id,
+				Owner: owner,
+				Nft:   *nft,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -419,12 +371,12 @@ func NewTxCmdUpdateNFT() *cobra.Command {
 		Short:   "update an nft",
 		Example: ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := ParseFullID(args[0])
+			nft, err := ParseNFT(args[0])
 			if err != nil {
 				return err
 			}
 
-			owner := composable.ClassOwner(id.ClassId).String()
+			owner := composable.ClassOwner(nft.ClassId).String()
 			if err := cmd.Flags().Set(flags.FlagFrom, owner); err != nil {
 				return err
 			}
@@ -434,21 +386,8 @@ func NewTxCmdUpdateNFT() *cobra.Command {
 				return err
 			}
 
-			uri, err := cmd.Flags().GetString(FlagUri)
-			if err != nil {
-				return err
-			}
-
-			uriHash, err := cmd.Flags().GetString(FlagUriHash)
-			if err != nil {
-				return err
-			}
-
 			msg := composable.MsgUpdateNFT{
-				ClassId: id.ClassId,
-				Id:      id.Id,
-				Uri:     uri,
-				UriHash: uriHash,
+				Nft: *nft,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -459,9 +398,6 @@ func NewTxCmdUpdateNFT() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
-
-	cmd.Flags().String(FlagUri, "", "set uri")
-	cmd.Flags().String(FlagUriHash, "", "set uri-hash")
 
 	return cmd
 }

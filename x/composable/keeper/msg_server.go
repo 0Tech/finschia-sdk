@@ -27,19 +27,15 @@ func (s msgServer) Send(c context.Context, req *composable.MsgSend) (*composable
 
 	sender := sdk.MustAccAddressFromBech32(req.Sender)
 	recipient := sdk.MustAccAddressFromBech32(req.Recipient)
-	id := composable.FullID{
-		ClassId: req.ClassId,
-		Id:      req.Id,
-	}
-	if err := s.keeper.Send(ctx, sender, recipient, id); err != nil {
+
+	if err := s.keeper.Send(ctx, sender, recipient, req.Nft); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventSend{
 		Sender:   req.Sender,
 		Receiver: req.Recipient,
-		ClassId:  req.ClassId,
-		Id:       req.Id,
+		Nft:      req.Nft,
 	}); err != nil {
 		panic(err)
 	}
@@ -52,24 +48,15 @@ func (s msgServer) Attach(c context.Context, req *composable.MsgAttach) (*compos
 	ctx := sdk.UnwrapSDKContext(c)
 
 	owner := sdk.MustAccAddressFromBech32(req.Owner)
-	subjectID := composable.FullID{
-		ClassId: req.SubjectClassId,
-		Id:      req.SubjectId,
-	}
-	targetID := composable.FullID{
-		ClassId: req.TargetClassId,
-		Id:      req.TargetId,
-	}
-	if err := s.keeper.Attach(ctx, owner, subjectID, targetID); err != nil {
+
+	if err := s.keeper.Attach(ctx, owner, req.Subject, req.Target); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventAttach{
-		Owner:          req.Owner,
-		SubjectClassId: req.SubjectClassId,
-		SubjectId:      req.SubjectId,
-		TargetClassId:  req.TargetClassId,
-		TargetId:       req.TargetId,
+		Owner:   req.Owner,
+		Subject: req.Subject,
+		Target:  req.Target,
 	}); err != nil {
 		panic(err)
 	}
@@ -82,18 +69,14 @@ func (s msgServer) Detach(c context.Context, req *composable.MsgDetach) (*compos
 	ctx := sdk.UnwrapSDKContext(c)
 
 	owner := sdk.MustAccAddressFromBech32(req.Owner)
-	id := composable.FullID{
-		ClassId: req.ClassId,
-		Id:      req.Id,
-	}
-	if err := s.keeper.Detach(ctx, owner, id); err != nil {
+
+	if err := s.keeper.Detach(ctx, owner, req.Nft); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventDetach{
-		Owner:   req.Owner,
-		ClassId: req.ClassId,
-		Id:      req.Id,
+		Owner: req.Owner,
+		Nft:   req.Nft,
 	}); err != nil {
 		panic(err)
 	}
@@ -108,18 +91,18 @@ func (s msgServer) NewClass(c context.Context, req *composable.MsgNewClass) (*co
 	owner := sdk.MustAccAddressFromBech32(req.Owner)
 	id := composable.ClassIDFromOwner(owner)
 	class := composable.Class{
-		Id:      id,
-		Uri:     req.Uri,
-		UriHash: req.UriHash,
+		Id: id,
 	}
+
+	// TODO: traits
+
 	if err := s.keeper.NewClass(ctx, class); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventNewClass{
-		Id:      id,
-		Uri:     req.Uri,
-		UriHash: req.UriHash,
+		Class: class,
+		Data:  req.Data,
 	}); err != nil {
 		panic(err)
 	}
@@ -132,18 +115,18 @@ func (s msgServer) UpdateClass(c context.Context, req *composable.MsgUpdateClass
 	ctx := sdk.UnwrapSDKContext(c)
 
 	class := composable.Class{
-		Id:      req.ClassId,
-		Uri:     req.Uri,
-		UriHash: req.UriHash,
+		Id: req.ClassId,
 	}
+
+	// TODO: data
+
 	if err := s.keeper.UpdateClass(ctx, class); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventUpdateClass{
-		Id:      req.ClassId,
-		Uri:     req.Uri,
-		UriHash: req.UriHash,
+		Class: class,
+		Data:  req.Data,
 	}); err != nil {
 		panic(err)
 	}
@@ -156,20 +139,15 @@ func (s msgServer) MintNFT(c context.Context, req *composable.MsgMintNFT) (*comp
 	ctx := sdk.UnwrapSDKContext(c)
 
 	recipient := sdk.MustAccAddressFromBech32(req.Recipient)
-	nft := composable.NFT{
-		Uri:     req.Uri,
-		UriHash: req.UriHash,
-	}
-	id, err := s.keeper.MintNFT(ctx, recipient, req.ClassId, nft)
+
+	// TODO: traits
+
+	_, err := s.keeper.MintNFT(ctx, recipient, req.ClassId)
 	if err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventMintNFT{
-		ClassId:   req.ClassId,
-		Id:        *id,
-		Uri:       req.Uri,
-		UriHash:   req.UriHash,
 		Recipient: req.Recipient,
 	}); err != nil {
 		panic(err)
@@ -183,19 +161,14 @@ func (s msgServer) BurnNFT(c context.Context, req *composable.MsgBurnNFT) (*comp
 	ctx := sdk.UnwrapSDKContext(c)
 
 	owner := sdk.MustAccAddressFromBech32(req.Owner)
-	id := composable.FullID{
-		ClassId: req.ClassId,
-		Id:      req.Id,
-	}
 
-	if err := s.keeper.BurnNFT(ctx, owner, id); err != nil {
+	if err := s.keeper.BurnNFT(ctx, owner, req.Nft); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventBurnNFT{
-		Owner:   req.Owner,
-		ClassId: req.ClassId,
-		Id:      req.Id,
+		Owner: req.Owner,
+		Nft:   req.Nft,
 	}); err != nil {
 		panic(err)
 	}
@@ -207,20 +180,14 @@ func (s msgServer) BurnNFT(c context.Context, req *composable.MsgBurnNFT) (*comp
 func (s msgServer) UpdateNFT(c context.Context, req *composable.MsgUpdateNFT) (*composable.MsgUpdateNFTResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	id := composable.NFT{
-		Id:      req.Id,
-		Uri:     req.Uri,
-		UriHash: req.UriHash,
-	}
-	if err := s.keeper.UpdateNFT(ctx, req.ClassId, id); err != nil {
+	// TODO: property
+
+	if err := s.keeper.UpdateNFT(ctx, req.Nft); err != nil {
 		return nil, err
 	}
 
 	if err := ctx.EventManager().EmitTypedEvent(&composable.EventUpdateNFT{
-		ClassId: req.ClassId,
-		Id:      req.Id,
-		Uri:     req.Uri,
-		UriHash: req.UriHash,
+		Nft: req.Nft,
 	}); err != nil {
 		panic(err)
 	}

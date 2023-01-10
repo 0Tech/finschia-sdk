@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/line/lbm-sdk/types"
+	sdkerrors "github.com/line/lbm-sdk/types/errors"
 	"github.com/line/lbm-sdk/x/composable"
 )
 
@@ -31,34 +32,23 @@ func createClassIDs(size int, prefix string) []string {
 
 func TestClass(t *testing.T) {
 	id := createClassIDs(1, "class")[0]
-	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
-	hash := "tIBeTianfOX"
 
 	testCases := map[string]struct {
-		id   string
-		hash string
-		err  error
+		id  string
+		err error
 	}{
 		"valid class": {
-			id:   id,
-			hash: hash,
+			id: id,
 		},
 		"invalid id": {
-			hash: hash,
-			err:  composable.ErrInvalidClassID,
-		},
-		"invalid uri hash": {
-			id:  id,
-			err: composable.ErrInvalidUriHash,
+			err: composable.ErrInvalidClassID,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			class := composable.Class{
-				Id:      tc.id,
-				Uri:     uri,
-				UriHash: tc.hash,
+				Id: tc.id,
 			}
 
 			err := class.ValidateBasic()
@@ -67,45 +57,43 @@ func TestClass(t *testing.T) {
 	}
 }
 
-func TestNFT(t *testing.T) {
-	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
-	hash := "tIBeTianfOX"
-
+func TestTraits(t *testing.T) {
 	testCases := map[string]struct {
-		id   sdk.Uint
-		hash string
-		err  error
+		ids []string
+		err error
 	}{
-		"valid nft": {
-			id:   sdk.OneUint(),
-			hash: hash,
-		},
+		"valid traits": {},
 		"invalid id": {
-			id:   sdk.ZeroUint(),
-			hash: hash,
-			err:  composable.ErrInvalidNFTID,
+			ids: []string{
+				"",
+			},
+			err: composable.ErrInvalidTraitID,
 		},
-		"invalid uri hash": {
-			id:  sdk.OneUint(),
-			err: composable.ErrInvalidUriHash,
+		"duplicate id": {
+			ids: []string{
+				"uri",
+				"uri",
+			},
+			err: sdkerrors.ErrInvalidRequest,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			nft := composable.NFT{
-				Id:      tc.id,
-				Uri:     uri,
-				UriHash: tc.hash,
+			traits := make([]composable.Trait, len(tc.ids))
+			for i, id := range tc.ids {
+				traits[i] = composable.Trait{
+					Id: id,
+				}
 			}
 
-			err := nft.ValidateBasic()
+			err := composable.Traits(traits).ValidateBasic()
 			require.ErrorIs(t, err, tc.err)
 		})
 	}
 }
 
-func TestFullID(t *testing.T) {
+func TestNFT(t *testing.T) {
 	classIDs := createClassIDs(2, "class")
 
 	testCases := map[string]struct {
@@ -113,7 +101,7 @@ func TestFullID(t *testing.T) {
 		id      sdk.Uint
 		err     error
 	}{
-		"valid full id": {
+		"valid nft": {
 			classID: classIDs[0],
 			id:      sdk.OneUint(),
 		},
@@ -130,17 +118,17 @@ func TestFullID(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			id := composable.FullID{
+			nft := composable.NFT{
 				ClassId: tc.classID,
 				Id:      tc.id,
 			}
 
-			err := id.ValidateBasic()
+			err := nft.ValidateBasic()
 			require.ErrorIs(t, err, tc.err)
 		})
 	}
 
-	l := composable.FullID{
+	l := composable.NFT{
 		ClassId: classIDs[0],
 		Id:      sdk.OneUint(),
 	}
@@ -166,7 +154,7 @@ func TestFullID(t *testing.T) {
 
 	for name, tc := range testCases2 {
 		t.Run(name, func(t *testing.T) {
-			r := composable.FullID{
+			r := composable.NFT{
 				ClassId: tc.classID,
 				Id:      tc.id,
 			}
@@ -178,33 +166,37 @@ func TestFullID(t *testing.T) {
 	}
 }
 
-func TestURIHash(t *testing.T) {
-	uri := "https://ipfs.io/ipfs/tIBeTianfOX"
-	hash := "tIBeTianfOX"
-
+func TestProperties(t *testing.T) {
 	testCases := map[string]struct {
-		uri  string
-		hash string
-		err  error
+		ids []string
+		err error
 	}{
-		"valid uri and hash": {
-			uri:  uri,
-			hash: hash,
+		"valid properties": {},
+		"invalid id": {
+			ids: []string{
+				"",
+			},
+			err: composable.ErrInvalidTraitID,
 		},
-		"empty uri and empty hash": {},
-		"non-empty uri but empty hash": {
-			uri: uri,
-			err: composable.ErrInvalidUriHash,
-		},
-		"empty uri but non-empty hash": {
-			hash: hash,
-			err:  composable.ErrInvalidUriHash,
+		"duplicate id": {
+			ids: []string{
+				"uri",
+				"uri",
+			},
+			err: sdkerrors.ErrInvalidRequest,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			err := composable.ValidateURIHash(tc.uri, tc.hash)
+			properties := make([]composable.Property, len(tc.ids))
+			for i, id := range tc.ids {
+				properties[i] = composable.Property{
+					Id: id,
+				}
+			}
+
+			err := composable.Properties(properties).ValidateBasic()
 			require.ErrorIs(t, err, tc.err)
 		})
 	}

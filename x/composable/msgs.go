@@ -18,11 +18,7 @@ func (m MsgSend) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "recipient")
 	}
 
-	id := FullID{
-		ClassId: m.ClassId,
-		Id:      m.Id,
-	}
-	if err := id.ValidateBasic(); err != nil {
+	if err := m.Nft.ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -58,23 +54,15 @@ func (m MsgAttach) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "owner")
 	}
 
-	subject := FullID{
-		ClassId: m.SubjectClassId,
-		Id:      m.SubjectId,
-	}
-	if err := subject.ValidateBasic(); err != nil {
+	if err := m.Subject.ValidateBasic(); err != nil {
 		return sdkerrors.Wrap(err, "subject")
 	}
 
-	target := FullID{
-		ClassId: m.TargetClassId,
-		Id:      m.TargetId,
-	}
-	if err := target.ValidateBasic(); err != nil {
+	if err := m.Target.ValidateBasic(); err != nil {
 		return sdkerrors.Wrap(err, "target")
 	}
 
-	if target.Equal(subject) {
+	if m.Target.Equal(m.Subject) {
 		return ErrInvalidComposition.Wrap("subject == target")
 	}
 
@@ -110,11 +98,7 @@ func (m MsgDetach) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "owner")
 	}
 
-	id := FullID{
-		ClassId: m.ClassId,
-		Id:      m.Id,
-	}
-	if err := id.ValidateBasic(); err != nil {
+	if err := m.Nft.ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -150,7 +134,7 @@ func (m MsgNewClass) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "owner")
 	}
 
-	if err := ValidateURIHash(m.Uri, m.UriHash); err != nil {
+	if err := Traits(m.Traits).ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -182,12 +166,7 @@ var _ sdk.Msg = (*MsgUpdateClass)(nil)
 
 // ValidateBasic implements Msg.
 func (m MsgUpdateClass) ValidateBasic() error {
-	class := Class{
-		Id:      m.ClassId,
-		Uri:     m.Uri,
-		UriHash: m.UriHash,
-	}
-	if err := class.ValidateBasic(); err != nil {
+	if err := ValidateClassID(m.ClassId); err != nil {
 		return err
 	}
 
@@ -223,8 +202,12 @@ func (m MsgMintNFT) ValidateBasic() error {
 		return err
 	}
 
-	if err := ValidateURIHash(m.Uri, m.UriHash); err != nil {
+	if err := Properties(m.Properties).ValidateBasic(); err != nil {
 		return err
+	}
+
+	if err := ValidateAddress(m.Recipient); err != nil {
+		return sdkerrors.Wrap(err, "recipient")
 	}
 
 	return nil
@@ -259,11 +242,7 @@ func (m MsgBurnNFT) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "owner")
 	}
 
-	id := FullID{
-		ClassId: m.ClassId,
-		Id:      m.Id,
-	}
-	if err := id.ValidateBasic(); err != nil {
+	if err := m.Nft.ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -295,16 +274,11 @@ var _ sdk.Msg = (*MsgUpdateNFT)(nil)
 
 // ValidateBasic implements Msg.
 func (m MsgUpdateNFT) ValidateBasic() error {
-	if err := ValidateClassID(m.ClassId); err != nil {
+	if err := m.Nft.ValidateBasic(); err != nil {
 		return err
 	}
 
-	nft := NFT{
-		Id:      m.Id,
-		Uri:     m.Uri,
-		UriHash: m.UriHash,
-	}
-	if err := nft.ValidateBasic(); err != nil {
+	if err := m.Property.ValidateBasic(); err != nil {
 		return err
 	}
 
@@ -313,7 +287,7 @@ func (m MsgUpdateNFT) ValidateBasic() error {
 
 // GetSigners implements Msg
 func (m MsgUpdateNFT) GetSigners() []sdk.AccAddress {
-	signer := ClassOwner(m.ClassId)
+	signer := ClassOwner(m.Nft.ClassId)
 	return []sdk.AccAddress{signer}
 }
 
