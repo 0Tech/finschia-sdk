@@ -17617,9 +17617,9 @@ GenesisClass defines a class and its relevant data.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `class` | [Class](#lbm.composable.v1alpha1.Class) |  | class of subject |
+| `id` | [string](#string) |  | identifier of the class |
 | `traits` | [Trait](#lbm.composable.v1alpha1.Trait) | repeated | traits of the class |
-| `last_minted_nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | last minted nft of the class |
+| `last_minted_nft_id` | [string](#string) |  | last minted nft of the class |
 | `nfts` | [GenesisNFT](#lbm.composable.v1alpha1.GenesisNFT) | repeated | nfts of the class |
 
 
@@ -17635,7 +17635,7 @@ GenesisNFT defines an nft and its relevant data.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `nft` | [NFT](#lbm.composable.v1alpha1.NFT) |  | nft of subject |
+| `id` | [string](#string) |  | identifier of the nft |
 | `properties` | [Property](#lbm.composable.v1alpha1.Property) | repeated | properties of the nft |
 | `owner` | [string](#string) |  | owner of the nft (mutually exclusive with parent) |
 | `parent` | [NFT](#lbm.composable.v1alpha1.NFT) |  | parent of the nft (mutually exclusive with owner) |

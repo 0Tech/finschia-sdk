@@ -18,14 +18,15 @@ message GenesisState {
 
 // GenesisClass defines a class and its relevant data.
 message GenesisClass {
-  // class of subject
-  Class class = 1 [(gogoproto.nullable) = false];
+  // identifier of the class
+  string id = 1;
 
   // traits of the class
   repeated Trait traits = 2 [(gogoproto.nullable) = false];
 
   // last minted nft of the class
-  NFT last_minted_nft = 3 [(gogoproto.nullable) = false];
+  string last_minted_nft_id = 3
+      [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
 
   // nfts of the class
   repeated GenesisNFT nfts = 4 [(gogoproto.nullable) = false];
@@ -33,8 +34,8 @@ message GenesisClass {
 
 // GenesisNFT defines an nft and its relevant data.
 message GenesisNFT {
-  // nft of subject
-  NFT nft = 1 [(gogoproto.nullable) = false];
+  // identifier of the nft
+  string id = 1 [(gogoproto.customtype) = "github.com/line/lbm-sdk/types.Uint", (gogoproto.nullable) = false];
 
   // properties of the nft
   repeated Property properties = 2 [(gogoproto.nullable) = false];

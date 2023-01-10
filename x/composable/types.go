@@ -1,8 +1,6 @@
 package composable
 
 import (
-	"fmt"
-
 	sdk "github.com/line/lbm-sdk/types"
 	sdkerrors "github.com/line/lbm-sdk/types/errors"
 )
@@ -47,18 +45,16 @@ func (t Trait) ValidateBasic() error {
 type Traits []Trait
 
 func (t Traits) ValidateBasic() error {
-	seenNames := map[string]struct{}{}
-	for i, trait := range t {
-		errHint := fmt.Sprintf("trait %d", i)
-
+	seenIDs := map[string]struct{}{}
+	for _, trait := range t {
 		if err := trait.ValidateBasic(); err != nil {
-			return sdkerrors.Wrap(err, errHint)
+			return sdkerrors.Wrap(err, trait.Id)
 		}
 
-		if _, seen := seenNames[trait.Id]; seen {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("duplicate id"), errHint)
+		if _, seen := seenIDs[trait.Id]; seen {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("duplicate id"), trait.Id)
 		}
-		seenNames[trait.Id] = struct{}{}
+		seenIDs[trait.Id] = struct{}{}
 	}
 
 	return nil
@@ -95,18 +91,16 @@ func (p Property) ValidateBasic() error {
 type Properties []Property
 
 func (p Properties) ValidateBasic() error {
-	seenNames := map[string]struct{}{}
-	for i, property := range p {
-		errHint := fmt.Sprintf("property %d", i)
-
+	seenIDs := map[string]struct{}{}
+	for _, property := range p {
 		if err := property.ValidateBasic(); err != nil {
-			return sdkerrors.Wrap(err, errHint)
+			return sdkerrors.Wrap(err, property.Id)
 		}
 
-		if _, seen := seenNames[property.Id]; seen {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("duplicate id"), errHint)
+		if _, seen := seenIDs[property.Id]; seen {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest.Wrap("duplicate id"), property.Id)
 		}
-		seenNames[property.Id] = struct{}{}
+		seenIDs[property.Id] = struct{}{}
 	}
 
 	return nil
