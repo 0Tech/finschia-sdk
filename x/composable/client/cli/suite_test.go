@@ -89,15 +89,15 @@ func (s *CLITestSuite) SetupSuite() {
 
 			// each account attachs its second nft to its first nft
 			if i == 1 {
-				subjectID := composable.FullID{
+				subject := composable.NFT{
 					ClassId: classID,
 					Id:      id,
 				}
-				targetID := composable.FullID{
+				target := composable.NFT{
 					ClassId: classID,
 					Id:      id.Decr(),
 				}
-				s.attach(owner, subjectID, targetID)
+				s.attach(owner, subject, target)
 			}
 		}
 	}
@@ -163,17 +163,17 @@ func (s *CLITestSuite) createAccount(uid string) sdk.AccAddress {
 	return addr
 }
 
-func idToString(id composable.FullID) string {
-	return fmt.Sprintf("%s:%s", id.ClassId, id.Id)
+func nftToString(nft composable.NFT) string {
+	return fmt.Sprintf("%s:%s", nft.ClassId, nft.Id)
 }
 
-func (s *CLITestSuite) attach(owner sdk.AccAddress, subjectID, targetID composable.FullID) {
+func (s *CLITestSuite) attach(owner sdk.AccAddress, subject, target composable.NFT) {
 	val := s.network.Validators[0]
 
 	args := append([]string{
 		owner.String(),
-		idToString(subjectID),
-		idToString(targetID),
+		subject.String(),
+		target.String(),
 	}, commonArgs...)
 
 	out, err := clitestutil.ExecTestCLICmd(val.ClientCtx, cli.NewTxCmdAttach(), args)
@@ -190,6 +190,7 @@ func (s *CLITestSuite) newClass(owner sdk.AccAddress) {
 
 	args := append([]string{
 		owner.String(),
+		"[]",
 	}, commonArgs...)
 
 	out, err := clitestutil.ExecTestCLICmd(val.ClientCtx, cli.NewTxCmdNewClass(), args)
@@ -207,6 +208,7 @@ func (s *CLITestSuite) mintNFT(classID string, recipient sdk.AccAddress) sdk.Uin
 	owner := composable.ClassOwner(classID)
 	args := append([]string{
 		owner.String(),
+		"[]",
 		recipient.String(),
 	}, commonArgs...)
 
@@ -223,5 +225,5 @@ func (s *CLITestSuite) mintNFT(classID string, recipient sdk.AccAddress) sdk.Uin
 		event = *e.(*composable.EventMintNFT)
 	})
 
-	return event.Id
+	return event.Nft.Id
 }

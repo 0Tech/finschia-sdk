@@ -75,10 +75,10 @@ func (s *CLITestSuite) TestNewTxCmdSend() {
 			args: []string{
 				s.customer.String(),
 				s.vendor.String(),
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 		},
 		"invalid id": {
@@ -93,10 +93,10 @@ func (s *CLITestSuite) TestNewTxCmdSend() {
 			args: []string{
 				"",
 				s.vendor.String(),
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		},
@@ -138,34 +138,34 @@ func (s *CLITestSuite) TestNewTxCmdAttach() {
 		"valid failing request": {
 			args: []string{
 				s.customer.String(),
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
-				idToString(composable.FullID{
+				}.String(),
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.vendor),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 		},
 		"invalid subject id": {
 			args: []string{
 				s.customer.String(),
 				"",
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.vendor),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: sdkerrors.ErrInvalidType,
 		},
 		"invalid target id": {
 			args: []string{
 				s.customer.String(),
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 				"",
 			},
 			err: sdkerrors.ErrInvalidType,
@@ -173,14 +173,14 @@ func (s *CLITestSuite) TestNewTxCmdAttach() {
 		"invalid msg": {
 			args: []string{
 				"",
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
-				idToString(composable.FullID{
+				}.String(),
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.vendor),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		},
@@ -222,10 +222,10 @@ func (s *CLITestSuite) TestNewTxCmdDetach() {
 		"valid failing request": {
 			args: []string{
 				s.customer.String(),
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 		},
 		"invalid id": {
@@ -238,10 +238,10 @@ func (s *CLITestSuite) TestNewTxCmdDetach() {
 		"invalid msg": {
 			args: []string{
 				"",
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		},
@@ -283,11 +283,20 @@ func (s *CLITestSuite) TestNewTxCmdNewClass() {
 		"valid failing request": {
 			args: []string{
 				s.vendor.String(),
+				"[]",
 			},
+		},
+		"invalid traits": {
+			args: []string{
+				s.vendor.String(),
+				"invalid",
+			},
+			err: sdkerrors.ErrInvalidType,
 		},
 		"invalid msg": {
 			args: []string{
 				"",
+				"[]",
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		},
@@ -337,13 +346,6 @@ func (s *CLITestSuite) TestNewTxCmdUpdateClass() {
 			},
 			err: composable.ErrInvalidClassID,
 		},
-		"invalid msg": {
-			args: []string{
-				composable.ClassIDFromOwner(s.customer),
-				fmt.Sprintf("--%s=%s", cli.FlagUri, "https://ipfs.io/ipfs/tIBeTianfOX"),
-			},
-			err: composable.ErrInvalidUriHash,
-		},
 	}
 
 	for name, tc := range testCases {
@@ -382,23 +384,33 @@ func (s *CLITestSuite) TestNewTxCmdMintNFT() {
 		"valid failing request": {
 			args: []string{
 				composable.ClassIDFromOwner(s.customer),
+				"[]",
 				s.customer.String(),
 			},
 		},
 		"invalid class id": {
 			args: []string{
 				"",
+				"[]",
 				s.customer.String(),
 			},
 			err: composable.ErrInvalidClassID,
 		},
+		"invalid properties": {
+			args: []string{
+				composable.ClassIDFromOwner(s.customer),
+				"invalid",
+				s.customer.String(),
+			},
+			err: sdkerrors.ErrInvalidType,
+		},
 		"invalid msg": {
 			args: []string{
 				composable.ClassIDFromOwner(s.customer),
+				"[{}]",
 				s.customer.String(),
-				fmt.Sprintf("--%s=%s", cli.FlagUri, "https://ipfs.io/ipfs/tIBeTianfOX"),
 			},
-			err: composable.ErrInvalidUriHash,
+			err: composable.ErrInvalidTraitID,
 		},
 	}
 
@@ -438,10 +450,10 @@ func (s *CLITestSuite) TestNewTxCmdBurnNFT() {
 		"valid failing request": {
 			args: []string{
 				s.customer.String(),
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 		},
 		"invalid id": {
@@ -454,10 +466,10 @@ func (s *CLITestSuite) TestNewTxCmdBurnNFT() {
 		"invalid msg": {
 			args: []string{
 				"",
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		},
@@ -498,35 +510,47 @@ func (s *CLITestSuite) TestNewTxCmdUpdateNFT() {
 	}{
 		"valid failing request": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
+				"[]",
 			},
 		},
 		"invalid id": {
 			args: []string{
 				"",
+				"[]",
 			},
 			err: sdkerrors.ErrInvalidType,
 		},
 		"invalid class id": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					Id: sdk.OneUint(),
-				}),
+				}.String(),
+				"[]",
 			},
 			err: composable.ErrInvalidClassID,
 		},
-		"invalid msg": {
+		"invalid properties": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
-				fmt.Sprintf("--%s=%s", cli.FlagUri, "https://ipfs.io/ipfs/tIBeTianfOX"),
+				}.String(),
+				"invalid",
 			},
-			err: composable.ErrInvalidUriHash,
+		},
+		"invalid msg": {
+			args: []string{
+				composable.NFT{
+					ClassId: composable.ClassIDFromOwner(s.customer),
+					Id:      sdk.OneUint(),
+				}.String(),
+				"[{}]",
+			},
+			err: composable.ErrInvalidTraitID,
 		},
 	}
 

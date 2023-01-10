@@ -12,11 +12,6 @@ import (
 	"github.com/line/lbm-sdk/x/composable"
 )
 
-const (
-	FlagUri     = "uri"
-	FlagUriHash = "uri-hash"
-)
-
 // NewTxCmd returns the transaction commands for the module
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
@@ -105,7 +100,7 @@ func NewTxCmdSend() *cobra.Command {
 				return err
 			}
 
-			nft, err := ParseNFT(args[2])
+			nft, err := composable.NFTFromString(args[2])
 			if err != nil {
 				return err
 			}
@@ -145,12 +140,12 @@ func NewTxCmdAttach() *cobra.Command {
 				return err
 			}
 
-			subject, err := ParseNFT(args[1])
+			subject, err := composable.NFTFromString(args[1])
 			if err != nil {
 				return sdkerrors.Wrap(err, "subject")
 			}
 
-			target, err := ParseNFT(args[2])
+			target, err := composable.NFTFromString(args[2])
 			if err != nil {
 				return sdkerrors.Wrap(err, "target")
 			}
@@ -190,7 +185,7 @@ func NewTxCmdDetach() *cobra.Command {
 				return err
 			}
 
-			nft, err := ParseNFT(args[1])
+			nft, err := composable.NFTFromString(args[1])
 			if err != nil {
 				return err
 			}
@@ -214,8 +209,8 @@ func NewTxCmdDetach() *cobra.Command {
 
 func NewTxCmdNewClass() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "new-class [owner] [--uri] [--uri-hash]",
-		Args:    cobra.ExactArgs(1),
+		Use:     "new-class [owner] [traits-json]",
+		Args:    cobra.ExactArgs(2),
 		Short:   "create a class",
 		Example: ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -229,10 +224,14 @@ func NewTxCmdNewClass() *cobra.Command {
 				return err
 			}
 
-			// traits
+			traits, err := ParseTraits(clientCtx.Codec, args[1])
+			if err != nil {
+				return err
+			}
 
 			msg := composable.MsgNewClass{
-				Owner: owner,
+				Owner:  owner,
+				Traits: traits,
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -249,7 +248,7 @@ func NewTxCmdNewClass() *cobra.Command {
 
 func NewTxCmdUpdateClass() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "update-class [class-id] [--uri] [--uri-hash]",
+		Use:     "update-class [class-id]",
 		Args:    cobra.ExactArgs(1),
 		Short:   "update a class",
 		Example: ``,
@@ -287,8 +286,8 @@ func NewTxCmdUpdateClass() *cobra.Command {
 
 func NewTxCmdMintNFT() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "mint-nft [class-id] [recipient] [--uri] [--uri-hash]",
-		Args:    cobra.ExactArgs(2),
+		Use:     "mint-nft [class-id] [properties-json] [recipient]",
+		Args:    cobra.ExactArgs(3),
 		Short:   "mint an nft",
 		Example: ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -307,9 +306,15 @@ func NewTxCmdMintNFT() *cobra.Command {
 				return err
 			}
 
+			properties, err := ParseProperties(clientCtx.Codec, args[1])
+			if err != nil {
+				return err
+			}
+
 			msg := composable.MsgMintNFT{
-				ClassId:   classID,
-				Recipient: args[1],
+				ClassId:    classID,
+				Properties: properties,
+				Recipient:  args[2],
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -342,7 +347,7 @@ func NewTxCmdBurnNFT() *cobra.Command {
 				return err
 			}
 
-			nft, err := ParseNFT(args[1])
+			nft, err := composable.NFTFromString(args[1])
 			if err != nil {
 				return err
 			}
@@ -366,12 +371,12 @@ func NewTxCmdBurnNFT() *cobra.Command {
 
 func NewTxCmdUpdateNFT() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "update-nft [id] [--uri] [--uri-hash]",
-		Args:    cobra.ExactArgs(1),
+		Use:     "update-nft [id] [properties-json]",
+		Args:    cobra.ExactArgs(2),
 		Short:   "update an nft",
 		Example: ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			nft, err := ParseNFT(args[0])
+			nft, err := composable.NFTFromString(args[0])
 			if err != nil {
 				return err
 			}
@@ -386,8 +391,14 @@ func NewTxCmdUpdateNFT() *cobra.Command {
 				return err
 			}
 
+			properties, err := ParseProperties(clientCtx.Codec, args[1])
+			if err != nil {
+				return err
+			}
+
 			msg := composable.MsgUpdateNFT{
-				Nft: *nft,
+				Nft:      *nft,
+				Property: properties[0], // TODO
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return err

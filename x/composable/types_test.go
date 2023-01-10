@@ -96,6 +96,7 @@ func TestTraits(t *testing.T) {
 func TestNFT(t *testing.T) {
 	classIDs := createClassIDs(2, "class")
 
+	// ValidateBasic()
 	testCases := map[string]struct {
 		classID string
 		id      sdk.Uint
@@ -132,6 +133,8 @@ func TestNFT(t *testing.T) {
 		ClassId: classIDs[0],
 		Id:      sdk.OneUint(),
 	}
+
+	// Equal()
 	testCases2 := map[string]struct {
 		classID string
 		id      sdk.Uint
@@ -162,6 +165,57 @@ func TestNFT(t *testing.T) {
 			require.NoError(t, l.ValidateBasic())
 			require.NoError(t, r.ValidateBasic())
 			require.Equal(t, tc.equals, l.Equal(r))
+		})
+	}
+
+	bigID := make([]rune, 78)
+	for i := range bigID {
+		bigID[i] = '0'
+	}
+	bigID[0] = '1'
+
+	// NFTFromDID
+	testCases3 := map[string]struct {
+		classID   string
+		delimiter string
+		id        string
+		err       error
+	}{
+		"valid did": {
+			classID:   classIDs[0],
+			delimiter: ":",
+			id:        string(bigID),
+		},
+		"invalid format": {
+			classID: classIDs[0],
+			id:      string(bigID),
+			err:     sdkerrors.ErrInvalidType,
+		},
+		"invalid uint": {
+			classID:   classIDs[0],
+			delimiter: ":",
+			id:        string(bigID) + "0",
+			err:       composable.ErrInvalidNFTID,
+		},
+		"invalid class id": {
+			delimiter: ":",
+			id:        string(bigID),
+			err:       composable.ErrInvalidClassID,
+		},
+	}
+
+	for name, tc := range testCases3 {
+		t.Run(name, func(t *testing.T) {
+			did := fmt.Sprintf("%s%s%s", tc.classID, tc.delimiter, tc.id)
+
+			nft, err := composable.NFTFromString(did)
+			require.ErrorIs(t, err, tc.err)
+			if tc.err != nil {
+				return
+			}
+
+			require.Equal(t, tc.classID, nft.ClassId)
+			require.Equal(t, sdk.NewUintFromString(tc.id), nft.Id)
 		})
 	}
 }

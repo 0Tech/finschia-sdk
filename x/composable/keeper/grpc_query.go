@@ -53,6 +53,19 @@ func (s queryServer) grpcError(err error) error {
 	return status.Convert(err).Err()
 }
 
+func nftIDFromString(str string) (*sdk.Uint, error) {
+	id, err := sdk.ParseUint(str)
+	if err != nil {
+		return nil, composable.ErrInvalidNFTID.Wrap(err.Error())
+	}
+
+	if err := composable.ValidateNFTID(id); err != nil {
+		return nil, err
+	}
+
+	return &id, nil
+}
+
 // Params queries the module params.
 func (s queryServer) Params(c context.Context, req *composable.QueryParamsRequest) (_ *composable.QueryParamsResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
@@ -148,7 +161,7 @@ func (s queryServer) NFT(c context.Context, req *composable.QueryNFTRequest) (_ 
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	id, err := composable.NFTIDFromString(req.Id)
+	id, err := nftIDFromString(req.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +241,7 @@ func (s queryServer) Owner(c context.Context, req *composable.QueryOwnerRequest)
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	id, err := composable.NFTIDFromString(req.Id)
+	id, err := nftIDFromString(req.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +274,7 @@ func (s queryServer) Parent(c context.Context, req *composable.QueryParentReques
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	id, err := composable.NFTIDFromString(req.Id)
+	id, err := nftIDFromString(req.Id)
 	if err != nil {
 		return nil, err
 	}

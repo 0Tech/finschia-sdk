@@ -161,26 +161,26 @@ func (s *CLITestSuite) TestNewQueryCmdNFT() {
 	}{
 		"valid request": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.vendor),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 		},
 		"invalid id": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					Id: sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: composable.ErrInvalidClassID,
 		},
 		"nft not found": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: status.Error(
 				codes.NotFound,
@@ -188,7 +188,7 @@ func (s *CLITestSuite) TestNewQueryCmdNFT() {
 					status.Error(
 						codes.NotFound,
 						composable.ErrNFTNotFound.Wrap(
-							(&composable.FullID{
+							(&composable.NFT{
 								ClassId: composable.ClassIDFromOwner(s.customer),
 								Id:      sdk.OneUint(),
 							}).String(),
@@ -276,26 +276,26 @@ func (s *CLITestSuite) TestNewQueryCmdOwner() {
 	}{
 		"valid request": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.vendor),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 		},
 		"invalid id": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					Id: sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: composable.ErrInvalidClassID,
 		},
 		"nft not found": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: status.Error(
 				codes.NotFound,
@@ -303,7 +303,7 @@ func (s *CLITestSuite) TestNewQueryCmdOwner() {
 					status.Error(
 						codes.NotFound,
 						composable.ErrNFTNotFound.Wrap(
-							(&composable.FullID{
+							(&composable.NFT{
 								ClassId: composable.ClassIDFromOwner(s.customer),
 								Id:      sdk.OneUint(),
 							}).String(),
@@ -347,26 +347,26 @@ func (s *CLITestSuite) TestNewQueryCmdParent() {
 	}{
 		"valid request": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.vendor),
 					Id:      sdk.NewUint(s.numNFTs - 2),
-				}),
+				}.String(),
 			},
 		},
 		"invalid id": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					Id: sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: composable.ErrInvalidClassID,
 		},
 		"parent not found": {
 			args: []string{
-				idToString(composable.FullID{
+				composable.NFT{
 					ClassId: composable.ClassIDFromOwner(s.customer),
 					Id:      sdk.OneUint(),
-				}),
+				}.String(),
 			},
 			err: status.Error(
 				codes.NotFound,
@@ -374,7 +374,7 @@ func (s *CLITestSuite) TestNewQueryCmdParent() {
 					status.Error(
 						codes.NotFound,
 						composable.ErrParentNotFound.Wrap(
-							(&composable.FullID{
+							(&composable.NFT{
 								ClassId: composable.ClassIDFromOwner(s.customer),
 								Id:      sdk.OneUint(),
 							}).String(),

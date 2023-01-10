@@ -37,6 +37,9 @@ message Property {
 
 // NFT defines a non-fungible token.
 message NFT {
+  option (gogoproto.stringer)         = false;
+  option (gogoproto.goproto_stringer) = false;
+
   // identifier of the class for the nft
   string class_id = 1;
 

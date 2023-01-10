@@ -1,22 +1,13 @@
 package composable
 
 import (
+	"strings"
+
 	sdk "github.com/line/lbm-sdk/types"
 	sdkerrors "github.com/line/lbm-sdk/types/errors"
 )
 
-func NFTIDFromString(str string) (*sdk.Uint, error) {
-	id, err := sdk.ParseUint(str)
-	if err != nil {
-		return nil, ErrInvalidNFTID.Wrap(err.Error())
-	}
-
-	if err := ValidateNFTID(id); err != nil {
-		return nil, err
-	}
-
-	return &id, nil
-}
+const didDelimiter = ":"
 
 func ValidateAddress(address string) error {
 	if _, err := sdk.AccAddressFromBech32(address); err != nil {
@@ -60,6 +51,30 @@ func (t Traits) ValidateBasic() error {
 	return nil
 }
 
+func NFTFromString(did string) (*NFT, error) {
+	splitted := strings.Split(did, didDelimiter)
+	if len(splitted) != 2 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidType.Wrap("did"), "must be in [class-id]:[id]")
+	}
+
+	classID, idStr := splitted[0], splitted[1]
+
+	id, err := sdk.ParseUint(idStr)
+	if err != nil {
+		return nil, ErrInvalidNFTID.Wrap(err.Error())
+	}
+
+	nft := NFT{
+		ClassId: classID,
+		Id:      id,
+	}
+	if err := nft.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	return &nft, nil
+}
+
 func (nft NFT) ValidateBasic() error {
 	if err := ValidateClassID(nft.ClassId); err != nil {
 		return err
@@ -78,6 +93,15 @@ func (l NFT) Equal(r NFT) bool {
 	}
 
 	return l.Id.Equal(r.Id)
+}
+
+func (nft NFT) String() string {
+	elems := []string{
+		nft.ClassId,
+		nft.Id.String(),
+	}
+
+	return strings.Join(elems, didDelimiter)
 }
 
 func (p Property) ValidateBasic() error {

@@ -133,7 +133,7 @@ func NewQueryCmdNFT() *cobra.Command {
 				return err
 			}
 
-			nft, err := ParseNFT(args[0])
+			nft, err := composable.NFTFromString(args[0])
 			if err != nil {
 				return err
 			}
@@ -204,7 +204,7 @@ func NewQueryCmdOwner() *cobra.Command {
 				return err
 			}
 
-			nft, err := ParseNFT(args[0])
+			nft, err := composable.NFTFromString(args[0])
 			if err != nil {
 				return err
 			}
@@ -240,7 +240,7 @@ func NewQueryCmdParent() *cobra.Command {
 				return err
 			}
 
-			nft, err := ParseNFT(args[0])
+			nft, err := composable.NFTFromString(args[0])
 			if err != nil {
 				return err
 			}
