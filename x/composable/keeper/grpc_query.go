@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -34,14 +35,18 @@ func (s queryServer) grpcError(err error) error {
 
 	mapping := map[*sdkerrors.Error]codes.Code{
 		composable.ErrInvalidClassID: codes.InvalidArgument,
+		composable.ErrInvalidTraitID: codes.InvalidArgument,
 		composable.ErrInvalidNFTID:   codes.InvalidArgument,
 		// composable.ErrInvalidComposition: codes.InvalidArgument,
 		composable.ErrClassNotFound: codes.NotFound,
+		composable.ErrTraitNotFound: codes.NotFound,
 		// composable.ErrClassAlreadyExists: codes.AlreadyExists,
 		composable.ErrNFTNotFound: codes.NotFound,
 		// composable.ErrInsufficientNFT: codes.FailedPrecondition,
 		// composable.ErrTooManyDescendants: codes.FailedPrecondition,
 		composable.ErrParentNotFound: codes.NotFound,
+
+		sdkerrors.ErrInvalidRequest: codes.InvalidArgument,
 	}
 
 	for sdkerror, code := range mapping {
@@ -53,25 +58,14 @@ func (s queryServer) grpcError(err error) error {
 	return status.Convert(err).Err()
 }
 
-func nftIDFromString(str string) (*sdk.Uint, error) {
-	id, err := sdk.ParseUint(str)
-	if err != nil {
-		return nil, composable.ErrInvalidNFTID.Wrap(err.Error())
-	}
-
-	if err := composable.ValidateNFTID(id); err != nil {
-		return nil, err
-	}
-
-	return &id, nil
-}
+const didDelimiter = ":"
 
 // Params queries the module params.
 func (s queryServer) Params(c context.Context, req *composable.QueryParamsRequest) (_ *composable.QueryParamsResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
@@ -88,7 +82,7 @@ func (s queryServer) Class(c context.Context, req *composable.QueryClassRequest)
 	defer func() { err = s.grpcError(err) }()
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
@@ -112,7 +106,7 @@ func (s queryServer) Classes(c context.Context, req *composable.QueryClassesRequ
 	defer func() { err = s.grpcError(err) }()
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
@@ -140,55 +134,39 @@ func (s queryServer) Classes(c context.Context, req *composable.QueryClassesRequ
 }
 
 // Trait queries a trait of a class.
-func (s queryServer) Trait(ctx context.Context, req *composable.QueryTraitRequest) (*composable.QueryTraitResponse, error) {
-	d := composable.UnimplementedQueryServer{}
-	return d.Trait(ctx, req)
-}
-
-// Traits queries all traits of a class.
-func (s queryServer) Traits(ctx context.Context, req *composable.QueryTraitsRequest) (*composable.QueryTraitsResponse, error) {
-	d := composable.UnimplementedQueryServer{}
-	return d.Traits(ctx, req)
-}
-
-// NFT queries an nft.
-func (s queryServer) NFT(c context.Context, req *composable.QueryNFTRequest) (_ *composable.QueryNFTResponse, err error) {
+func (s queryServer) Trait(c context.Context, req *composable.QueryTraitRequest) (_ *composable.QueryTraitResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	id, err := nftIDFromString(req.Id)
+	if err := composable.ValidateClassID(req.ClassId); err != nil {
+		return nil, err
+	}
+
+	if err := composable.ValidateTraitID(req.TraitId); err != nil {
+		return nil, err
+	}
+
+	trait, err := s.keeper.GetTrait(ctx, req.ClassId, req.TraitId)
 	if err != nil {
 		return nil, err
 	}
 
-	nft := composable.NFT{
-		ClassId: req.ClassId,
-		Id:      *id,
-	}
-	if err := nft.ValidateBasic(); err != nil {
-		return nil, err
-	}
-
-	if err := s.keeper.hasNFT(ctx, nft); err != nil {
-		return nil, err
-	}
-
-	return &composable.QueryNFTResponse{
-		Nft: &nft,
+	return &composable.QueryTraitResponse{
+		Trait: trait,
 	}, nil
 }
 
-// NFTs queries all nfts.
-func (s queryServer) NFTs(c context.Context, req *composable.QueryNFTsRequest) (_ *composable.QueryNFTsResponse, err error) {
+// Traits queries all traits of a class.
+func (s queryServer) Traits(c context.Context, req *composable.QueryTraitsRequest) (_ *composable.QueryTraitsResponse, err error) {
 	defer func() { err = s.grpcError(err) }()
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
@@ -198,7 +176,72 @@ func (s queryServer) NFTs(c context.Context, req *composable.QueryNFTsRequest) (
 	}
 
 	store := ctx.KVStore(s.keeper.storeKey)
-	nftStore := prefix.NewStore(store, nftKeyPrefix)
+	traitStore := prefix.NewStore(store, traitKeyPrefixOfClass(req.ClassId))
+
+	var traits []composable.Trait
+	pageRes, err := query.Paginate(traitStore, req.Pagination, func(_ []byte, value []byte) error {
+		var trait composable.Trait
+		s.keeper.cdc.MustUnmarshal(value, &trait)
+
+		traits = append(traits, trait)
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &composable.QueryTraitsResponse{
+		Traits:     traits,
+		Pagination: pageRes,
+	}, nil
+}
+
+// NFT queries an nft.
+func (s queryServer) NFT(c context.Context, req *composable.QueryNFTRequest) (_ *composable.QueryNFTResponse, err error) {
+	defer func() { err = s.grpcError(err) }()
+
+	if req == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	did := strings.Join([]string{
+		req.ClassId,
+		req.Id,
+	}, didDelimiter)
+
+	nft, err := composable.NFTFromString(did)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.keeper.hasNFT(ctx, *nft); err != nil {
+		return nil, err
+	}
+
+	return &composable.QueryNFTResponse{
+		Nft: nft,
+	}, nil
+}
+
+// NFTs queries all nfts.
+func (s queryServer) NFTs(c context.Context, req *composable.QueryNFTsRequest) (_ *composable.QueryNFTsResponse, err error) {
+	defer func() { err = s.grpcError(err) }()
+
+	if req == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	if err := composable.ValidateClassID(req.ClassId); err != nil {
+		return nil, err
+	}
+
+	store := ctx.KVStore(s.keeper.storeKey)
+	nftStore := prefix.NewStore(store, nftKeyPrefixOfClass(req.ClassId))
 
 	var nfts []composable.NFT
 	pageRes, err := query.Paginate(nftStore, req.Pagination, func(_ []byte, value []byte) error {
@@ -220,15 +263,79 @@ func (s queryServer) NFTs(c context.Context, req *composable.QueryNFTsRequest) (
 }
 
 // Property queries a property of a class.
-func (s queryServer) Property(ctx context.Context, req *composable.QueryPropertyRequest) (*composable.QueryPropertyResponse, error) {
-	d := composable.UnimplementedQueryServer{}
-	return d.Property(ctx, req)
+func (s queryServer) Property(c context.Context, req *composable.QueryPropertyRequest) (_ *composable.QueryPropertyResponse, err error) {
+	defer func() { err = s.grpcError(err) }()
+
+	if req == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	did := strings.Join([]string{
+		req.ClassId,
+		req.Id,
+	}, didDelimiter)
+
+	nft, err := composable.NFTFromString(did)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := composable.ValidateTraitID(req.PropertyId); err != nil {
+		return nil, err
+	}
+
+	property, err := s.keeper.GetProperty(ctx, *nft, req.PropertyId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &composable.QueryPropertyResponse{
+		Property: property,
+	}, nil
 }
 
 // Properties queries all properties of a class.
-func (s queryServer) Properties(ctx context.Context, req *composable.QueryPropertiesRequest) (*composable.QueryPropertiesResponse, error) {
-	d := composable.UnimplementedQueryServer{}
-	return d.Properties(ctx, req)
+func (s queryServer) Properties(c context.Context, req *composable.QueryPropertiesRequest) (_ *composable.QueryPropertiesResponse, err error) {
+	defer func() { err = s.grpcError(err) }()
+
+	if req == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	did := strings.Join([]string{
+		req.ClassId,
+		req.Id,
+	}, didDelimiter)
+
+	nft, err := composable.NFTFromString(did)
+	if err != nil {
+		return nil, err
+	}
+
+	store := ctx.KVStore(s.keeper.storeKey)
+	propertyStore := prefix.NewStore(store, propertyKeyPrefixOfNFT(nft.ClassId, nft.Id))
+
+	var properties []composable.Property
+	pageRes, err := query.Paginate(propertyStore, req.Pagination, func(_ []byte, value []byte) error {
+		var property composable.Property
+		s.keeper.cdc.MustUnmarshal(value, &property)
+
+		properties = append(properties, property)
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &composable.QueryPropertiesResponse{
+		Properties: properties,
+		Pagination: pageRes,
+	}, nil
 }
 
 // Owner queries the owner of an nft.
@@ -236,25 +343,22 @@ func (s queryServer) Owner(c context.Context, req *composable.QueryOwnerRequest)
 	defer func() { err = s.grpcError(err) }()
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	id, err := nftIDFromString(req.Id)
+	did := strings.Join([]string{
+		req.ClassId,
+		req.Id,
+	}, didDelimiter)
+
+	nft, err := composable.NFTFromString(did)
 	if err != nil {
 		return nil, err
 	}
 
-	nft := composable.NFT{
-		ClassId: req.ClassId,
-		Id:      *id,
-	}
-	if err := nft.ValidateBasic(); err != nil {
-		return nil, err
-	}
-
-	owner, err := s.keeper.GetRootOwner(ctx, nft)
+	owner, err := s.keeper.GetRootOwner(ctx, *nft)
 	if err != nil {
 		return nil, err
 	}
@@ -269,25 +373,22 @@ func (s queryServer) Parent(c context.Context, req *composable.QueryParentReques
 	defer func() { err = s.grpcError(err) }()
 
 	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("empty request")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	id, err := nftIDFromString(req.Id)
+	did := strings.Join([]string{
+		req.ClassId,
+		req.Id,
+	}, didDelimiter)
+
+	nft, err := composable.NFTFromString(did)
 	if err != nil {
 		return nil, err
 	}
 
-	nft := composable.NFT{
-		ClassId: req.ClassId,
-		Id:      *id,
-	}
-	if err := nft.ValidateBasic(); err != nil {
-		return nil, err
-	}
-
-	parent, err := s.keeper.getParent(ctx, nft)
+	parent, err := s.keeper.getParent(ctx, *nft)
 	if err != nil {
 		return nil, err
 	}

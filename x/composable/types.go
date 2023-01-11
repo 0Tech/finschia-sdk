@@ -26,8 +26,8 @@ func (class Class) ValidateBasic() error {
 }
 
 func (t Trait) ValidateBasic() error {
-	if len(t.Id) == 0 {
-		return ErrInvalidTraitID.Wrap("empty")
+	if err := ValidateTraitID(t.Id); err != nil {
+		return err
 	}
 
 	return nil
@@ -133,6 +133,14 @@ func (p Properties) ValidateBasic() error {
 func ValidateClassID(id string) error {
 	if _, err := sdk.AccAddressFromBech32(id); err != nil {
 		return ErrInvalidClassID.Wrap(id)
+	}
+
+	return nil
+}
+
+func ValidateTraitID(id string) error {
+	if len(id) == 0 {
+		return ErrInvalidTraitID.Wrap("empty")
 	}
 
 	return nil

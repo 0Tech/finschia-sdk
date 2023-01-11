@@ -90,10 +90,16 @@ func classKey(id string) []byte {
 	)
 }
 
-func traitKey(classID string, traitID string) []byte {
+func traitKeyPrefixOfClass(classID string) []byte {
 	return concatenate(
 		traitKeyPrefix,
 		classIDBytes(classID),
+	)
+}
+
+func traitKey(classID string, traitID string) []byte {
+	return concatenate(
+		traitKeyPrefixOfClass(classID),
 		traitIDBytes(traitID),
 	)
 }
@@ -119,11 +125,17 @@ func nftKey(classID string, id sdk.Uint) []byte {
 	)
 }
 
-func propertyKey(classID string, id sdk.Uint, propertyID string) []byte {
+func propertyKeyPrefixOfNFT(classID string, id sdk.Uint) []byte {
 	return concatenate(
 		propertyKeyPrefix,
 		classIDBytes(classID),
 		nftIDBytes(id),
+	)
+}
+
+func propertyKey(classID string, id sdk.Uint, propertyID string) []byte {
+	return concatenate(
+		propertyKeyPrefixOfNFT(classID, id),
 		propertyIDBytes(propertyID),
 	)
 }
