@@ -46,19 +46,28 @@ func (s *KeeperTestSuite) TestSend() {
 
 func (s *KeeperTestSuite) TestAttach() {
 	testCases := map[string]struct {
-		targetID sdk.Uint
-		err      error
+		subjectID sdk.Uint
+		targetID  sdk.Uint
+		err       error
 	}{
 		"valid request": {
-			targetID: sdk.NewUint(s.numNFTs - 1),
+			subjectID: sdk.NewUint(s.numNFTs),
+			targetID:  sdk.NewUint(s.numNFTs - 1),
 		},
-		"insufficient nft": {
-			targetID: sdk.NewUint(s.numNFTs + 1),
-			err:      composable.ErrInsufficientNFT,
+		"insufficient nft (subject)": {
+			subjectID: sdk.NewUint(s.numNFTs + 1),
+			targetID:  sdk.NewUint(s.numNFTs - 1),
+			err:       composable.ErrInsufficientNFT,
+		},
+		"insufficient nft (target)": {
+			subjectID: sdk.NewUint(s.numNFTs),
+			targetID:  sdk.NewUint(s.numNFTs + 1),
+			err:       composable.ErrInsufficientNFT,
 		},
 		"too many descendants": {
-			targetID: sdk.OneUint(),
-			err:      composable.ErrTooManyDescendants,
+			subjectID: sdk.NewUint(s.numNFTs),
+			targetID:  sdk.OneUint(),
+			err:       composable.ErrTooManyDescendants,
 		},
 	}
 
@@ -68,7 +77,7 @@ func (s *KeeperTestSuite) TestAttach() {
 
 			subject := composable.NFT{
 				ClassId: composable.ClassIDFromOwner(s.vendor),
-				Id:      sdk.NewUint(s.numNFTs),
+				Id:      tc.subjectID,
 			}
 			err := subject.ValidateBasic()
 			s.Assert().NoError(err)
