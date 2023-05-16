@@ -1,0 +1,3 @@
+FROM golang:bullseye
+
+RUN go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v${COSMOVISOR_VERSION}

@@ -1,0 +1,36 @@
+#!/bin/sh
+
+set -e
+
+dockerfile=$1
+[ -f "$dockerfile" ]
+
+target=$(realpath .)
+
+if [ "$(echo @CMAKE_BUILD_TYPE@ | awk '{print tolower($0)}')" = debug ]
+then
+	DEBUG=true
+else
+	DEBUG=false
+fi
+
+if ! docker info >/dev/null 2>&1
+then
+	cmake -E echo "Error: You must have access to docker: add your uid to docker group"
+	false
+fi
+
+if [ $DEBUG = false ]
+then
+	exec 1>/dev/null 2>&1
+fi
+
+image=@PROJECT_NAME@-cosmovisor:build
+docker image rm -f $image
+docker build --force-rm -t $image -f $dockerfile .
+
+docker run --rm -t \
+	   --mount type=bind,source="$target",target=/target \
+	   $image cp /go/bin/cosmovisor /target/cosmovisor
+
+docker image rm -f $image

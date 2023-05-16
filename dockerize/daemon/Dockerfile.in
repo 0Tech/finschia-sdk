@@ -1,0 +1,19 @@
+FROM golang:bullseye
+
+# Set working directory for the build
+WORKDIR /workdir
+
+# prepare dbbackend before building; this can be cached
+COPY Makefile ./
+COPY contrib ./contrib/
+
+# Install GO dependencies
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+# Add source files
+COPY . ./
+
+# install simapp, remove packages
+RUN make build CGO_ENABLED=1
