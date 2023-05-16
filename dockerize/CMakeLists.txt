@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(lbm-sdk)
+project(finschia-sdk)
 
 set(GO_SOURCE_DIR ${CMAKE_SOURCE_DIR}/..)
 file(RELATIVE_PATH PROJECT_DIR_NAME ${GO_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
 
-set(SIMD_WORKDIR /home/simd CACHE STRING "the working directory of simd")
-mark_as_advanced(SIMD_WORKDIR)
-set(SIMD_SYNCDIR ${SIMD_WORKDIR}/sync)
+set(DAEMON_NAME simd)
+set(DAEMON_HOME /home/${DAEMON_NAME})
+set(DAEMON_SYNCDIR ${DAEMON_HOME}/sync)
 
-add_subdirectory(binary)
+add_subdirectory(daemon)
+add_subdirectory(cosmovisor)
+add_custom_target(build ALL
+  DEPENDS build_daemon build_cosmovisor)
+
 add_subdirectory(runtime)
 add_subdirectory(deploy)

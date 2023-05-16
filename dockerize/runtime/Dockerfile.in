@@ -1,17 +1,18 @@
-FROM debian:stable
+FROM debian:bullseye
 
-RUN apt-get update && apt-get -y upgrade
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install jq -y
 
-RUN addgroup --gid @SIMD_GID@ simd
-RUN adduser --home @SIMD_WORKDIR@ --uid @SIMD_UID@ --gid @SIMD_GID@ --gecos "" --disabled-password simd
+RUN addgroup --gid @DAEMON_GID@ @DAEMON_NAME@
+RUN adduser --home @DAEMON_HOME@ --uid @DAEMON_UID@ --gid @DAEMON_GID@ --gecos "" --disabled-password @DAEMON_NAME@
 ENTRYPOINT ["/etc/init"]
 CMD ["start", "--log_format", "plain"]
 STOPSIGNAL SIGTERM
 
 COPY init /etc/init
-COPY simd /usr/bin/simd
+COPY binaries /usr/local/bin/
 
-RUN mkdir @SIMD_SYNCDIR@ && chown simd @SIMD_SYNCDIR@
+RUN mkdir @DAEMON_SYNCDIR@ && chown @DAEMON_NAME@ @DAEMON_SYNCDIR@
 
-USER simd
-WORKDIR @SIMD_WORKDIR@
+USER @DAEMON_NAME@
+WORKDIR @DAEMON_HOME@

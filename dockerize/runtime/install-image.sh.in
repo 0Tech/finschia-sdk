@@ -1,0 +1,37 @@
+#!/bin/sh
+
+set -e
+
+cleanup() {
+	rm -rf binaries
+}
+trap cleanup TERM INT EXIT
+
+daemon=$1
+[ -n "$daemon" ]
+
+cosmovisor=$2
+[ -n "$cosmovisor" ]
+
+output=$3
+[ -n "$output" ]
+
+if [ "$(echo @CMAKE_BUILD_TYPE@ | awk '{print tolower($0)}')" = debug ]
+then
+	DEBUG=true
+else
+	DEBUG=false
+fi
+
+if [ $DEBUG = false ]
+then
+	exec 1>/dev/null 2>&1
+fi
+
+mkdir binaries
+
+cp "$daemon" binaries/@DAEMON_NAME@
+cp "$cosmovisor" binaries/cosmovisor
+docker build -t @PROJECT_NAME@:latest .
+
+touch $output

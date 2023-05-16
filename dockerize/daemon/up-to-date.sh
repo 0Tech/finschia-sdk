@@ -14,4 +14,3 @@ then
 	cp $curr $prev
 	touch $output
 fi
-

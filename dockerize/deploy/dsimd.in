@@ -6,13 +6,13 @@ import yaml
 import sys
 
 # global constants from CMake
-_compose_project = 'simd' # TODO
-_compose_file = _compose_project + '.yml'
+_compose_project = '@PROJECT_NAME@' # TODO
+_compose_file = 'docker-compose.yml'
 
 _compose_cmd_common = [
     'docker-compose',
+    '-p', _compose_project,
     '-f', _compose_file,
-    '-p', _compose_project
     ]
 
 def is_debug():
@@ -74,7 +74,8 @@ def do_exec(args):
                     for id in iterable_from_comma_separated(args.instances, int)):
         retcode = subprocess_run(_compose_cmd_common
                                  + ['exec', '--', service,
-                                    'simd', '--home', '.']
+                                    '@DAEMON_HOME@/cosmovisor/current/bin/@DAEMON_NAME@',
+                                    '--home', '.']
                                  + args.arguments,
                                  verbose=True)
         if retcode != 0:
@@ -97,7 +98,7 @@ def _main():
     instance_help_tmpl = "comma-separated instance ids (default: {})."
     subparsers = parser.add_subparsers(dest='command', metavar='SUBCOMMAND')
     up_parser = subparsers.add_parser('up',
-                                      help="up simd cluster")
+                                      help="up the cluster")
     up_start_group = up_parser.add_mutually_exclusive_group()
     up_start_group.add_argument('--start', dest='start',
                                 action='store_true', default=True,
@@ -106,32 +107,32 @@ def _main():
                                 help="do not start the instances")
 
     down_parser = subparsers.add_parser('down',
-                                        help="down simd cluster")
+                                        help="down the cluster")
 
     all_instances = iterable_to_comma_separated(range(len(get_services())))
     start_parser = subparsers.add_parser('start',
-                                         help="start simd instances")
+                                         help="start the instances")
     start_parser.add_argument('--instances', '-i',
                               type=str, default=all_instances,
                               help=instance_help_tmpl.format(all_instances))
 
     stop_parser = subparsers.add_parser('stop',
-                                        help="stop simd instances")
+                                        help="stop the instances")
     stop_parser.add_argument('--instances', '-i',
                              type=str, default=all_instances,
                              help=instance_help_tmpl.format(all_instances))
 
     exec_parser = subparsers.add_parser('exec',
-                                        help="execute a simd command")
+                                        help="execute a command")
     exec_parser.add_argument('--instances', '-i',
                              type=str, default='0',
                              help=instance_help_tmpl.format(0))
     exec_parser.add_argument('arguments', metavar='ARGUMENTS',
                              nargs='*',
-                             help="command line arguments of simd")
+                             help="command line arguments")
 
     ps_parser = subparsers.add_parser('ps',
-                                      help="list simd instances")
+                                      help="list the instances")
     ps_parser.add_argument('--instances', '-i',
                              type=str, default=all_instances,
                              help=instance_help_tmpl.format(all_instances))
