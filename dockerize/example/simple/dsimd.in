@@ -5,10 +5,13 @@ import subprocess
 import yaml
 import sys
 
+# global constants from CMake
+_compose_project = '@CASE_NAME@'
 _compose_file = 'docker-compose.yml'
 
 _compose_cmd_common = [
     'docker-compose',
+    '-p', _compose_project,
     '-f', _compose_file,
     ]
 
@@ -71,7 +74,6 @@ def do_exec(args):
                     for id in iterable_from_comma_separated(args.instances, int)):
         retcode = subprocess_run(_compose_cmd_common
                                  + ['exec', '--', service,
-                                    '@DAEMON_HOME@/cosmovisor/current/bin/@DAEMON_NAME@',
                                     '--home', '.']
                                  + args.arguments,
                                  verbose=True)

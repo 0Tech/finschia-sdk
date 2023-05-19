@@ -1,0 +1,102 @@
+#!/bin/sh
+
+set -e
+
+upgrade_height=15
+upgrade_name=@CHAIN_UPGRADE_NAME@
+
+assert_height() {
+	local height=$1
+
+	local info=$(./dsimd exec -- q block 2>/dev/null)
+	if [ -z "$info" ]
+	then
+		return 1
+	fi
+
+	local current=$(echo "$info" | jq -r '.block.header.height' 2>/dev/null)
+	if [ "$current" -ge $height ] 2>/dev/null
+	then
+		return 0
+	else
+		return 1
+	fi
+}
+
+wait_for_height() {
+	local height=$1
+	local timeout=$2 # in seconds
+
+	local begin=$(date +%s)
+	while true
+	do
+		if assert_height $height
+		then
+			break
+		fi
+
+		local elapsed=$(expr $(date +%s) - $begin)
+		if [ -n "$timeout" ] && [ $elapsed -ge $timeout ]
+		then
+			return 1
+		fi
+
+		sleep 1
+	done
+	return 0
+}
+
+new_binary=dummyd
+prepare_binary() {
+	local name=$(echo $1 | tr [:upper:] [:lower:])
+
+	for index in $(seq 0 $(expr @DAEMON_NUM_INSTANCES@ - 1))
+	do
+		volume=$(basename $(pwd))_$index-home
+		bindir=cosmovisor/upgrades/$name/bin
+		VOLUME=$volume SOURCE=$new_binary TARGET=$bindir/@DAEMON_NAME@ sh @TOOL_SOURCE_DIR@/install2volume.sh
+	done
+}
+
+upload_binary() {
+	local volume=$(basename $(pwd))_sync
+	VOLUME=$volume SOURCE=$new_binary TARGET=$new_binary sh @TOOL_SOURCE_DIR@/install2volume.sh
+}
+
+submit_upgrade() {
+	local name=$1
+
+	local checksum=sha256:$(sha256sum $new_binary | awk '{print $1}')
+	local info='{"binaries":{"any":"file://'@DAEMON_SYNCDIR@/$new_binary'?checksum='$checksum'"}}'
+	./dsimd exec -- tx gov submit-proposal software-upgrade $name --upgrade-height $upgrade_height --upgrade-info $info --title $upgrade_name --description "test upgrade" --deposit 1stake --broadcast-mode block --from validator --yes
+}
+
+vote() {
+	local proposal_id=$1
+
+	for index in $(seq 0 $(expr @DAEMON_NUM_INSTANCES@ - 1))
+	do
+		./dsimd exec -i $index -- tx gov vote $proposal_id VOTE_OPTION_YES --broadcast-mode sync --from validator --yes
+	done
+}
+
+# start cluster
+./dsimd down
+./dsimd up
+
+# wait for the start
+wait_for_height 1
+
+if [ "@DAEMON_ALLOW_DOWNLOAD_BINARIES@" != true ]
+then
+	prepare_binary $upgrade_name
+else
+	upload_binary
+fi
+
+submit_upgrade $upgrade_name
+vote 1
+
+# wait for the upgrade
+timeout=$(expr $upgrade_height '*' 3)
+wait_for_height $(expr $upgrade_height + 1) $timeout
