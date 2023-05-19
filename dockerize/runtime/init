@@ -25,7 +25,7 @@ then
 
 	id=$(hostname | cut -d - -f 1)
 
-	moniker=validator$id
+	moniker=$CHAIN_ID-validator-$id
 	$DAEMON_NAME --home . init --chain-id $CHAIN_ID $moniker | tee $log
 
 	# update config.toml
@@ -41,13 +41,13 @@ then
 		-e 's/^chain-id[[:blank:]]*=.*$/chain-id = "'$CHAIN_ID'"/' \
 		-e 's/^keyring-backend[[:blank:]]*=.*$/keyring-backend = "'$DAEMON_KEYRING_BACKEND'"/'
 
-	keyname=$moniker
+	keyname=validator
 	if [ -n "$DAEMON_KEY_MNEMONIC" ]
 	then # use deterministic keys
 		acc=$id
-		echo "$DAEMON_KEY_MNEMONIC" | $DAEMON_NAME --home . keys add $keyname --recover --account $acc --output json >${unique_name}_seed.json
+		echo "$DAEMON_KEY_MNEMONIC" | $DAEMON_NAME --home . keys add $keyname --recover --account $acc --output json >${id}_seed.json
 	else # or not
-		$DAEMON_NAME --home . keys add $keyname --output json >${unique_name}_seed.json
+		$DAEMON_NAME --home . keys add $keyname --output json >${id}_seed.json
 	fi
 
 	sync_dir=$DAEMON_SYNCDIR
@@ -83,6 +83,7 @@ then
 	then
 		$DAEMON_NAME --home . collect-gentxs --gentx-dir $gentx_dir
 		cat <<EOF >alter_genesis.jq
+.app_state.gov.deposit_params.min_deposit[0].amount = "$CHAIN_MIN_DEPOSIT" |
 .app_state.gov.voting_params.voting_period = "$CHAIN_VOTING_PERIOD" |
 .app_state.staking.params.unbonding_time = "$CHAIN_UNBONDING_TIME"
 EOF

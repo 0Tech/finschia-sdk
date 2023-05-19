@@ -32,6 +32,6 @@ mkdir binaries
 
 cp "$daemon" binaries/@DAEMON_NAME@
 cp "$cosmovisor" binaries/cosmovisor
-docker build -t @PROJECT_NAME@:latest .
+docker build -t @PROJECT_NAME@:local .
 
 touch $output
