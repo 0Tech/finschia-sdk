@@ -1,0 +1,50 @@
+#!/bin/sh
+# dummy daemon
+
+set -e
+
+start() {
+	if [ ! -f height ]
+	then
+		jq -r .height $DAEMON_HOME/cosmovisor/current/upgrade-info.json >height
+	fi
+	
+	while true
+	do
+		sleep 1
+
+		local height=$(cat height)
+		local timestamp=$(date +%Y/%m/%d-%H:%M:%S.%N)
+		cat <<EOF
+$timestamp INF block generated generation_time=0.1 height=$height module=state num_txs=0 tps=0
+EOF
+		expr $height + 1 >height
+	done
+}
+
+query() {
+	if [ ! -f height ]
+	then
+		cat <<EOF
+Error: post failed: Post "http://localhost:26657": dial tcp 127.0.0.1:26657: connect: connection refused
+EOF
+		false
+	fi
+
+	local height=$(cat height)
+	local timestamp=$(date +%Y-%m-%dT%H:%M:%S.%N)Z
+	cat <<EOF
+{"block_id":{"hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","parts":{"total":1,"hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF"}},"block":{"header":{"version":{"block":"42"},"chain_id":"$CHAIN_ID","height":"$height","time":"$timestamp","last_block_id":{"hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","parts":{"total":1,"hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF"}},"last_commit_hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","data_hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","validators_hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","next_validators_hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","consensus_hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","app_hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","last_results_hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","evidence_hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","proposer_address":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF"},"data":{"txs":null},"evidence":{"evidence":null},"last_commit":{"height":"$(expr $height - 1)","round":0,"block_id":{"hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF","parts":{"total":1,"hash":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF"}},"signatures":[]},"entropy":{"round":0,"proof":"DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF"}}}
+EOF
+}
+
+if echo "$@" | grep start 1>/dev/null 2>&1
+then
+	start
+elif echo "$@" | grep -E '(q|query) block' 1>/dev/null 2>&1
+then
+	query
+else
+	echo Error: unknown command $@
+	false
+fi

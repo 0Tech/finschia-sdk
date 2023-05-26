@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+
+import argparse
+import re
+import yaml
+
+def is_debug():
+    return "@CMAKE_BUILD_TYPE@".lower() == 'debug'
+
+def read_file(file_name):
+    with open(file_name, 'r') as f:
+        return f.read()
+
+def get_volumes(num_volumes):
+    volumes = {}
+
+    for ci in range(num_volumes):
+        name = 'chain-{}-sync'.format(ci)
+        volumes[name] = None
+
+    return volumes
+
+def get_networks(num_regions, num_chains):
+    networks = {}
+
+    networks['internet'] = None
+
+    for ri in range(num_regions):
+        for ci in range(num_chains):
+            name = 'chain-{}-region-{}'.format(ci, ri)
+            networks[name] = None
+
+    return networks
+
+def get_services(num_chains, num_regions, num_sentries):
+    services = {}
+
+    for ci in range(num_chains):
+        for ri in range(num_regions):
+            for type in [
+                    'validator',
+                    'sentry',
+                    'seed',
+                    'full',
+                    'seat',
+            ]:
+                service = {}
+                service['image'] = '@PROJECT_NAME@:local'
+                service['env_file'] = "./daemon.env"
+
+                # volumes
+                volume_sync = {
+                    'type': 'volume',
+                    'source': 'chain-{}-sync'.format(ci),
+                    'target': '@FIXTURE_SYNCDIR@',
+                }
+                if type in ['sentry', 'full']:
+                    volume_sync['read_only'] = True
+
+                volume_docker = {
+                    'type': 'bind',
+                    'source': '/run/docker.sock',
+                    'target': '/run/docker.sock',
+                    'read_only': True,
+                }
+
+                service['volumes'] = [
+                    volume_sync,
+                    volume_docker,
+                ]
+
+                # networks
+                networks = {}
+                network_private = 'chain-{}-region-{}'.format(ci, ri)
+                networks[network_private] = None
+                if type in ['sentry', 'seed', 'full']:
+                    network_public = 'internet'
+                    networks[network_public] = None
+                service['networks'] = networks
+
+                # deploy
+                if type == 'sentry':
+                    service['deploy'] = {
+                        'replicas': num_sentries,
+                    }
+
+                service_name = 'chain-{}-region-{}-{}'.format(ci, ri, type)
+                services[service_name] = service
+
+    return services
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output', '-o', type=str,
+                        help="output file path (default: stdout)")
+    parser.add_argument('--chains', '-c', type=int, default=1,
+                        help="the number of chains in the fixture")
+    parser.add_argument('--regions', '-r', type=int, default=1,
+                        help="the number of regions in the fixture")
+    parser.add_argument('--sentries', '-s', type=int, default=1,
+                        help="the number of sentries in each region")
+
+    args = parser.parse_args()
+
+    document = {
+        'services': get_services(args.chains, args.regions, args.sentries),
+        'networks': get_networks(args.regions, args.chains),
+        'volumes': get_volumes(args.chains),
+    }
+
+    yaml.SafeDumper.add_representer(
+        type(None),
+        lambda dumper, value: dumper.represent_scalar(u'tag:yaml.org,2002:null', ''))
+
+    if args.output is not None:
+        with open(args.output, 'w') as f:
+            yaml.safe_dump(document, f)
+    else:
+        print(yaml.safe_dump(document, default_flow_style=False))
+
+if __name__ == '__main__':
+    main()

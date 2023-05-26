@@ -16,4 +16,4 @@ RUN go mod download
 COPY . ./
 
 # install simapp, remove packages
-RUN make build CGO_ENABLED=1
+RUN CGO_ENABLED=0 make build

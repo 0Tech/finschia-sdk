@@ -1,18 +1,45 @@
 FROM debian:bullseye
 
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install jq -y
+ARG DAEMON_NAME=@DAEMON_NAME@
+ARG DAEMON_UID=@DAEMON_UID@
+ARG DAEMON_GID=@DAEMON_GID@
 
-RUN addgroup --gid @DAEMON_GID@ @DAEMON_NAME@
-RUN adduser --home @DAEMON_HOME@ --uid @DAEMON_UID@ --gid @DAEMON_GID@ --gecos "" --disabled-password @DAEMON_NAME@
-ENTRYPOINT ["/etc/init"]
-CMD ["start", "--log_format", "plain"]
+RUN apt-get update && \
+      apt-get upgrade -y && \
+	  apt-get install -y jq curl && \
+	  rm -rf /var/lib/apt/lists/*
+
+RUN addgroup \
+      --gid $DAEMON_GID \
+      $DAEMON_NAME
+RUN adduser \
+      --uid $DAEMON_UID \
+      --gid $DAEMON_GID \
+	  --gecos "" \
+	  --disabled-password \
+	  $DAEMON_NAME
+
+# access to /run/docker.sock
+RUN addgroup \
+      --gid 131 \
+	  docker
+RUN adduser $DAEMON_NAME docker
+
+CMD ["/etc/init"]
 STOPSIGNAL SIGTERM
+RUN ln -s /usr/local/bin/init /etc/init
 
-COPY init /etc/init
+HEALTHCHECK \
+    --interval=10s \
+	--timeout=3s \
+	--start-period=2m \
+	--retries=1 \
+	CMD ["healthcheck", "/tmp/height"]
+
+RUN mkdir @FIXTURE_SYNCDIR@ && \
+      chown $DAEMON_NAME @FIXTURE_SYNCDIR@
+
 COPY binaries /usr/local/bin/
 
-RUN mkdir @DAEMON_SYNCDIR@ && chown @DAEMON_NAME@ @DAEMON_SYNCDIR@
-
-USER @DAEMON_NAME@
-WORKDIR @DAEMON_HOME@
+USER $DAEMON_NAME
+WORKDIR /home/$DAEMON_NAME

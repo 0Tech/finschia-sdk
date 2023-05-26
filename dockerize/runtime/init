@@ -1,105 +1,27 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 set -e
 
-safe_mv() {
-	local src=$1
-	local dst=$2
-	local tmp=$dst~
-
-	mv $src $tmp
-	mv $tmp $dst
+# every variable must not be empty
+assert_variables() {
+	for name in $@
+	do
+		if [ -z "$(eval echo '$'$name)" ]
+		then
+			echo no variable: $name
+			false
+		fi
+	done
 }
 
-log=$DAEMON_NAME.log
-
-cd $DAEMON_HOME
+assert_variables DAEMON_NAME \
+				 DAEMON_HOME \
+				 DAEMON_ALLOW_DOWNLOAD_BINARIES
 
 if [ ! -f initialized ]
 then
-	cosmovisor init $(which $DAEMON_NAME)
-	mkdir data
-
-	coins="1000000000stake" # giga stake
-	delegate="1000000stake" # mega stake
-
-	id=$(hostname | cut -d - -f 1)
-
-	moniker=$CHAIN_ID-validator-$id
-	$DAEMON_NAME --home . init --chain-id $CHAIN_ID $moniker | tee $log
-
-	# update config.toml
-	sed -Ei config/config.toml \
-		-e 's#(127\.0\.0\.1|localhost)#0.0.0.0#' \
-		-e 's/^timeout_propose[[:blank:]]*=.*$/timeout_propose = "'$DAEMON_TIMEOUT_PROPOSE'"/' \
-		-e 's/^timeout_prevote[[:blank:]]*=.*$/timeout_prevote = "'$DAEMON_TIMEOUT_PREVOTE'"/' \
-		-e 's/^timeout_precommit[[:blank:]]*=.*$/timeout_precommit = "'$DAEMON_TIMEOUT_PRECOMMIT'"/' \
-		-e 's/^timeout_commit[[:blank:]]*=.*$/timeout_commit = "'$DAEMON_TIMEOUT_COMMIT'"/'
-
-	# update client.toml
-	sed -Ei config/client.toml \
-		-e 's/^chain-id[[:blank:]]*=.*$/chain-id = "'$CHAIN_ID'"/' \
-		-e 's/^keyring-backend[[:blank:]]*=.*$/keyring-backend = "'$DAEMON_KEYRING_BACKEND'"/'
-
-	keyname=validator
-	if [ -n "$DAEMON_KEY_MNEMONIC" ]
-	then # use deterministic keys
-		acc=$id
-		echo "$DAEMON_KEY_MNEMONIC" | $DAEMON_NAME --home . keys add $keyname --recover --account $acc --output json >${id}_seed.json
-	else # or not
-		$DAEMON_NAME --home . keys add $keyname --output json >${id}_seed.json
-	fi
-
-	sync_dir=$DAEMON_SYNCDIR
-	address=$($DAEMON_NAME --home . keys show $keyname --address)
-	address_dir=$sync_dir/address
-	mkdir -p $address_dir
-	touch $address_dir/$address
-
-	num_nodes=$DAEMON_NUM_INSTANCES
-	while [ $(ls -1 $address_dir 2>/dev/null | wc -l) -ne $num_nodes ]
-	do
-		sleep 1
-	done
-
-	for address in $(ls -1 $address_dir)
-	do
-		$DAEMON_NAME --home . add-genesis-account $address $coins
-	done
-
-	$DAEMON_NAME --home . gentx --chain-id $CHAIN_ID $keyname $delegate
-	gentx_dir=$sync_dir/gentx
-	mkdir -p $gentx_dir
-	safe_mv config/gentx/gentx-*.json $gentx_dir/${id}.json
-
-	# gather the genesis files
-	while [ $(ls -1 $gentx_dir 2>/dev/null | wc -l) -ne $num_nodes ]
-	do
-		sleep 1
-	done
-
-	final_genesis=$sync_dir/genesis.json
-	if [ -n "$IS_GATHERER" ]
-	then
-		$DAEMON_NAME --home . collect-gentxs --gentx-dir $gentx_dir
-		cat <<EOF >alter_genesis.jq
-.app_state.gov.deposit_params.min_deposit[0].amount = "$CHAIN_MIN_DEPOSIT" |
-.app_state.gov.voting_params.voting_period = "$CHAIN_VOTING_PERIOD" |
-.app_state.staking.params.unbonding_time = "$CHAIN_UNBONDING_TIME"
-EOF
-		jq -f alter_genesis.jq config/genesis.json >altered_genesis.json
-		safe_mv altered_genesis.json $final_genesis
-	fi
-
-	# copy the final genesis file
-	while [ ! -f $final_genesis ]
-	do
-		sleep 1
-	done
-	cp $final_genesis config/genesis.json
-	cat $final_genesis
-
+	setup
 	date >initialized
 fi
 
-cosmovisor run --home . --trace "$@" | tee -a $log
+cosmovisor run start

@@ -2,11 +2,6 @@
 
 set -e
 
-cleanup() {
-	rm -rf binaries
-}
-trap cleanup TERM INT EXIT
-
 daemon=$1
 [ -n "$daemon" ]
 
@@ -27,8 +22,6 @@ if [ $DEBUG = false ]
 then
 	exec 1>/dev/null 2>&1
 fi
-
-mkdir binaries
 
 cp "$daemon" binaries/@DAEMON_NAME@
 cp "$cosmovisor" binaries/cosmovisor

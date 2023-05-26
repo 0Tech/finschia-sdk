@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -e
+
+chain_index=$1
+[ "$chain_index" -ge 0 ]
+
+daemon=@DAEMON_HOME@/cosmovisor/current/bin/@DAEMON_NAME@
+
+project_name=fixture
+
+get_height() {
+	local info=$(docker exec ${project_name}_chain-$chain_index-region-0-seat_1 $daemon q block 2>/dev/null)
+	if [ -n "$info" ]
+	then
+		echo "$info" | jq -r '.block.header.height' 2>/dev/null
+	fi
+}
+
+get_container_infos() {
+	local type=$1
+
+	docker ps --no-trunc --format '{{json .}}' | jq -c 'select(.Names | test("^'$project_name'_chain-'$chain_index'-.*'$type'_"))'
+}
+
+# stop the sentries
+sentries="$(get_container_infos sentry | jq -r .Names)"
+docker pause $sentries >/dev/null
+
+# wait for the chain pause
+num_validators=$(get_container_infos validator | wc -l)
+while true
+do
+	if [ $(get_container_infos validator | jq -r .Status | grep -E '\(unhealthy\)$' | wc -l) -ge $num_validators ] 2>/dev/null
+	then
+		break
+	fi
+
+	sleep 5
+done
+
+# start the sentries
+docker unpause $sentries >/dev/null
+
+# wait for the recovery
+while true
+do
+	if [ $(get_container_infos validator | jq -r .Status | grep -E '\(healthy\)$' | wc -l) -ge $num_validators ] 2>/dev/null
+	then
+		break
+	fi
+
+	sleep 5
+done

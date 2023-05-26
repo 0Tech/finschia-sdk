@@ -1,0 +1,27 @@
+#!/bin/sh
+
+set -e
+
+daemon=@DAEMON_HOME@/cosmovisor/current/bin/@DAEMON_NAME@
+[ -x $daemon ]
+
+prev_height=$1
+[ -n "$prev_height" ]
+
+get_height() {
+	local info=$($daemon q block 2>/dev/null)
+	if [ -n "$info" ]
+	then
+		echo "$info" | jq -r '.block.header.height' 2>/dev/null
+	fi
+}
+
+if [ ! -f $prev_height ]
+then
+	echo 1 >$prev_height
+	false
+fi
+
+curr_height=$(get_height)
+[ "$curr_height" -gt $(cat $prev_height) ] 2>/dev/null
+printf $curr_height >$prev_height

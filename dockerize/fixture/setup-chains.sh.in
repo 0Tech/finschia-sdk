@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+num_chains=@FIXTURE_NUM_CHAINS@
+num_regions=@FIXTURE_NUM_REGIONS@
+num_sentries=@FIXTURE_NUM_SENTRIES@
+
+./generate-compose.py --chains $num_chains --regions $num_regions --sentries $num_sentries -o compose.yml
+docker-compose up --detach --remove-orphans
+
+# (4 = validator + seed + full + seat)
+num_services=$(expr $num_chains '*' $num_regions '*' '(' 4 + $num_sentries ')')
+
+while true
+do
+	if [ $(docker-compose ps | grep -E '\(healthy\)' | wc -l) -ge $num_services ] 2>/dev/null
+	then
+		break
+	fi
+
+	sleep 5
+done

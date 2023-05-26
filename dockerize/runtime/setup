@@ -1,0 +1,291 @@
+#!/bin/sh
+
+set -e
+
+# every variable must not be empty
+assert_variables() {
+	for _name in $@
+	do
+		if [ -z "$(eval echo '$'$name)" ]
+		then
+			echo no variable: $_name
+			false
+		fi
+	done
+}
+
+safe_mv() {
+	local src=$1
+	local dst=$2
+	local tmp=$dst~
+
+	[ ! -e $dst ] && [ ! -e $tmp ]
+	mv $src $tmp
+	mv $tmp $dst
+}
+
+replace_toml() {
+	local file=$1
+	local key=$2
+	local value=$3
+
+	sed -Ei $file -e 's#^'$key'[[:blank:]]*=.*$#'$key' = '$value'#'
+}
+
+get_container_info() {
+	curl -s --unix-socket /run/docker.sock http://docker/containers/$(hostname)/json
+}
+
+get_networks() {
+	get_container_info | jq .NetworkSettings.Networks
+}
+
+get_private_ip() {
+	get_networks | jq -r '."'$project_name'_chain-'$chain_index'-region-'$region_index'".IPAddress'
+}
+
+get_public_ip() {
+	get_networks | jq -r .${project_name}_internet.IPAddress
+}
+
+get_container_name() {
+	get_container_info | jq -r .Name | cut -c 2-
+}
+
+assert_variables DAEMON_NAME \
+				 DAEMON_HOME \
+				 FIXTURE_NUM_REGIONS \
+				 FIXTURE_SYNCDIR \
+				 FIXTURE_CLIENT_KEYRING_BACKEND \
+				 FIXTURE_CONFIG_TIMEOUT_COMMIT \
+				 FIXTURE_CONFIG_TIMEOUT_PRECOMMIT \
+				 FIXTURE_CONFIG_TIMEOUT_PREVOTE \
+				 FIXTURE_CONFIG_TIMEOUT_PROPOSE \
+				 FIXTURE_STATE_BOND_DENOM \
+				 FIXTURE_STATE_BALANCE \
+				 FIXTURE_STATE_DELEGATION \
+				 FIXTURE_STATE_MIN_DEPOSIT \
+				 FIXTURE_STATE_VOTING_PERIOD \
+				 FIXTURE_STATE_UNBONDING_TIME
+
+p2p_port=26656
+
+cosmovisor init $(which $DAEMON_NAME) >/dev/null
+cd $DAEMON_HOME
+mkdir data
+mkdir fixture
+
+# container name format: {project_name}_{service_name}_{replica_index}
+container_name=$(get_container_name)
+project_name=$(echo $container_name | cut -d _ -f 1)
+service_name=$(echo $container_name | cut -d _ -f 2)
+replica_index=$(echo $container_name | cut -d _ -f 3)
+
+# service name format: chain-{index}-region-{index}-{type}
+chain_index=$(echo $service_name | cut -d - -f 2)
+region_index=$(echo $service_name | cut -d - -f 4)
+type=$(echo $service_name | cut -d - -f 5)
+assert_variables type
+
+chain_id=localnet-$chain_index
+
+moniker=$type-$region_index
+$DAEMON_NAME init --chain-id $chain_id $moniker 2>fixture/init.json
+
+validators_dir=$FIXTURE_SYNCDIR/validator
+validator_dir=$validators_dir/$region_index
+if [ $type = validator ]
+then
+	_validator_dir=fixture/validator
+	mkdir -p $_validator_dir
+
+	# store node id
+	jq -r .node_id fixture/init.json >$_validator_dir/node-id.txt
+
+	# store ip address
+	get_private_ip >$_validator_dir/ip.txt
+
+	# store consensus public key
+	_pubkey_type=$(jq -r .pub_key.type config/priv_validator_key.json)
+	case $_pubkey_type in
+		tendermint/PubKeyEd25519)
+			_pubkey_url=/cosmos.crypto.ed25519.PubKey
+			;;
+
+		*)
+			echo consensus key type not supported: $_pubkey_type
+			false
+			;;
+	esac
+
+	_pubkey_key=$(jq -r .pub_key.value config/priv_validator_key.json)
+	cat <<EOF >$_validator_dir/pubkey.json
+{"@type":"$_pubkey_url","key":"$_pubkey_key"}
+EOF
+
+	mkdir -p $validators_dir
+	safe_mv $_validator_dir $validator_dir
+fi
+
+while [ ! -d $validator_dir ]
+do
+	sleep 1
+done
+
+seeds_dir=$FIXTURE_SYNCDIR/seed
+seed_dir=$seeds_dir/$region_index
+if [ $type = seed ]
+then
+	_seed_dir=fixture/seed
+	mkdir -p $_seed_dir
+
+	# store node id
+	jq -r .node_id fixture/init.json >$_seed_dir/node-id.txt
+
+	# store ip address
+	get_private_ip >$_seed_dir/ip-private.txt
+	get_public_ip >$_seed_dir/ip-public.txt
+
+	mkdir -p $seeds_dir
+	safe_mv $_seed_dir $seed_dir
+fi
+
+while [ $(ls -1 $seeds_dir 2>/dev/null | wc -l) -ne $FIXTURE_NUM_REGIONS ]
+do
+	sleep 1
+done
+
+# update config.toml
+config_ip=$(get_public_ip)
+if [ $type = validator ] || [ $type = seat ]
+then
+	config_ip=$(get_private_ip)
+fi
+sed -Ei config/config.toml -e 's#(127\.0\.0\.1|localhost)#'$config_ip'#'
+replace_toml config/config.toml log_path '"'$DAEMON_HOME'/logs/daemon.log"'
+replace_toml config/config.toml timeout_propose '"'$FIXTURE_CONFIG_TIMEOUT_PROPOSE'"'
+replace_toml config/config.toml timeout_prevote '"'$FIXTURE_CONFIG_TIMEOUT_PREVOTE'"'
+replace_toml config/config.toml timeout_precommit '"'$FIXTURE_CONFIG_TIMEOUT_PRECOMMIT'"'
+replace_toml config/config.toml timeout_commit '"'$FIXTURE_CONFIG_TIMEOUT_COMMIT'"'
+
+# seed settings
+if [ $type = validator ]
+then
+	replace_toml config/config.toml pex false
+elif [ $type = seed ]
+then
+	# replace_toml config/config.toml seed_mode true
+
+	_seeds=
+	for _region_index in $(ls -1 $seeds_dir 2>/dev/null)
+	do
+		if [ $_region_index -eq $region_index ]
+		then
+			continue
+		fi
+
+		_seed_dir=$seeds_dir/$_region_index
+		_seed_node_id=$(cat $_seed_dir/node-id.txt)
+		_seed_ip=$(cat $_seed_dir/ip-public.txt)
+		_seeds=$_seeds,$_seed_node_id@$_seed_ip:$p2p_port
+	done
+	_seeds=$(echo $_seeds | cut -c 2-)
+
+	replace_toml config/config.toml seeds '"'$_seeds'"'
+else
+	_seed_node_id=$(cat $seed_dir/node-id.txt)
+	_seed_ip=$(cat $seed_dir/ip-private.txt)
+	_seeds=$_seed_node_id@$_seed_ip:$p2p_port
+	replace_toml config/config.toml seeds '"'$_seeds'"'
+fi
+
+if [ $type = sentry ]
+then
+	_validator_node_id=$(cat $validator_dir/node-id.txt)
+	replace_toml config/config.toml private_peer_ids '"'$_validator_node_id'"'
+
+	_validator_ip=$(cat $validator_dir/ip.txt)
+	_persistent_peers=$_validator_node_id@$_validator_ip:$p2p_port
+	replace_toml config/config.toml persistent_peers '"'$_persistent_peers'"'
+fi
+
+if [ $type != full ]
+then
+	replace_toml config/config.toml indexer '"null"'
+fi
+
+# update client.toml
+sed -Ei config/client.toml -e 's#localhost#'$config_ip'#'
+replace_toml config/client.toml chain-id '"'$chain_id'"'
+replace_toml config/client.toml keyring-backend '"'$FIXTURE_CLIENT_KEYRING_BACKEND'"'
+
+# update app.toml
+if [ $type != full ]
+then
+	replace_toml config/app.toml pruning '"everything"'
+	replace_toml config/app.toml min-retain-blocks 1
+fi
+
+operators_dir=$FIXTURE_SYNCDIR/operator
+operator_dir=$operators_dir/$region_index
+gentx_dir=$FIXTURE_SYNCDIR/gentx
+if [ $type = seat ]
+then
+	_operator_dir=fixture/operator
+	mkdir -p $_operator_dir
+
+	_operator_name=operator
+	$DAEMON_NAME keys add $_operator_name --output json >fixture/keys-add.json
+
+	jq -r .address fixture/keys-add.json >$_operator_dir/address.txt
+	mkdir -p $operators_dir
+	safe_mv $_operator_dir $operator_dir
+
+	_operator_address=$(cat $operator_dir/address.txt)
+	$DAEMON_NAME add-genesis-account $_operator_address $FIXTURE_STATE_BALANCE$FIXTURE_STATE_BOND_DENOM # no output
+
+	_validator_node_id=$(cat $validator_dir/node-id.txt)
+	_validator_ip=$(cat $validator_dir/ip.txt)
+	_validator_pubkey=$(cat $validator_dir/pubkey.json)
+	$DAEMON_NAME gentx --chain-id $chain_id $_operator_name $FIXTURE_STATE_DELEGATION$FIXTURE_STATE_BOND_DENOM --pubkey $_validator_pubkey --node-id $_validator_node_id --ip 0.0.0.0 --moniker validator-$region_index 2>/dev/null
+
+	mkdir -p $gentx_dir
+	safe_mv config/gentx/gentx-$_validator_node_id.json $gentx_dir/gentx-$_validator_node_id.json
+fi
+
+# gather the gentx files
+while [ $(ls -1 $gentx_dir 2>/dev/null | wc -l) -ne $FIXTURE_NUM_REGIONS ]
+do
+	sleep 1
+done
+
+final_genesis=$FIXTURE_SYNCDIR/genesis.json
+if [ $type = validator ] && [ $region_index -eq 0 ] # gentx gatherer
+then
+	for _region_index in $(ls -1 $operators_dir)
+	do
+		_operator_dir=$operators_dir/$_region_index
+		_operator_address=$(cat $_operator_dir/address.txt)
+		$DAEMON_NAME add-genesis-account $_operator_address $FIXTURE_STATE_BALANCE$FIXTURE_STATE_BOND_DENOM # no output
+	done
+
+	$DAEMON_NAME collect-gentxs --gentx-dir $gentx_dir 2>/dev/null
+	cat <<EOF >alter_genesis.jq
+.app_state.gov.deposit_params.min_deposit[0].denom = "$FIXTURE_STATE_BOND_DENOM" |
+.app_state.mint.params.mint_denom = "$FIXTURE_STATE_BOND_DENOM" |
+.app_state.staking.params.bond_denom = "$FIXTURE_STATE_BOND_DENOM" |
+.app_state.gov.deposit_params.min_deposit[0].amount = "$FIXTURE_STATE_MIN_DEPOSIT" |
+.app_state.gov.voting_params.voting_period = "$FIXTURE_STATE_VOTING_PERIOD" |
+.app_state.staking.params.unbonding_time = "$FIXTURE_STATE_UNBONDING_TIME"
+EOF
+	jq -f alter_genesis.jq config/genesis.json >altered_genesis.json
+	safe_mv altered_genesis.json $final_genesis
+fi
+
+# copy the final genesis file
+while [ ! -f $final_genesis ]
+do
+	sleep 1
+done
+
+cp $final_genesis config/genesis.json

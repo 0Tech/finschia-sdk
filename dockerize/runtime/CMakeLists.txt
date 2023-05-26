@@ -9,17 +9,21 @@ configure_file(Dockerfile.in Dockerfile
 unset(DAEMON_GID)
 unset(DAEMON_UID)
 
-configure_file(init init
+configure_file(init binaries/init
   COPYONLY)
+configure_file(setup binaries/setup
+  COPYONLY)
+configure_file(healthcheck.in binaries/healthcheck
+  @ONLY)
 configure_file(install-image.sh.in install-image.sh
   @ONLY)
 
 get_target_property(DAEMON_BINARY_DIR build_daemon BINARY_DIR)
 get_target_property(COSMOVISOR_BINARY_DIR build_cosmovisor BINARY_DIR)
 add_custom_command(
-  DEPENDS install-image.sh Dockerfile init build
+  DEPENDS install-image.sh Dockerfile binaries/init binaries/setup binaries/healthcheck build
   OUTPUT install-image.touch
-  COMMAND ./install-image.sh ${DAEMON_BINARY_DIR}/daemon ${COSMOVISOR_BINARY_DIR}/cosmovisor install-image.touch
+  COMMAND sh install-image.sh ${DAEMON_BINARY_DIR}/daemon ${COSMOVISOR_BINARY_DIR}/cosmovisor install-image.touch
   COMMENT "Installing the Docker image"
   VERBATIM)
 add_custom_target(install_image

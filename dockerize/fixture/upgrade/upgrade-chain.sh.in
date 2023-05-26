@@ -1,0 +1,83 @@
+#!/bin/sh
+
+set -e
+
+chain_index=$1
+[ "$chain_index" -ge 0 ]
+
+daemon=@DAEMON_HOME@/cosmovisor/current/bin/@DAEMON_NAME@
+
+new_binary=dummyd
+upgrade_name=@FIXTURE_CHAIN_UPGRADE_NAME@
+
+project_name=fixture
+
+get_height() {
+	local info=$(docker exec ${project_name}_chain-$chain_index-region-0-seat_1 $daemon q block 2>/dev/null)
+	if [ -n "$info" ]
+	then
+		echo "$info" | jq -r '.block.header.height' 2>/dev/null
+	fi
+}
+
+get_containers() {
+	docker ps --no-trunc --format '{{json .}}' | jq -r 'select(.Names | test("^'$project_name'_chain-'$chain_index'")) | .Names'
+}
+
+compress_binary() {
+	tar -czf $new_binary.tar.gz $new_binary
+}
+
+upload_binary() {
+	docker cp $new_binary.tar.gz ${project_name}_chain-${chain_index}-region-0-seat_1:@FIXTURE_SYNCDIR@
+}
+
+download_binary() {
+	local name=$(echo $upgrade_name | tr [:upper:] [:lower:])
+	local bindir=@DAEMON_HOME@/cosmovisor/upgrades/$name/bin
+
+	for _container in $(get_containers)
+	do
+		docker exec $_container sh -c "mkdir -p $bindir && cd $bindir && tar -xzf @FIXTURE_SYNCDIR@/$new_binary.tar.gz && mv $new_binary @DAEMON_NAME@"
+	done
+}
+
+submit_upgrade() {
+	local height=$1
+
+	local checksum=sha256:$(sha256sum $new_binary.tar.gz | awk '{print $1}')
+	local info='{"binaries":{"any":"file://'@FIXTURE_SYNCDIR@/$new_binary.tar.gz'?checksum='$checksum'"}}'
+	docker exec ${project_name}_chain-$chain_index-region-0-seat_1 $daemon tx gov submit-proposal software-upgrade $upgrade_name --upgrade-height $height --upgrade-info $info --title $upgrade_name --description "test upgrade" --deposit @FIXTURE_STATE_MIN_DEPOSIT@@FIXTURE_STATE_BOND_DENOM@ --broadcast-mode block --from operator --gas auto --yes
+}
+
+vote() {
+	local proposal_id=$1
+
+	for _region_index in $(seq 0 $(expr @FIXTURE_NUM_REGIONS@ - 1))
+	do
+		docker exec ${project_name}_chain-$chain_index-region-$_region_index-seat_1 $daemon tx gov vote $proposal_id VOTE_OPTION_YES --broadcast-mode sync --from operator --gas auto --yes
+	done
+}
+
+compress_binary
+
+upgrade_height=$(expr $(get_height) + 10)
+submit_upgrade $upgrade_height
+vote 1
+
+upload_binary
+if [ "@DAEMON_ALLOW_DOWNLOAD_BINARIES@" != true ]
+then
+	download_binary
+fi
+
+# wait for the upgrade
+while true
+do
+	if [ "$(get_height)" -ge $(expr $upgrade_height + 1) ] 2>/dev/null
+	then
+		break
+	fi
+
+	sleep 5
+done
