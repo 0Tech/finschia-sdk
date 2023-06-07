@@ -81,6 +81,8 @@ def get_services(num_chains, num_regions, num_sentries):
                         'replicas': num_sentries,
                     }
 
+                service['init'] = True
+
                 service_name = 'chain-{}-region-{}-{}'.format(ci, ri, type)
                 services[service_name] = service
 

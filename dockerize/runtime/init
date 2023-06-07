@@ -24,4 +24,13 @@ then
 	date >initialized
 fi
 
-cosmovisor run start
+while true
+do
+	cosmovisor run start
+
+	touch maintenance
+	while [ -f maintenance ]
+	do
+		sleep 1
+	done
+done

@@ -6,7 +6,7 @@ ARG DAEMON_GID=@DAEMON_GID@
 
 RUN apt-get update && \
       apt-get upgrade -y && \
-	  apt-get install -y jq curl && \
+	  apt-get install -y jq curl procps && \
 	  rm -rf /var/lib/apt/lists/*
 
 RUN addgroup \

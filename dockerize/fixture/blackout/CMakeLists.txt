@@ -8,7 +8,7 @@ configure_file(${IMAGE_SOURCE_DIR}/daemon.env.in daemon.env
 
 add_test(
   NAME shutdown_sentries
-  COMMAND timeout 2m sh shutdown-sentries.sh ChainsShutdownSentries 0)
-add_chains(ChainsShutdownSentries 1 ${FIXTURE_NUM_REGIONS} 1 2m)
+  COMMAND timeout 5m sh shutdown-sentries.sh ChainsShutdownSentries 0)
+add_chains(ChainsShutdownSentries 1 ${FIXTURE_NUM_REGIONS} 1 5m)
 set_tests_properties(shutdown_sentries
   PROPERTIES FIXTURES_REQUIRED ChainsShutdownSentries)

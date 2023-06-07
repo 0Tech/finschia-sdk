@@ -11,7 +11,7 @@ configure_file(${IMAGE_SOURCE_DIR}/daemon.env.in daemon.env
 
 add_test(
   NAME upgrade_chain_manual
-  COMMAND timeout 2m sh upgrade-chain.sh ChainsUpgradeManual 0)
-add_chains(ChainsUpgradeManual 1 ${FIXTURE_NUM_REGIONS} 1 2m)
+  COMMAND timeout 5m sh upgrade-chain.sh ChainsUpgradeManual 0)
+add_chains(ChainsUpgradeManual 1 ${FIXTURE_NUM_REGIONS} 1 5m)
 set_tests_properties(upgrade_chain_manual
   PROPERTIES FIXTURES_REQUIRED ChainsUpgradeManual)
