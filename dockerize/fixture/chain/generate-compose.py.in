@@ -3,13 +3,10 @@
 import argparse
 import re
 import yaml
+import os
 
 def is_debug():
     return "@CMAKE_BUILD_TYPE@".lower() == 'debug'
-
-def read_file(file_name):
-    with open(file_name, 'r') as f:
-        return f.read()
 
 def get_volumes(num_volumes):
     volumes = {}
@@ -93,16 +90,18 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', '-o', type=str,
                         help="output file path (default: stdout)")
+    # parser.add_argument('--name', '-n', type=str, required=True,
+    #                     help="the name of the chains (docker-compose name)")
     parser.add_argument('--chains', '-c', type=int, default=1,
                         help="the number of chains in the fixture")
     parser.add_argument('--regions', '-r', type=int, default=1,
                         help="the number of regions in the fixture")
     parser.add_argument('--sentries', '-s', type=int, default=1,
                         help="the number of sentries in each region")
-
     args = parser.parse_args()
 
     document = {
+        # 'name': args.name,
         'services': get_services(args.chains, args.regions, args.sentries),
         'networks': get_networks(args.regions, args.chains),
         'volumes': get_volumes(args.chains),

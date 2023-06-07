@@ -1,3 +1,28 @@
+# environment variables (certain fixtures may override these)
+set(FIXTURE_NUM_REGIONS 4 CACHE STRING "number of the regions in fixtures")
+set(FIXTURE_CLIENT_KEYRING_BACKEND test CACHE STRING "keyring backend")
+mark_as_advanced(FIXTURE_CLIENT_KEYRING_BACKEND)
+
+set(FIXTURE_CONFIG_TIMEOUT_COMMIT 1s CACHE STRING "timeout_commit")
+set(FIXTURE_CONFIG_TIMEOUT_PRECOMMIT 1s CACHE STRING "timeout_precommit")
+set(FIXTURE_CONFIG_TIMEOUT_PREVOTE 1s CACHE STRING "timeout_prevote")
+set(FIXTURE_CONFIG_TIMEOUT_PROPOSE 1s CACHE STRING "timeout_propose")
+mark_as_advanced(
+  FIXTURE_CONFIG_TIMEOUT_COMMIT
+  FIXTURE_CONFIG_TIMEOUT_PRECOMMIT
+  FIXTURE_CONFIG_TIMEOUT_PREVOTE
+  FIXTURE_CONFIG_TIMEOUT_PROPOSE)
+
+set(FIXTURE_STATE_BOND_DENOM cony CACHE STRING "bond denom")
+mark_as_advanced(FIXTURE_STATE_BOND_DENOM)
+set(FIXTURE_STATE_BALANCE 1000000000 CACHE STRING "initial balance of each operator (in ${FIXTURE_STATE_BOND_DENOM})")
+set(FIXTURE_STATE_DELEGATION 1000000 CACHE STRING "initial delegation of each operator to its validator (in ${FIXTURE_STATE_BOND_DENOM}, MUST be >1000000)")
+set(FIXTURE_STATE_MIN_DEPOSIT 1 CACHE STRING "x/gov min_deposit in ${FIXTURE_STATE_BOND_DENOM}")
+set(FIXTURE_STATE_VOTING_PERIOD 10s CACHE STRING "x/gov voting_period")
+set(FIXTURE_STATE_UNBONDING_TIME 10s CACHE STRING "x/staking unbonding_time")
+
+set(DAEMON_ALLOW_DOWNLOAD_BINARIES true CACHE STRING "whether automatically download the binary or not")
+
 execute_process(
   COMMAND sh -c "printf $(id -u)"
   OUTPUT_VARIABLE DAEMON_UID)
@@ -6,8 +31,6 @@ execute_process(
   OUTPUT_VARIABLE DAEMON_GID)
 configure_file(Dockerfile.in Dockerfile
   @ONLY)
-unset(DAEMON_GID)
-unset(DAEMON_UID)
 
 configure_file(init binaries/init
   COPYONLY)

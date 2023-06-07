@@ -2,12 +2,13 @@
 
 set -e
 
-chain_index=$1
+project_name=$(echo $1 | tr [:upper:] [:lower:])
+[ -n "$project_name" ]
+
+chain_index=$2
 [ "$chain_index" -ge 0 ]
 
 daemon=@DAEMON_HOME@/cosmovisor/current/bin/@DAEMON_NAME@
-
-project_name=fixture
 
 get_height() {
 	local info=$(docker exec ${project_name}_chain-$chain_index-region-0-seat_1 $daemon q block 2>/dev/null)

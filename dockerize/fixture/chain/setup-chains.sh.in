@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+# every variable must not be empty
+assert_variables() {
+	for name in $@
+	do
+		if [ -z "$(eval echo '$'$name)" ]
+		then
+			echo no variable: $name
+			false
+		fi
+	done
+}
+
+assert_variables NUM_CHAINS \
+				 NUM_REGIONS \
+				 NUM_SENTRIES \
+				 PROJECT_NAME
+
+script_dir=$(dirname $(realpath $0))
+# $script_dir/generate-compose.py --name $PROJECT_NAME --chains $NUM_CHAINS --regions $NUM_REGIONS --sentries $NUM_SENTRIES -o $PROJECT_NAME.yml
+$script_dir/generate-compose.py --chains $NUM_CHAINS --regions $NUM_REGIONS --sentries $NUM_SENTRIES -o $PROJECT_NAME.yml
+
+docker-compose -p $PROJECT_NAME -f $PROJECT_NAME.yml up --detach --remove-orphans
+
+# (4 = validator + seed + full + seat)
+num_services=$(expr $NUM_CHAINS '*' $NUM_REGIONS '*' '(' 4 + $NUM_SENTRIES ')')
+
+while true
+do
+	if [ $(docker-compose -p $PROJECT_NAME -f $PROJECT_NAME.yml ps | grep -E '\(healthy\)' | wc -l) -ge $num_services ] 2>/dev/null
+	then
+		break
+	fi
+
+	sleep 5
+done
