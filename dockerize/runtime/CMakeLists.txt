@@ -46,7 +46,7 @@ get_target_property(COSMOVISOR_BINARY_DIR build_cosmovisor BINARY_DIR)
 add_custom_command(
   DEPENDS install-image.sh Dockerfile binaries/init binaries/setup binaries/healthcheck build
   OUTPUT install-image.touch
-  COMMAND sh install-image.sh ${DAEMON_BINARY_DIR}/daemon ${COSMOVISOR_BINARY_DIR}/cosmovisor install-image.touch
+  COMMAND sh install-image.sh ${DAEMON_BINARY_DIR}/bundle.tar.gz ${COSMOVISOR_BINARY_DIR}/cosmovisor install-image.touch
   COMMENT "Installing the Docker image"
   VERBATIM)
 add_custom_target(install_image

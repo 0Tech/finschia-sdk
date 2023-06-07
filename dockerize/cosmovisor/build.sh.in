@@ -26,7 +26,7 @@ then
 fi
 
 image=@PROJECT_NAME@-cosmovisor:build
-docker image rm -f $image
+docker image rm -f $image 2>/dev/null
 docker build --force-rm -t $image -f $dockerfile .
 
 docker run --rm -t \

@@ -25,7 +25,24 @@ get_containers() {
 }
 
 create_bundle() {
-	sh -c "cd bundle; tar -czf ../$upgrade_name.tar.gz *"
+	case @FIXTURE_DAEMON_VERSION_NEW@ in
+		dummy)
+			mkdir bundle && cp dummyd bundle/@DAEMON_NAME@
+			sh -c "cd bundle && tar -czf ../$upgrade_name.tar.gz *"
+			rm -r bundle
+		;;
+		local)
+			cp @DAEMON_BINARY_DIR@/bundle.tar.gz $upgrade_name.tar.gz
+		;;
+		*)
+			# TODO: arch & os
+			_version=@FIXTURE_DAEMON_VERSION_NEW@
+			_workdir=$(mktemp -dp .)
+			curl -Lo $_workdir/bundle.tar.gz @GITHUB_URL@/releases/download/v$_version/@DAEMON_NAME@_${_version}_linux_amd64.tar.gz
+			sh -c "cd $_workdir && tar -xzf bundle.tar.gz && cd @DAEMON_NAME@_${_version}_linux_amd64 && tar -czf ../../$upgrade_name.tar.gz @DAEMON_NAME@"
+			rm -rf $_workdir
+		;;
+	esac
 }
 
 upload_bundle() {

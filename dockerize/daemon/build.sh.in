@@ -32,11 +32,11 @@ then
 fi
 
 image=@PROJECT_NAME@-daemon:build
-docker image rm -f $image
+docker image rm -f $image 2>/dev/null
 docker build --force-rm -t $image -f "$dockerfile" "$source"
 
 docker run --rm -t \
 	   --mount type=bind,source="$target",target=/target \
-	   $image cp /workdir/build/simd /target/daemon
+	   $image cp /workdir/bundle.tar.gz /target/
 
 docker image rm -f $image

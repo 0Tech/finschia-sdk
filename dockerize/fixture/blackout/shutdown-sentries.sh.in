@@ -26,7 +26,10 @@ get_container_infos() {
 
 # stop the sentries
 sentries="$(get_container_infos sentry | jq -r .Names)"
-docker pause $sentries >/dev/null
+for _sentry in $sentries
+do
+	docker exec $_sentry pkill cosmovisor
+done
 
 # wait for the chain pause
 num_validators=$(get_container_infos validator | wc -l)
@@ -41,7 +44,10 @@ do
 done
 
 # start the sentries
-docker unpause $sentries >/dev/null
+for _sentry in $sentries
+do
+	docker exec $_sentry rm maintenance
+done
 
 # wait for the recovery
 while true

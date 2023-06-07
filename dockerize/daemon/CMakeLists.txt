@@ -16,10 +16,10 @@ add_custom_command(
   COMMENT "Checking daemon source update"
   VERBATIM)
 add_custom_command(
-  OUTPUT daemon
+  OUTPUT bundle.tar.gz
   DEPENDS build.sh Dockerfile source.touch
   COMMAND ./build.sh Dockerfile ${GO_SOURCE_DIR}
   COMMENT "Building daemon"
   VERBATIM)
 add_custom_target(build_daemon
-  DEPENDS daemon)
+  DEPENDS bundle.tar.gz)

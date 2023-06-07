@@ -8,6 +8,7 @@ file(RELATIVE_PATH PROJECT_DIR_NAME ${GO_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
 
 set(DAEMON_NAME simd)
 set(DAEMON_HOME /home/${DAEMON_NAME}/.simapp)
+set(GITHUB_URL https://github.com/Finschia/${CMAKE_PROJECT_NAME})
 set(FIXTURE_SYNCDIR /home/${DAEMON_NAME}/sync)
 
 add_subdirectory(daemon)

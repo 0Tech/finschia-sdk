@@ -25,29 +25,45 @@ get_containers() {
 }
 
 create_bundle() {
-	sh -c "cd bundle; tar -czf ../$upgrade_name.tar.gz *"
+	case @FIXTURE_DAEMON_VERSION_NEW@ in
+		local|dummy)
+			cp @DAEMON_BINARY_DIR@/bundle.tar.gz $upgrade_name.tar.gz
+		;;
+		*)
+			# TODO: arch & os
+			_version=@FIXTURE_DAEMON_VERSION_NEW@
+			_workdir=$(mktemp -dp .)
+			curl -Lo $_workdir/bundle.tar.gz @GITHUB_URL@/releases/download/v$_version/@DAEMON_NAME@_${_version}_linux_amd64.tar.gz
+			sh -c "cd $_workdir && tar -xzf bundle.tar.gz && cd @DAEMON_NAME@_${_version}_linux_amd64 && tar -czf ../../$upgrade_name.tar.gz @DAEMON_NAME@"
+			rm -rf $_workdir
+			;;
+	esac
 }
 
 upload_bundle() {
 	docker cp $upgrade_name.tar.gz ${project_name}_chain-${chain_index}-region-0-seat_1:@FIXTURE_SYNCDIR@
 }
 
-upgrade() {
+upgrade_one_half() {
 	local upgrade_dir=@DAEMON_HOME@/cosmovisor/current
+	local num_upgrade_regions=$(expr '(' @FIXTURE_NUM_REGIONS@ + 1 ')' / 2)
 
 	for _container in $(get_containers)
 	do
+		_region=$(echo $_container | cut -d _ -f 2 | cut -d - -f 4)
+		if [ $_region -ge $num_upgrade_regions ]
+		then
+			continue
+		fi
+
 		# stop cosmovisor
 		docker exec $_container pkill cosmovisor
 		
 		# download bundle
-		docker exec $_container sh -c "cd $upgrade_dir && tar -xzf @FIXTURE_SYNCDIR@/$upgrade_name.tar.gz && mv @DAEMON_NAME@ bin"
+		docker exec $_container sh -c "cd $upgrade_dir && tar -xzf @FIXTURE_SYNCDIR@/$upgrade_name.tar.gz && cp @DAEMON_NAME@ bin/"
 
 		# exit maintenance
 		docker exec $_container rm maintenance
-
-		# shift upgrade time
-		sleep 1
 	done
 }
 
@@ -55,7 +71,7 @@ create_bundle
 upload_bundle
 
 upgrade_height=$(expr $(get_height) + 20)
-upgrade
+upgrade_one_half
 
 # wait for the upgrade
 while true

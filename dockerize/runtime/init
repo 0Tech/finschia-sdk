@@ -18,11 +18,14 @@ assert_variables DAEMON_NAME \
 				 DAEMON_HOME \
 				 DAEMON_ALLOW_DOWNLOAD_BINARIES
 
-if [ ! -f initialized ]
+if [ -f initialized ]
 then
-	setup
-	date >initialized
+	echo "cannot re-initialize this node. You MUST create a new network"
+	false
 fi
+
+setup
+date >initialized
 
 while true
 do

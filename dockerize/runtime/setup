@@ -70,7 +70,14 @@ assert_variables DAEMON_NAME \
 
 p2p_port=26656
 
-cosmovisor init $(which $DAEMON_NAME) >/dev/null
+# init cosmovisor
+mkdir genesis
+tar -xzf bundle.tar.gz -C genesis/
+cosmovisor init genesis/$DAEMON_NAME
+cp -r genesis $DAEMON_HOME/cosmovisor/
+daemon=$DAEMON_HOME/cosmovisor/current/bin/$DAEMON_NAME
+rm -r genesis
+
 cd $DAEMON_HOME
 mkdir data
 mkdir fixture
@@ -90,7 +97,7 @@ assert_variables type
 chain_id=localnet-$chain_index
 
 moniker=$type-$region_index
-$DAEMON_NAME init --chain-id $chain_id $moniker 2>fixture/init.json
+$daemon init --chain-id $chain_id $moniker 2>&1 | tee fixture/init.json
 
 validators_dir=$FIXTURE_SYNCDIR/validator
 validator_dir=$validators_dir/$region_index
@@ -235,19 +242,19 @@ then
 	mkdir -p $_operator_dir
 
 	_operator_name=operator
-	$DAEMON_NAME keys add $_operator_name --output json >fixture/keys-add.json
+	$daemon keys add $_operator_name --output json | tee fixture/keys-add.json
 
 	jq -r .address fixture/keys-add.json >$_operator_dir/address.txt
 	mkdir -p $operators_dir
 	safe_mv $_operator_dir $operator_dir
 
 	_operator_address=$(cat $operator_dir/address.txt)
-	$DAEMON_NAME add-genesis-account $_operator_address $FIXTURE_STATE_BALANCE$FIXTURE_STATE_BOND_DENOM # no output
+	$daemon add-genesis-account $_operator_address $FIXTURE_STATE_BALANCE$FIXTURE_STATE_BOND_DENOM # no output
 
 	_validator_node_id=$(cat $validator_dir/node-id.txt)
 	_validator_ip=$(cat $validator_dir/ip.txt)
 	_validator_pubkey=$(cat $validator_dir/pubkey.json)
-	$DAEMON_NAME gentx --chain-id $chain_id $_operator_name $FIXTURE_STATE_DELEGATION$FIXTURE_STATE_BOND_DENOM --pubkey $_validator_pubkey --node-id $_validator_node_id --ip 0.0.0.0 --moniker validator-$region_index 2>/dev/null
+	$daemon gentx --chain-id $chain_id $_operator_name $FIXTURE_STATE_DELEGATION$FIXTURE_STATE_BOND_DENOM --pubkey $_validator_pubkey --node-id $_validator_node_id --ip 0.0.0.0 --moniker validator-$region_index
 
 	mkdir -p $gentx_dir
 	safe_mv config/gentx/gentx-$_validator_node_id.json $gentx_dir/gentx-$_validator_node_id.json
@@ -266,10 +273,10 @@ then
 	do
 		_operator_dir=$operators_dir/$_region_index
 		_operator_address=$(cat $_operator_dir/address.txt)
-		$DAEMON_NAME add-genesis-account $_operator_address $FIXTURE_STATE_BALANCE$FIXTURE_STATE_BOND_DENOM # no output
+		$daemon add-genesis-account $_operator_address $FIXTURE_STATE_BALANCE$FIXTURE_STATE_BOND_DENOM # no output
 	done
 
-	$DAEMON_NAME collect-gentxs --gentx-dir $gentx_dir 2>/dev/null
+	$daemon collect-gentxs --gentx-dir $gentx_dir
 	cat <<EOF >alter_genesis.jq
 .app_state.gov.deposit_params.min_deposit[0].denom = "$FIXTURE_STATE_BOND_DENOM" |
 .app_state.mint.params.mint_denom = "$FIXTURE_STATE_BOND_DENOM" |

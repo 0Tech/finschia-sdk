@@ -5,9 +5,9 @@ ARG DAEMON_UID=@DAEMON_UID@
 ARG DAEMON_GID=@DAEMON_GID@
 
 RUN apt-get update && \
-      apt-get upgrade -y && \
-	  apt-get install -y jq curl procps && \
-	  rm -rf /var/lib/apt/lists/*
+    apt-get upgrade -y && \
+    apt-get install -y jq curl procps && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN addgroup \
       --gid $DAEMON_GID \
@@ -15,14 +15,14 @@ RUN addgroup \
 RUN adduser \
       --uid $DAEMON_UID \
       --gid $DAEMON_GID \
-	  --gecos "" \
-	  --disabled-password \
-	  $DAEMON_NAME
+      --gecos "" \
+      --disabled-password \
+      $DAEMON_NAME
 
 # access to /run/docker.sock
 RUN addgroup \
       --gid 131 \
-	  docker
+      docker
 RUN adduser $DAEMON_NAME docker
 
 CMD ["/etc/init"]
@@ -31,15 +31,17 @@ RUN ln -s /usr/local/bin/init /etc/init
 
 HEALTHCHECK \
     --interval=10s \
-	--timeout=3s \
-	--start-period=2m \
-	--retries=1 \
-	CMD ["healthcheck", "/tmp/height"]
+    --timeout=3s \
+    --start-period=2m \
+    --retries=1 \
+    CMD ["healthcheck", "/tmp/height"]
 
 RUN mkdir @FIXTURE_SYNCDIR@ && \
-      chown $DAEMON_NAME @FIXTURE_SYNCDIR@
+    chown $DAEMON_NAME @FIXTURE_SYNCDIR@
 
 COPY binaries /usr/local/bin/
 
 USER $DAEMON_NAME
 WORKDIR /home/$DAEMON_NAME
+
+COPY bundle.tar.gz ./

@@ -23,8 +23,21 @@ then
 	exec 1>/dev/null 2>&1
 fi
 
-cp "$daemon" binaries/@DAEMON_NAME@
+case @FIXTURE_DAEMON_VERSION@ in
+	local|dummy)
+		cp "$daemon" bundle.tar.gz
+	;;
+	*)
+		# TODO: arch & os
+		_version=@FIXTURE_DAEMON_VERSION@
+		_workdir=$(mktemp -dp .)
+		curl -Lo $_workdir/bundle.tar.gz @GITHUB_URL@/releases/download/v$_version/@DAEMON_NAME@_${_version}_linux_amd64.tar.gz
+		sh -c "cd $_workdir && tar -xzf bundle.tar.gz && cd @DAEMON_NAME@_${_version}_linux_amd64 && tar -czf ../../bundle.tar.gz @DAEMON_NAME@"
+		rm -rf $_workdir
+	;;
+esac
+
 cp "$cosmovisor" binaries/cosmovisor
-docker build -t @PROJECT_NAME@:local .
+docker build -t @PROJECT_NAME@:@FIXTURE_DAEMON_VERSION@ .
 
 touch $output

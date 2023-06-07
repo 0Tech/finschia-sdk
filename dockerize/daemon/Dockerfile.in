@@ -15,5 +15,8 @@ RUN go mod download
 # Add source files
 COPY . ./
 
-# install simapp, remove packages
-RUN CGO_ENABLED=0 make build
+# make a bundle
+RUN BUILDDIR=$(mktemp -dp .) && \
+    BUILDDIR=$BUILDDIR CGO_ENABLED=0 make build && \
+    cd $BUILDDIR && \
+    tar -czf ../bundle.tar.gz @DAEMON_NAME@
