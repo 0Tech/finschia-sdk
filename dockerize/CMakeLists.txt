@@ -16,6 +16,4 @@ add_subdirectory(cosmovisor)
 add_custom_target(build ALL
   DEPENDS build_daemon build_cosmovisor)
 
-add_subdirectory(runtime)
-
 add_subdirectory(fixture)

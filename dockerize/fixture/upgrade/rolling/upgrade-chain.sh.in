@@ -25,19 +25,13 @@ get_containers() {
 }
 
 create_bundle() {
-	case @FIXTURE_DAEMON_VERSION_NEW@ in
-		local|dummy)
-			cp @DAEMON_BINARY_DIR@/bundle.tar.gz $upgrade_name.tar.gz
-		;;
-		*)
-			# TODO: arch & os
-			_version=@FIXTURE_DAEMON_VERSION_NEW@
-			_workdir=$(mktemp -dp .)
-			curl -Lo $_workdir/bundle.tar.gz @GITHUB_URL@/releases/download/v$_version/@DAEMON_NAME@_${_version}_linux_amd64.tar.gz
-			sh -c "cd $_workdir && tar -xzf bundle.tar.gz && cd @DAEMON_NAME@_${_version}_linux_amd64 && tar -czf ../../$upgrade_name.tar.gz @DAEMON_NAME@"
-			rm -rf $_workdir
-			;;
-	esac
+	local version=@FIXTURE_DAEMON_VERSION_NEW@
+	if [ $version = default ]
+	then
+		version=local
+	fi
+
+	cp @DAEMON_BINARY_DIR@/$version/bundle.tar.gz $upgrade_name.tar.gz
 }
 
 upload_bundle() {
@@ -57,7 +51,7 @@ upgrade_one_half() {
 		fi
 
 		# stop cosmovisor
-		docker exec $_container pkill cosmovisor
+		docker exec $_container sh -c "pkill cosmovisor && while [ ! -f maintenance ]; do sleep 1; done"
 		
 		# download bundle
 		docker exec $_container sh -c "cd $upgrade_dir && tar -xzf @FIXTURE_SYNCDIR@/$upgrade_name.tar.gz && cp @DAEMON_NAME@ bin/"

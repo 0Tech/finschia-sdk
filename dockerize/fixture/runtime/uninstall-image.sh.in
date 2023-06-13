@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+
+docker image rm @PROJECT_NAME@:@FIXTURE_DAEMON_VERSION@

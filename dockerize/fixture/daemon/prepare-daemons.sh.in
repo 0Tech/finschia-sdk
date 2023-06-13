@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -e
+
+local=$1
+[ -n "$local" ]
+
+versions="@FIXTURE_DAEMON_VERSION@ @FIXTURE_DAEMON_VERSION_NEW@"
+if echo $versions | tr ' ' '\n' | grep -qE '^default$'
+then
+	canonical_versions="$canonical_versions dummy local"
+fi
+
+for _version in $(echo $canonical_versions | tr ' ' '\n' | sort | uniq)
+do
+	case $_version in
+		local)
+			if [ ! -f "$local" ]
+			then
+				cmake --build @CMAKE_BINARY_DIR@ --target build_daemon
+				mkdir -p $_version
+			fi
+			cp "$local" $_version/bundle.tar.gz
+			;;
+		dummy)
+			sh -c "cd $_version && rm -f bundle.tar.gz && tar -czf bundle.tar.gz *"
+			;;
+		*)
+			if [ ! -f $_version/bundle.tar.gz ]
+			then
+				mkdir -p $_version
+				_workdir=$(mktemp -dp .)
+				# TODO: arch & os
+				curl -Lo $_workdir/bundle.tar.gz @GITHUB_URL@/releases/download/v$_version/@DAEMON_NAME@_${_version}_linux_amd64.tar.gz
+				sh -c "cd $_workdir && tar -xzf bundle.tar.gz && cd @DAEMON_NAME@_${_version}_linux_amd64 && tar -czf ../bundle.tar.gz *"
+				mv $_workdir/bundle.tar.gz $_version/
+				rm -rf $_workdir
+			fi
+			;;
+	esac
+done

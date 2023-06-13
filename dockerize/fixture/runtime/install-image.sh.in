@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+cosmovisor=$1
+[ -n "$cosmovisor" ]
+
+daemon=$2
+[ -n "$daemon" ]
+
+if [ ! -f "$cosmovisor" ]
+then
+	cmake --build @CMAKE_BINARY_DIR@ --target build_cosmovisor
+fi
+cp "$cosmovisor" binaries/cosmovisor
+
+cp "$daemon" .
+
+docker build -t @PROJECT_NAME@:@FIXTURE_DAEMON_VERSION@ .
