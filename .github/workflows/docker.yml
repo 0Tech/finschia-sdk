@@ -18,6 +18,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Create a context for buildx
+        run: docker context create buildx
+      - name: Setup docker buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: buildx
+          config-inline: |
+            [registry."docker.io"]
+              mirrors = ["${{secrets.DOCKER_MIRROR}}"]
       - name: login to the registry
         uses: docker/login-action@v2
         if: github.event_name != 'pull_request'
